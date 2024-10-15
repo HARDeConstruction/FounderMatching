@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+**How to Run Frontend Demo Locally**
 
-## Getting Started
+### Prerequisites
 
-First, run the development server:
+Before running the demo locally, ensure you have the following installed:
+- Node.js (v14.x or later)
+- npm (v6.x or later) or Yarn (v1.x or later)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Steps to Run the Demo
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Clone the Repository**
+   
+   Clone the project repository from GitHub to your local machine:
+   ```bash
+   git clone <repository-url>
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **Navigate to the Project Directory**
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+   ```bash
+   cd <project-directory>
+   ```
 
-## Learn More
+3. **Install Dependencies**
 
-To learn more about Next.js, take a look at the following resources:
+   Install all the necessary dependencies using npm or Yarn:
+   ```bash
+   npm install
+   ```
+   
+   Or, if you prefer Yarn:
+   ```bash
+   yarn install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Run the Development Server**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+   Start the development server:
+   ```bash
+   npm run dev
+   ```
+   
+   Or, if you're using Yarn:
+   ```bash
+   yarn dev
+   ```
 
-## Deploy on Vercel
+5. **Access the Application**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   Open your web browser and navigate to:
+   
+   ```
+   http://localhost:3000
+   ```
+   
+   This will display the demo application locally.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Notes
+
+- If you encounter any issues, make sure all dependencies are installed correctly.
+- For additional configurations or troubleshooting, refer to the project documentation or consult the project's issue tracker.
+

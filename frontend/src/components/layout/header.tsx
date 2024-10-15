@@ -19,7 +19,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ isSidebarOpen }) => {
   return (
     <header
-      className={`fixed top-0 right-0 transition-all duration-300 bg-white shadow-md flex items-center justify-between h-16 px-8 ${
+      className={`fixed top-0 right-0 transition-all duration-300 bg-white shadow-md flex items-center justify-between h-16 px-8 z-10 ${
         isSidebarOpen ? "ml-64" : "ml-16"
       }`}
       style={{ width: `calc(100% - ${isSidebarOpen ? "16rem" : "4rem"})` }}
