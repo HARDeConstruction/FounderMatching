@@ -1,0 +1,71 @@
+"use client";
+import { Form, FormProvider } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import formSchema from "../others/FormSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FormControl, FormField, FormItem, FormLabel } from "../ui/form";
+import { Input } from "../ui/input";
+import { Checkbox } from "../ui/checkbox";
+import { Button } from "../ui/button";
+
+function SignUpForm() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  return (
+    <FormProvider {...form}>
+      <form>
+        <FormField
+          name="email"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel />
+              <FormControl>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  className="py-5 text-xs"
+                  placeholder="email address"
+                />
+              </FormControl>
+              <FormLabel />
+              <FormControl>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  className="py-5 text-xs"
+                  placeholder="password"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        ></FormField>
+        <div className="flex flex-row justify-between mt-3 mb-6">
+          <div className="flex flex-row items-center gap-2 ">
+            <Checkbox id="checkbox" className="checked:bg-primaryBlue" />
+            <h2 className="text-sm flex flex-row ">
+              I'm agree with the {"  "}
+              <p className="text-primaryBlue"> Term & Condition</p>
+            </h2>
+          </div>
+        </div>
+        <Button
+          className="bg-primaryBlue hover:bg-blue-700 w-full"
+        >
+          Sign Up
+        </Button>
+      </form>
+    </FormProvider>
+  );
+}
+
+export default SignUpForm;
