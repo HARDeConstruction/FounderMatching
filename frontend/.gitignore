@@ -172,6 +172,7 @@ cython_debug/
 #.idea/
 
 ### NextJS ###
+
 # dependencies
 /node_modules
 /.pnp
@@ -307,3 +308,4 @@ pyrightconfig.json
 ### Vercel ###
 
 # End of https://www.toptal.com/developers/gitignore/api/django,nextjs,python,remix+vercel,vercel
+
