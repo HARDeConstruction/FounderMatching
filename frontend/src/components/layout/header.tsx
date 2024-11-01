@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
+import { SignOutButton } from "@clerk/nextjs";
 
 interface HeaderProps {
   isSidebarOpen: boolean;
@@ -43,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({ isSidebarOpen }) => {
             <DropdownMenuItem>Subscription</DropdownMenuItem>
             <DropdownMenuItem>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <SignOutButton/>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
