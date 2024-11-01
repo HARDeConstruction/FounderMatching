@@ -4,6 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import imagePath from "../../assets/signupimage.png";
 import SignUpBox from "@/components/layout/SignUpBox";
+import { SignUp } from "@clerk/nextjs";
 
 const SignUpPage = () => {
   return (
@@ -22,7 +23,7 @@ const SignUpPage = () => {
         className="flex h-full w-screen pt-10 pl-24 flex-row"
       >
         <div className="mt-12 ml-14 w-1/2">
-          <SignUpBox />
+          <SignUp routing="hash" signInUrl="/login" fallbackRedirectUrl="/dashboard"/>
         </div>
         <div className="w-1/2">
           <Image alt="image" src={imagePath} width={600} height={600} />
