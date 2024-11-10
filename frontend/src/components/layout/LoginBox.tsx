@@ -30,8 +30,7 @@ const LoginBox = () => {
       </div>
       <h2 className="text-center text-xs mt-7">or</h2>
       <LoginForm />
-      
-      
+
       <div className="flex flex-row items-center justify-center mt-5">
         <h2 className="text-sm">New Job Seeker?</h2>
         <Button onClick={toSignUp} variant="link" style={{ color: "#6836DD" }}>
