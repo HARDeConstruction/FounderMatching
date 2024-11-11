@@ -1,3 +1,6 @@
+import Image from "next/image";
+import Link from "next/link";
+
 import {
   Search,
   CircleUserRound,
@@ -21,8 +24,6 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 
-import Image from "next/image";
-
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -35,32 +36,32 @@ import {
 const items = [
   {
     title: "Dashboard",
-    url: "#dashboard",
+    url: "/dashboard",
     icon: LayoutDashboardIcon,
   },
   {
     title: "Notification",
-    url: "#notification",
+    url: "/dashboard/notification",
     icon: BellIcon,
   },
   {
     title: "Discover",
-    url: "#discover",
+    url: "/dashboard/discover",
     icon: Search,
   },
   {
     title: "Revisit Profiles",
-    url: "#revisit",
+    url: "/dashboard/revisit-profiles",
     icon: UsersRound,
   },
   {
     title: "Profile",
-    url: "#profile",
+    url: "/dashboard/profile",
     icon: CircleUserRound,
   },
   {
     title: "Settings",
-    url: "#setting",
+    url: "/dashboard/settings",
     icon: Settings,
   },
 ];
@@ -87,10 +88,10 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

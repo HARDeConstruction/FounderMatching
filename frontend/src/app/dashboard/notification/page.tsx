@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import NotificationList from "@/components/layout/NotificationList";
 import NotificationFilter from "@/components/layout/NotificationFilter";
 import {
@@ -12,18 +13,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 
 const NotificationsPage = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [filter, setFilter] = useState<"all" | "unread">("all");
-  const [currentPage, setCurrentPage] = useState(1);
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const itemsPerPage = 5;
 
   const notifications = [
@@ -153,20 +150,6 @@ const NotificationsPage = () => {
       actionText: "Accept Invite",
       isUnread: true,
     },
-    {
-      id: 19,
-      avatarUrl: "/images/avatar19.png",
-      message: "Your resume has been viewed by 3 recruiters",
-      actionText: "View Insights",
-      isUnread: false,
-    },
-    {
-      id: 20,
-      avatarUrl: "/images/avatar20.png",
-      message: "Jane Miller shared an article with you",
-      actionText: "Read Article",
-      isUnread: true,
-    },
   ];
 
   const filteredNotifications =
@@ -176,33 +159,25 @@ const NotificationsPage = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+      // Update the URL query parameter with the new page number
+      const newUrl = `${pathname}?page=${page}`;
+      router.replace(newUrl);
     }
   };
 
-  return (
-    <div className="flex-1 flex flex-col pr-4 min-h-screen">
-      <div className="p-4 border-b bg-white">
-        <Breadcrumb className="flex-1">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Home</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/components">Components</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Dashboard</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+  // Sync the current page state with the URL query parameter
+  useEffect(() => {
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    if (page !== currentPage) {
+      setCurrentPage(page);
+    }
+  }, [searchParams]);
 
+  return (
+    <>
       <div className="flex-1 mt-4">
         <h1 className="text-xl font-semibold mb-4">Notifications</h1>
         <NotificationFilter currentFilter={filter} onFilterChange={setFilter} />
@@ -260,7 +235,7 @@ const NotificationsPage = () => {
           </PaginationContent>
         </Pagination>
       </div>
-    </div>
+    </>
   );
 };
 
