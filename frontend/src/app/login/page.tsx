@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import imagePath from "../../assets/image.png";
 import SignUpBox from "@/components/layout/SignUpBox";
 import LoginBox from "@/components/layout/LoginBox";
+import { SignIn } from "@clerk/nextjs";
 
 const SignUpPage = () => {
   return (
@@ -26,7 +27,7 @@ const SignUpPage = () => {
           <Image alt="image" src={imagePath} width={600} height={600} />
         </div>
         <div className="mt-12 ml-14 w-1/2">
-          <LoginBox />
+          <SignIn routing="hash" signUpUrl="/signup" fallbackRedirectUrl="/dashboard"/>
         </div>
       </div>
     </div>
