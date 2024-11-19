@@ -24,6 +24,8 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 
+import { SignOutButton } from "@clerk/nextjs";
+
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -127,7 +129,9 @@ export function AppSidebar() {
             <DropdownMenuItem>Upgrade to Pro</DropdownMenuItem>
             <DropdownMenuItem>Account</DropdownMenuItem>
             <DropdownMenuItem>Billing</DropdownMenuItem>
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem>
+              <SignOutButton redirectUrl="/login">Log out</SignOutButton>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarFooter>
