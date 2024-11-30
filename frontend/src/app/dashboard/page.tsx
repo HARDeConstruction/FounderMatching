@@ -3,8 +3,19 @@ import React, { useState } from "react";
 import MetricCard from "@/components/layout/MetricCard";
 import ProfileGraph from "@/components/layout/ProfileGraphCard";
 import ProfileCard from "@/components/layout/ProfileCard";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const DashboardPage = () => {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+
+  // Redirect unauthenticated users
+  if (!isSignedIn) {
+    router.push("/login");
+    return null; // Render nothing while redirecting
+  }
+
   return (
     <div className="grid grid-cols-4 gap-4 my-8">
       <div className="col-span-1">
