@@ -1,21 +1,43 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MetricCard from "@/components/layout/MetricCard";
 import ProfileGraph from "@/components/layout/ProfileGraphCard";
 import ProfileCard from "@/components/layout/ProfileCard";
 import { useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import useAuthenticatedAxios from "@/hooks/useAuthenticatedAxios";
 
 const DashboardPage = () => {
-  const { isSignedIn } = useAuth();
-  const router = useRouter();
+const { makeAuthenticatedRequest } = useAuthenticatedAxios();
+  const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null); // Tracks authentication state
 
-  // Redirect unauthenticated users
-  if (!isSignedIn) {
-    router.push("/login");
-    return null; // Render nothing while redirecting
+  useEffect(() => {
+    console.log("DashboardPage mounted.");
+
+    const validateToken = async () => {
+      try {
+        const data = await makeAuthenticatedRequest(
+          "http://127.0.0.1:8000/api/protected-dashboard/",
+          "POST",
+          {}
+        );
+        console.log("Token is valid. Backend Response:", data);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error("Token validation failed:", error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    validateToken();
+  }, [makeAuthenticatedRequest]);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
   }
 
+  if (!isAuthenticated) {
+    return <div>Unauthorized. Please log in again.</div>;
+  }
   return (
     <div className="grid grid-cols-4 gap-4 my-8">
       <div className="col-span-1">
