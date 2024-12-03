@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@clerk/nextjs";
 
 // Update validation schema to include 'email'
 const formSchema = z.object({
@@ -38,8 +39,10 @@ export default function ProfileForm() {
     },
   });
 
+  const { getToken } = useAuth();
   const onSubmit = async (values: { username: string; email: string }) => {
     try {
+      const token = await getToken();
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/test/`,
         {
@@ -47,7 +50,7 @@ export default function ProfileForm() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ name: values.username, email: values.email }),
+          body: JSON.stringify({ name: values.username, email: values.email, jwt: token }),
         }
       );
 
