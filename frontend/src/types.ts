@@ -14,4 +14,5 @@ export interface StartupItem {
     team: string;
     jobDescription: string;
   }
+
   

@@ -4,7 +4,9 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import imagePath from "../../assets/signupimage.png";
 import SignUpBox from "@/components/layout/SignUpBox";
-import { SignUp } from "@clerk/nextjs";
+import { SignUp, useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const SignUpPage = () => {
   return (
@@ -23,11 +25,7 @@ const SignUpPage = () => {
         className="flex flex-row h-full w-full"
       >
         <div className="flex items-center justify-center w-1/2">
-          <SignUp
-            routing="hash"
-            signInUrl="/login"
-            fallbackRedirectUrl="/dashboard"
-          />
+          <SignUp routing="hash" signInUrl="/login" fallbackRedirectUrl="/dashboard"/>
         </div>
         <div className="flex items-center justify-center w-1/2">
           <Image alt="image" src={imagePath} width={600} height={600} />
