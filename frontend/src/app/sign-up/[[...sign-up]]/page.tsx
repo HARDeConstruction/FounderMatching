@@ -2,10 +2,11 @@ import Logo from "@/components/layout/logo";
 import Image from "next/image";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import imagePath from "../../assets/image.png";
+import imagePath from "../../assets/signupimage.png";
 import SignUpBox from "@/components/layout/SignUpBox";
-import LoginBox from "@/components/layout/LoginBox";
-import { SignIn } from "@clerk/nextjs";
+import { SignUp, useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const SignUpPage = () => {
   return (
@@ -24,10 +25,10 @@ const SignUpPage = () => {
         className="flex flex-row h-full w-full"
       >
         <div className="flex items-center justify-center w-1/2">
-          <Image alt="image" src={imagePath} width={600} height={600} />
+          <SignUp routing="hash" signInUrl="/sign-in" fallbackRedirectUrl="/dashboard"/>
         </div>
         <div className="flex items-center justify-center w-1/2">
-          <SignIn routing="hash" signUpUrl="/signup" fallbackRedirectUrl="/dashboard"/>
+          <Image alt="image" src={imagePath} width={600} height={600} />
         </div>
       </div>
     </div>

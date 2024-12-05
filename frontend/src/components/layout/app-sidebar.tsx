@@ -130,7 +130,7 @@ export function AppSidebar() {
             <DropdownMenuItem>Account</DropdownMenuItem>
             <DropdownMenuItem>Billing</DropdownMenuItem>
             <DropdownMenuItem>
-              <SignOutButton redirectUrl="/login">Log out</SignOutButton>
+              <SignOutButton redirectUrl="/sign-in">Log out</SignOutButton>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
