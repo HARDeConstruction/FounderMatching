@@ -7,7 +7,7 @@ import { useAuth } from "@clerk/nextjs";
 import useAuthenticatedAxios from "@/hooks/useAuthenticatedAxios";
 
 const DashboardPage = () => {
-const { makeAuthenticatedRequest } = useAuthenticatedAxios();
+  const { makeAuthenticatedRequest } = useAuthenticatedAxios();
   const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null); // Tracks authentication state
 
   useEffect(() => {
