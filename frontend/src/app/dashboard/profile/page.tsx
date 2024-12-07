@@ -1,22 +1,37 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import useAuthenticatedAxios from '@/hooks/useAuthenticatedAxios'; // Adjust the path based on your setup
+import { useEffect, useState } from "react";
+import useAuthenticatedAxios from "@/hooks/useAuthenticatedAxios"; // Adjust the path based on your setup
+
+interface UserInfo {
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  LinkedInID: string;
+  City: string;
+  Slogan: string;
+}
 
 const ProfilePage = () => {
   const { makeAuthenticatedRequest } = useAuthenticatedAxios();
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const data = await makeAuthenticatedRequest('/api/user', 'GET'); // Call proxy API route
+        // Use the makeAuthenticatedRequest for the GET request
+        const data = await makeAuthenticatedRequest(
+          "https://c7a2bdfa-8205-4571-a158-29ed3b1fc264.mock.pstmn.io/api/user-profile",
+          "GET"
+        );
+
+        // console.log(data);
         setUserInfo(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
         setLoading(false);
       }
     };
@@ -31,11 +46,24 @@ const ProfilePage = () => {
     <div className="p-8 max-w-lg mx-auto bg-white shadow rounded-lg">
       <h1 className="text-2xl font-bold mb-4">Profile Information</h1>
       <div className="space-y-2">
-        <p><strong>First Name:</strong> {userInfo.FirstName}</p>
-        <p><strong>Last Name:</strong> {userInfo.LastName}</p>
-        <p><strong>Email:</strong> {userInfo.Email}</p>
-        <p><strong>City:</strong> {userInfo.City || 'N/A'}</p>
-        <p><strong>Slogan:</strong> {userInfo.Slogan || 'N/A'}</p>
+        <p>
+          <strong>First Name:</strong> {userInfo?.FirstName}
+        </p>
+        <p>
+          <strong>Last Name:</strong> {userInfo?.LastName}
+        </p>
+        <p>
+          <strong>Email:</strong> {userInfo?.Email}
+        </p>
+        <p>
+          <strong>Linkedin:</strong> {userInfo?.LinkedInID}
+        </p>
+        <p>
+          <strong>City:</strong> {userInfo?.City || "N/A"}
+        </p>
+        <p>
+          <strong>Slogan:</strong> {userInfo?.Slogan || "N/A"}
+        </p>
       </div>
     </div>
   );

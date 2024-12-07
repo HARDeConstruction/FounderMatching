@@ -38,6 +38,7 @@ const DashboardPage = () => {
   if (!isAuthenticated) {
     return <div>Unauthorized. Please log in again.</div>;
   }
+
   return (
     <div className="grid grid-cols-4 gap-4 my-8">
       <div className="col-span-1">
