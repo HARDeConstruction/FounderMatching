@@ -10,6 +10,8 @@ const useAuthenticatedAxios = () => {
       try {
         const token = await getToken();
         console.log(token);
+        console.log("URL: ", url);
+
         if (!token) {
           throw new Error("Failed to retrieve the token");
         }
