@@ -10,7 +10,7 @@ export default function Home() {
       <h1>However, we just look here instead</h1>
       <div className="flex flex-col">
         <Link href="/dashboard">Here</Link>
-        <Link href="/login">Login</Link>
+        <Link href="/sign-in">Sign-in</Link>
       </div>
     </>
   );

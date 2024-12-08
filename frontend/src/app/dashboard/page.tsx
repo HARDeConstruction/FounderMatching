@@ -7,7 +7,7 @@ import { useAuth } from "@clerk/nextjs";
 import useAuthenticatedAxios from "@/hooks/useAuthenticatedAxios";
 
 const DashboardPage = () => {
-const { makeAuthenticatedRequest } = useAuthenticatedAxios();
+  const { makeAuthenticatedRequest } = useAuthenticatedAxios();
   const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null); // Tracks authentication state
 
   useEffect(() => {
@@ -38,6 +38,7 @@ const { makeAuthenticatedRequest } = useAuthenticatedAxios();
   if (!isAuthenticated) {
     return <div>Unauthorized. Please log in again.</div>;
   }
+
   return (
     <div className="grid grid-cols-4 gap-4 my-8">
       <div className="col-span-1">
