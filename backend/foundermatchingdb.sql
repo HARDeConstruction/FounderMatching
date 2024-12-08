@@ -160,6 +160,30 @@ CREATE TABLE "Certificate" (
   "GPA" float
 );
 
+CREATE TABLE "ProfileViews" (
+  "ViewID" serial PRIMARY KEY,
+  "ViewerID" integer,
+  "ViewedCandidateID" integer,
+  "ViewedStartupID" integer,
+  "ViewedAt" timestamp
+);
+
+CREATE TABLE "SavedProfiles" (
+  "SaveID" serial PRIMARY KEY,
+  "UserID" integer,
+  "SavedCandidateID" integer,
+  "SavedStartupID" integer,
+  "SavedAt" timestamp
+);
+
+CREATE TABLE "SkippedProfiles" (
+  "SkipID" serial PRIMARY KEY,
+  "UserID" integer,
+  "SkippedCandidateID" integer,
+  "SkippedStartupID" integer,
+  "SkippedAt" timestamp
+);
+
 ALTER TABLE "StartupMembership" ADD FOREIGN KEY ("StartupID") REFERENCES "StartupProfile" ("StartupID");
 
 ALTER TABLE "StartupMembership" ADD FOREIGN KEY ("UserID") REFERENCES "UserAccount" ("UserID");
@@ -181,3 +205,14 @@ ALTER TABLE "Experience" ADD FOREIGN KEY ("CandidateOwner") REFERENCES "Candidat
 ALTER TABLE "Certificate" ADD FOREIGN KEY ("CandidateOwner") REFERENCES "CandidateProfile" ("CandidateID");
 
 ALTER TABLE "TagCandidateInstances" ADD FOREIGN KEY ("CandidateOwnerID") REFERENCES "CandidateProfile" ("CandidateID");
+ALTER TABLE "ProfileViews" ADD FOREIGN KEY ("ViewerID") REFERENCES "UserAccount" ("UserID");
+ALTER TABLE "ProfileViews" ADD FOREIGN KEY ("ViewedCandidateID") REFERENCES "CandidateProfile" ("CandidateID");
+ALTER TABLE "ProfileViews" ADD FOREIGN KEY ("ViewedStartupID") REFERENCES "StartupProfile" ("StartupID");
+
+ALTER TABLE "SavedProfiles" ADD FOREIGN KEY ("UserID") REFERENCES "UserAccount" ("UserID");
+ALTER TABLE "SavedProfiles" ADD FOREIGN KEY ("SavedCandidateID") REFERENCES "CandidateProfile" ("CandidateID");
+ALTER TABLE "SavedProfiles" ADD FOREIGN KEY ("SavedStartupID") REFERENCES "StartupProfile" ("StartupID");
+
+ALTER TABLE "SkippedProfiles" ADD FOREIGN KEY ("UserID") REFERENCES "UserAccount" ("UserID");
+ALTER TABLE "SkippedProfiles" ADD FOREIGN KEY ("SkippedCandidateID") REFERENCES "CandidateProfile" ("CandidateID");
+ALTER TABLE "SkippedProfiles" ADD FOREIGN KEY ("SkippedStartupID") REFERENCES "StartupProfile" ("StartupID");

@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
+    'dashboard',
+    'discover',
+    'profiles',
     'corsheaders',
 ]
 
@@ -87,7 +90,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'foundermatchingdb',
         'USER': 'crimson',
-        'PASSWORD': '@123qaz123',  # Replace with the password you set
+        'PASSWORD': '@123qaz123',
         'HOST': 'localhost',
         'PORT': '5432',
     }
