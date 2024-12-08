@@ -36,14 +36,17 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    'django.contrib.admin',
     "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
     'rest_framework',
     'api',
+    'dashboard',
+    'discover',
+    'profiles',
     'corsheaders',
 ]
 
@@ -87,12 +90,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'foundermatchingdb',
         'USER': 'crimson',
-        'PASSWORD': '@123qaz123',  # Replace with the password you set
+        'PASSWORD': '@123qaz123',
         'HOST': 'localhost',
-        'PORT': '5432',  # Default PostgreSQL port
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
