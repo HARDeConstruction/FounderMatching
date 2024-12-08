@@ -60,6 +60,7 @@ const config: Config = {
   				'5': 'hsl(var(--chart-5))'
   			},
   			primaryBlue: '#0049FC',
+			primaryBG:'#F0F0F0',
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',
   				foreground: 'hsl(var(--sidebar-foreground))',
