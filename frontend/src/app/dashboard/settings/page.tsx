@@ -22,7 +22,7 @@ interface UserInfo {
   Slogan: string;
 }
 
-const ProfilePage = () => {
+const SettingPage = () => {
   const { makeAuthenticatedRequest } = useAuthenticatedAxios();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -199,4 +199,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default SettingPage;
