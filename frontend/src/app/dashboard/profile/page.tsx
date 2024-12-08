@@ -1,7 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import useAuthenticatedAxios from "@/hooks/useAuthenticatedAxios"; // Adjust the path based on your setup
+import { useState, useEffect } from "react";
+import useAuthenticatedAxios from "@/hooks/useAuthenticatedAxios";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface UserInfo {
   FirstName: string;
