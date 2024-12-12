@@ -16,7 +16,7 @@ const Header = () => {
   return (
     <motion.header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? "bg-white shadow-md" : "bg-sky-100"
+        isScrolled ? "bg-white shadow-md" : "bg-transparent"
       }`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -26,13 +26,13 @@ const Header = () => {
         {/* Logo */}
         <motion.div
           whileHover={{ scale: 1.1 }}
-          className="text-2xl font-bold text-blue-500 cursor-pointer"
+          className="text-2xl font-bold text-[#35426E] cursor-pointer"
         >
           FounderMatching
         </motion.div>
 
         {/* Navigation */}
-        <div className="space-x-6 text-gray-800 hidden md:flex">
+        <div className="space-x-8 text-gray-800 font-cabin hidden md:flex">
           {["Home", "Features", "How It Works", "About", "Contact"].map(
             (item, index) => (
               <motion.a
@@ -51,14 +51,14 @@ const Header = () => {
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className="hidden md:block bg-blue-500 text-white px-6 py-2 rounded-lg shadow-lg"
+            className="hidden md:block bg-[#0087C3] text-white px-6 py-2 rounded-lg shadow-lg"
           >
             Sign Up
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className="hidden md:block bg-blue-500 text-white px-6 py-2 rounded-lg shadow-lg"
+            className="hidden md:block bg-[#0087C3] text-white px-6 py-2 rounded-lg shadow-lg"
           >
             Sign In
           </motion.button>

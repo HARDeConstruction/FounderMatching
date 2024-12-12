@@ -15,13 +15,13 @@ const HeroSection = () => {
         </h1>
         <TypewriterEffectWithBackspace
             words={["Connect", "Collaborate", "Create"]}
-            className="text-blue-700"
-            cursorClassName="bg-blue-700"
+            className="text-[#2E548A]"
+            cursorClassName="bg-[#2E548A]"
             typingSpeed={100}
             backspaceSpeed={50}
             delayBetweenWords={1000}
           />
-        <p className="mt-4 text-lg text-gray-600">
+        <p className="mt-4 text-lg text-gray-600 font-cabin">
           And build your dream startup team effortlessly.
         </p>
         <div className="mt-6 space-x-4">
