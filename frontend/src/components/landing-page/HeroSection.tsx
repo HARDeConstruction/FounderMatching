@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { TypewriterEffectWithBackspace } from "@/components/ui/typewriter-effect";
 
 const HeroSection = () => {
   return (
@@ -10,10 +11,18 @@ const HeroSection = () => {
         className="text-center"
       >
         <h1 className="text-4xl font-bold text-gray-800">
-          Connect. Collaborate. Create.
+          With FounderMatching you can
         </h1>
+        <TypewriterEffectWithBackspace
+            words={["Connect", "Collaborate", "Create"]}
+            className="text-blue-700"
+            cursorClassName="bg-blue-700"
+            typingSpeed={100}
+            backspaceSpeed={50}
+            delayBetweenWords={1000}
+          />
         <p className="mt-4 text-lg text-gray-600">
-          Build your dream startup team effortlessly.
+          And build your dream startup team effortlessly.
         </p>
         <div className="mt-6 space-x-4">
           <motion.button
