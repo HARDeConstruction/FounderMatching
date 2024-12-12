@@ -4,20 +4,18 @@ CREATE TYPE match_status AS ENUM ('pending', 'accepted', 'rejected');
 
 
 CREATE TABLE "UserAccount" (
-  "UserID" serial PRIMARY KEY,
-  "ClerkUserID" uuid NOT NULL UNIQUE,
-  "Email" varchar(255) NOT NULL UNIQUE CHECK ("Email" ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+  "UserID" SERIAL PRIMARY KEY,
+  "ClerkUserID" uuid UNIQUE NOT NULL,
+  "Email" varchar(255) UNIQUE NOT NULL,
   "FirstName" varchar(50) NOT NULL,
-  "LastName" varchar(50) NOT NULL,
-  "IsCandidate" boolean NOT NULL DEFAULT false,
-  "IsStartup" boolean NOT NULL DEFAULT false
+  "LastName" varchar(50) NOT NULL
 );
 
 CREATE TABLE "PhoneNumber" (
-  "PhoneNumberID" serial PRIMARY KEY,
-  "CountryCode" varchar(5) NOT NULL CHECK ("CountryCode" ~ '^\+[0-9]{1,4}$'),
-  "AreaCode" varchar(5) NOT NULL CHECK ("AreaCode" ~ '^[0-9]{2,5}$'),
-  "Number" varchar(15) NOT NULL CHECK ("Number" ~ '^[0-9]{4,12}$')
+  "PhoneNumberID" SERIAL PRIMARY KEY,
+  "CountryCode" varchar(5) NOT NULL,
+  "AreaCode" varchar(5) NOT NULL,
+  "Number" varchar(15) NOT NULL
 );
 
 CREATE TABLE "Countries" (
@@ -28,122 +26,89 @@ CREATE TABLE "Countries" (
   "nationality" varchar(100) NOT NULL
 );
 
-CREATE TABLE "CandidateProfile" (
-  "CandidateID" serial PRIMARY KEY,
-  "UserID" integer NOT NULL REFERENCES "UserAccount" ("UserID") UNIQUE,
-  "Gender" gender_type NOT NULL,
-  "Industry" varchar(100) NOT NULL,
-  "PhoneNumberID" integer NOT NULL REFERENCES "PhoneNumber" ("PhoneNumberID") UNIQUE,
-  "CountryID" integer NOT NULL REFERENCES "Countries" ("num_code"),
-  "City" varchar(100),
-  "University" varchar(200),
-  "LinkedInURL" varchar(255) UNIQUE CHECK ("LinkedInURL" ~ '^https?:\/\/(www\.)?linkedin\.com\/.*$'),
-  "Slogan" varchar(200),
-  "WebsiteLink" varchar(255),
-  "HobbyInterest" varchar(2000),
-  "Achievement" varchar(2000)
-);
-
-CREATE TABLE "StartupProfile" (
-  "StartupID" serial PRIMARY KEY,
-  "UserOwnerID" integer NOT NULL REFERENCES "UserAccount" ("UserID") UNIQUE,
+CREATE TABLE "Profile" (
+  "ProfileID" SERIAL PRIMARY KEY,
+  "UserID" integer NOT NULL,
+  "IsStartup" bool NOT NULL DEFAULT false,
   "Name" varchar(100) NOT NULL,
-  "Email" varchar(255) NOT NULL UNIQUE CHECK ("Email" ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-  "Logo" varchar(255),
+  "Email" varchar(255) UNIQUE NOT NULL,
   "Industry" varchar(100) NOT NULL,
-  "PhoneNumberID" integer NOT NULL REFERENCES "PhoneNumber" ("PhoneNumberID") UNIQUE,
-  "CountryID" integer NOT NULL REFERENCES "Countries" ("num_code"),
+  "PhoneNumberID" integer UNIQUE,
+  "CountryID" integer NOT NULL,
   "City" varchar(100),
-  "LinkedInURL" varchar(255) UNIQUE CHECK ("LinkedInURL" ~ '^https?:\/\/(www\.)?linkedin\.com\/.*$'),
+  "LinkedInURL" varchar(255) UNIQUE,
   "Slogan" varchar(200),
   "WebsiteLink" varchar(255),
+  "Achievement" varchar(2000),
+  "Avatar" varchar(255),
   "Description" varchar(2000),
-  "CurrentStage" varchar(2000),
-  "Achievement" varchar(2000)
+  "Gender" gender_type,
+  "HobbyInterest" varchar(2000),
+  "Education" varchar(200),
+  "CurrentStage" varchar(2000)
 );
 
-CREATE TABLE "StartupProfilePrivacySettings" (
-  "StartupID" integer NOT NULL REFERENCES "StartupProfile" ("StartupID"),
+CREATE TABLE "ProfilePrivacySettings" (
+  "ProfileID" integer PRIMARY KEY NOT NULL,
+  "GenderPrivacy" privacy_type DEFAULT 'public',
   "IndustryPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "PhoneNumberIDPrivacy" privacy_type NOT NULL DEFAULT 'public',
+  "PhoneNumberIDPrivacy" privacy_type DEFAULT 'public',
   "CountryIDPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "CityPrivacy" privacy_type NOT NULL DEFAULT 'public',
+  "UniversityPrivacy" privacy_type DEFAULT 'public',
   "LinkedInURLPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "SloganPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "WebsiteLinkPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "DescriptionPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "CurrentStagePrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "AchievementPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "ViewGraphPrivacy" privacy_type NOT NULL DEFAULT 'public'
-);
-
-CREATE TABLE "CandidateProfilePrivacySettings" (
-  "CandidateID" integer NOT NULL REFERENCES "CandidateProfile" ("CandidateID"),
-  "GenderPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "IndustryPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "PhoneNumberIDPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "CountryIDPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "CityPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "UniversityPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "LinkedInURLPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "SloganPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "EducationPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "ExperiencePrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "HobbyInterestPrivacy" privacy_type NOT NULL DEFAULT 'public',
+  "CertificatePrivacy" privacy_type DEFAULT 'public',
+  "ExperiencePrivacy" privacy_type DEFAULT 'public',
+  "HobbyInterestPrivacy" privacy_type DEFAULT 'public',
   "ViewGraphPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "AchievementPrivacy" privacy_type NOT NULL DEFAULT 'public'
 );
 
 CREATE TABLE "StartupMembership" (
-  "ID" integer PRIMARY KEY,
-  "StartupID" integer NOT NULL,
+  "ID" SERIAL PRIMARY KEY,
+  "StartupProfileID" integer NOT NULL,
   "UserID" integer NOT NULL,
   "Role" varchar(100) NOT NULL,
   "Description" varchar(2000)
 );
 
 CREATE TABLE "Matching" (
-  "ID" serial PRIMARY KEY,
-  "CandidateID" integer NOT NULL,
-  "StartupID" integer NOT NULL,
+  "ID" SERIAL PRIMARY KEY,
+  "CandidateProfileID" integer NOT NULL,
+  "StartupProfileID" integer NOT NULL,
   "CandidateStatus" match_status NOT NULL DEFAULT 'pending',
   "StartupStatus" match_status NOT NULL DEFAULT 'pending',
   "IsMatched" boolean NOT NULL DEFAULT false,
-  "MatchDate" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "MatchDate" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   "CandidateNotification" integer,
   "StartupNotification" integer
 );
 
 CREATE TABLE "Notification" (
-  "ID" serial PRIMARY KEY,
+  "ID" SERIAL PRIMARY KEY,
   "Recipient" integer NOT NULL,
   "Data" varchar(2000),
   "Read" boolean NOT NULL DEFAULT false,
-  "CreatedDateTime" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "CreatedDateTime" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   "IsStartupNotified" boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE "Tags" (
-  "ID" serial PRIMARY KEY,
+  "ID" SERIAL PRIMARY KEY,
   "Value" varchar(50) NOT NULL,
-  "Description" varchar(2000)
+  "Description" varchar(500)
 );
 
-CREATE TABLE "TagCandidateInstances" (
-  "CandidateOwnerID" integer NOT NULL,
+CREATE TABLE "ProfileTagInstances" (
+  "ProfileOwnerID" integer NOT NULL,
   "TagID" integer NOT NULL,
-  PRIMARY KEY ("CandidateOwnerID", "TagID")
-);
-
-CREATE TABLE "TagStartupInstances" (
-  "StartupOwnerID" integer NOT NULL,
-  "TagID" integer NOT NULL,
-  PRIMARY KEY ("StartupOwnerID", "TagID")
+  PRIMARY KEY ("ProfileOwnerID", "TagID")
 );
 
 CREATE TABLE "Experience" (
-  "ID" serial PRIMARY KEY,
-  "CandidateOwner" integer NOT NULL,
+  "ExperienceID" SERIAL PRIMARY KEY,
+  "ProfileOwner" integer NOT NULL,
   "CompanyName" varchar(100) NOT NULL,
   "Role" varchar(100),
   "Location" varchar(100),
@@ -152,80 +117,110 @@ CREATE TABLE "Experience" (
   "EndDate" timestamp
 );
 
+CREATE TABLE "ExperienceTagInstances" (
+  "ExperienceID" integer NOT NULL,
+  "TagID" integer NOT NULL,
+  PRIMARY KEY ("ExperienceID", "TagID")
+);
+
 CREATE TABLE "Certificate" (
-  "ID" serial PRIMARY KEY,
-  "CandidateOwner" integer NOT NULL,
+  "CertificateID" SERIAL PRIMARY KEY,
+  "ProfileOwner" integer NOT NULL,
   "Name" varchar(200) NOT NULL,
   "Skill" varchar(100),
   "Description" varchar(2000),
   "StartDate" timestamp,
   "EndDate" timestamp,
-  "GPA" float CHECK ("GPA" >= 0.0 AND "GPA" <= 4.0)
+  "GPA" float
+);
+
+CREATE TABLE "CertificateTagInstances" (
+  "CertificateID" integer NOT NULL,
+  "TagID" integer NOT NULL,
+  PRIMARY KEY ("CertificateID", "TagID")
+);
+
+CREATE TABLE "Achievement" (
+  "AchievementID" SERIAL PRIMARY KEY,
+  "ProfileOwner" integer NOT NULL,
+  "Name" varchar(200) NOT NULL,
+  "Description" varchar(2000),
+  "Date" timestamp
+);
+
+CREATE TABLE "AchievementTagInstances" (
+  "AchievementID" integer NOT NULL,
+  "TagID" integer NOT NULL,
+  PRIMARY KEY ("AchievementID", "TagID")
 );
 
 CREATE TABLE "ProfileViews" (
-  "ViewID" serial PRIMARY KEY,
-  "ViewerID" integer NOT NULL,
-  "ViewedCandidateID" integer,
-  "ViewedStartupID" integer,
-  "ViewedAt" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT "one_viewed_profile" CHECK (
-    (("ViewedCandidateID" IS NOT NULL)::integer + 
-     ("ViewedStartupID" IS NOT NULL)::integer) = 1
-  ),
-  FOREIGN KEY ("ViewerID") REFERENCES "UserAccount" ("UserID"),
-  FOREIGN KEY ("ViewedCandidateID") REFERENCES "CandidateProfile" ("CandidateID"),
-  FOREIGN KEY ("ViewedStartupID") REFERENCES "StartupProfile" ("StartupID")
+  "ViewID" SERIAL PRIMARY KEY,
+  "FromProfileID" integer,
+  "ToProfileID" integer,
+  "ViewedAt" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE "SavedProfiles" (
-  "SaveID" serial PRIMARY KEY,
-  "UserID" integer NOT NULL,
-  "SavedCandidateID" integer,
-  "SavedStartupID" integer,
-  "SavedAt" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT "one_saved_profile" CHECK (
-    (("SavedCandidateID" IS NOT NULL)::integer + 
-     ("SavedStartupID" IS NOT NULL)::integer) = 1
-  ),
-  FOREIGN KEY ("UserID") REFERENCES "UserAccount" ("UserID"),
-  FOREIGN KEY ("SavedCandidateID") REFERENCES "CandidateProfile" ("CandidateID"),
-  FOREIGN KEY ("SavedStartupID") REFERENCES "StartupProfile" ("StartupID")
+  "SaveID" SERIAL PRIMARY KEY,
+  "SavedFromProfileID" integer NOT NULL,
+  "SavedToProfileID" integer NOT NULL,
+  "SavedAt" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE "SkippedProfiles" (
-  "SkipID" serial PRIMARY KEY,
-  "UserID" integer NOT NULL,
-  "SkippedCandidateID" integer,
-  "SkippedStartupID" integer,
-  "SkippedAt" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT "one_skipped_profile" CHECK (
-    (("SkippedCandidateID" IS NOT NULL)::integer + 
-     ("SkippedStartupID" IS NOT NULL)::integer) = 1
-  ),
-  FOREIGN KEY ("UserID") REFERENCES "UserAccount" ("UserID"),
-  FOREIGN KEY ("SkippedCandidateID") REFERENCES "CandidateProfile" ("CandidateID"),
-  FOREIGN KEY ("SkippedStartupID") REFERENCES "StartupProfile" ("StartupID")
+  "SkipID" SERIAL PRIMARY KEY,
+  "SkippedFromProfileID" integer NOT NULL,
+  "SkippedToProfileID" integer NOT NULL,
+  "SkippedAt" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
-ALTER TABLE "StartupMembership" ADD FOREIGN KEY ("StartupID") REFERENCES "StartupProfile" ("StartupID");
+ALTER TABLE "Profile" ADD FOREIGN KEY ("UserID") REFERENCES "UserAccount" ("UserID");
+
+ALTER TABLE "Profile" ADD FOREIGN KEY ("PhoneNumberID") REFERENCES "PhoneNumber" ("PhoneNumberID");
+
+ALTER TABLE "StartupMembership" ADD FOREIGN KEY ("StartupProfileID") REFERENCES "Profile" ("ProfileID");
+
+ALTER TABLE "Profile" ADD FOREIGN KEY ("CountryID") REFERENCES "Countries" ("num_code");
+
+ALTER TABLE "ProfilePrivacySettings" ADD FOREIGN KEY ("ProfileID") REFERENCES "Profile" ("ProfileID");
+
+ALTER TABLE "ProfileViews" ADD FOREIGN KEY ("FromProfileID") REFERENCES "Profile" ("ProfileID");
+
+ALTER TABLE "ProfileViews" ADD FOREIGN KEY ("ToProfileID") REFERENCES "Profile" ("ProfileID");
+
+ALTER TABLE "SavedProfiles" ADD FOREIGN KEY ("SavedFromProfileID") REFERENCES "Profile" ("ProfileID");
+
+ALTER TABLE "SavedProfiles" ADD FOREIGN KEY ("SavedToProfileID") REFERENCES "Profile" ("ProfileID");
+
+ALTER TABLE "SkippedProfiles" ADD FOREIGN KEY ("SkippedFromProfileID") REFERENCES "Profile" ("ProfileID");
+
+ALTER TABLE "SkippedProfiles" ADD FOREIGN KEY ("SkippedToProfileID") REFERENCES "Profile" ("ProfileID");
 
 ALTER TABLE "StartupMembership" ADD FOREIGN KEY ("UserID") REFERENCES "UserAccount" ("UserID");
 
-ALTER TABLE "Matching" ADD FOREIGN KEY ("CandidateID") REFERENCES "CandidateProfile" ("CandidateID");
+ALTER TABLE "Matching" ADD FOREIGN KEY ("CandidateProfileID") REFERENCES "Profile" ("ProfileID");
 
-ALTER TABLE "Matching" ADD FOREIGN KEY ("StartupID") REFERENCES "StartupProfile" ("StartupID");
+ALTER TABLE "Matching" ADD FOREIGN KEY ("StartupProfileID") REFERENCES "Profile" ("ProfileID");
 
 ALTER TABLE "Notification" ADD FOREIGN KEY ("Recipient") REFERENCES "UserAccount" ("UserID");
 
-ALTER TABLE "TagCandidateInstances" ADD FOREIGN KEY ("TagID") REFERENCES "Tags" ("ID");
+ALTER TABLE "ProfileTagInstances" ADD FOREIGN KEY ("TagID") REFERENCES "Tags" ("ID");
 
-ALTER TABLE "TagStartupInstances" ADD FOREIGN KEY ("StartupOwnerID") REFERENCES "StartupProfile" ("StartupID");
+ALTER TABLE "ProfileTagInstances" ADD FOREIGN KEY ("ProfileOwnerID") REFERENCES "Profile" ("ProfileID");
 
-ALTER TABLE "TagStartupInstances" ADD FOREIGN KEY ("TagID") REFERENCES "Tags" ("ID");
+ALTER TABLE "ExperienceTagInstances" ADD FOREIGN KEY ("TagID") REFERENCES "Tags" ("ID");
 
-ALTER TABLE "Experience" ADD FOREIGN KEY ("CandidateOwner") REFERENCES "CandidateProfile" ("CandidateID");
+ALTER TABLE "ExperienceTagInstances" ADD FOREIGN KEY ("ExperienceID") REFERENCES "Experience" ("ExperienceID");
 
-ALTER TABLE "Certificate" ADD FOREIGN KEY ("CandidateOwner") REFERENCES "CandidateProfile" ("CandidateID");
+ALTER TABLE "CertificateTagInstances" ADD FOREIGN KEY ("TagID") REFERENCES "Tags" ("ID");
 
-ALTER TABLE "TagCandidateInstances" ADD FOREIGN KEY ("CandidateOwnerID") REFERENCES "CandidateProfile" ("CandidateID");
+ALTER TABLE "CertificateTagInstances" ADD FOREIGN KEY ("CertificateID") REFERENCES "Certificate" ("CertificateID");
+
+ALTER TABLE "AchievementTagInstances" ADD FOREIGN KEY ("TagID") REFERENCES "Tags" ("ID");
+
+ALTER TABLE "AchievementTagInstances" ADD FOREIGN KEY ("AchievementID") REFERENCES "Achievement" ("AchievementID");
+
+ALTER TABLE "Experience" ADD FOREIGN KEY ("ProfileOwner") REFERENCES "Profile" ("ProfileID");
+
+ALTER TABLE "Certificate" ADD FOREIGN KEY ("ProfileOwner") REFERENCES "Profile" ("ProfileID");

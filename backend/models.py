@@ -8,50 +8,31 @@
 from django.db import models
 
 
-class Candidateprofile(models.Model):
-    candidateid = models.AutoField(db_column='CandidateID', primary_key=True)  # Field name made lowercase.
-    userid = models.OneToOneField('Useraccount', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
-    gender = models.TextField(db_column='Gender')  # Field name made lowercase. This field type is a guess.
-    industry = models.CharField(db_column='Industry', max_length=100)  # Field name made lowercase.
-    phonenumberid = models.OneToOneField('Phonenumber', models.DO_NOTHING, db_column='PhoneNumberID')  # Field name made lowercase.
-    countryid = models.ForeignKey('Countries', models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
-    city = models.CharField(db_column='City', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    university = models.CharField(db_column='University', max_length=200, blank=True, null=True)  # Field name made lowercase.
-    linkedinurl = models.CharField(db_column='LinkedInURL', unique=True, max_length=255, blank=True, null=True)  # Field name made lowercase.
-    slogan = models.CharField(db_column='Slogan', max_length=200, blank=True, null=True)  # Field name made lowercase.
-    websitelink = models.CharField(db_column='WebsiteLink', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    hobbyinterest = models.CharField(db_column='HobbyInterest', max_length=2000, blank=True, null=True)  # Field name made lowercase.
-    achievement = models.CharField(db_column='Achievement', max_length=2000, blank=True, null=True)  # Field name made lowercase.
+class Achievement(models.Model):
+    achievementid = models.AutoField(db_column='AchievementID', primary_key=True)  # Field name made lowercase.
+    profileowner = models.IntegerField(db_column='ProfileOwner')  # Field name made lowercase.
+    name = models.CharField(db_column='Name', max_length=200)  # Field name made lowercase.
+    description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)  # Field name made lowercase.
+    date = models.DateTimeField(db_column='Date', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
-        db_table = 'CandidateProfile'
+        db_table = 'Achievement'
 
 
-class Candidateprofileprivacysettings(models.Model):
-    candidateid = models.ForeignKey(Candidateprofile, models.DO_NOTHING, db_column='CandidateID')  # Field name made lowercase.
-    genderprivacy = models.TextField(db_column='GenderPrivacy')  # Field name made lowercase. This field type is a guess.
-    industryprivacy = models.TextField(db_column='IndustryPrivacy')  # Field name made lowercase. This field type is a guess.
-    phonenumberidprivacy = models.TextField(db_column='PhoneNumberIDPrivacy')  # Field name made lowercase. This field type is a guess.
-    countryidprivacy = models.TextField(db_column='CountryIDPrivacy')  # Field name made lowercase. This field type is a guess.
-    cityprivacy = models.TextField(db_column='CityPrivacy')  # Field name made lowercase. This field type is a guess.
-    universityprivacy = models.TextField(db_column='UniversityPrivacy')  # Field name made lowercase. This field type is a guess.
-    linkedinurlprivacy = models.TextField(db_column='LinkedInURLPrivacy')  # Field name made lowercase. This field type is a guess.
-    sloganprivacy = models.TextField(db_column='SloganPrivacy')  # Field name made lowercase. This field type is a guess.
-    educationprivacy = models.TextField(db_column='EducationPrivacy')  # Field name made lowercase. This field type is a guess.
-    experienceprivacy = models.TextField(db_column='ExperiencePrivacy')  # Field name made lowercase. This field type is a guess.
-    hobbyinterestprivacy = models.TextField(db_column='HobbyInterestPrivacy')  # Field name made lowercase. This field type is a guess.
-    viewgraphprivacy = models.TextField(db_column='ViewGraphPrivacy')  # Field name made lowercase. This field type is a guess.
-    achievementprivacy = models.TextField(db_column='AchievementPrivacy')  # Field name made lowercase. This field type is a guess.
+class Achievementtaginstances(models.Model):
+    achievementid = models.OneToOneField(Achievement, models.DO_NOTHING, db_column='AchievementID', primary_key=True)  # Field name made lowercase. The composite primary key (AchievementID, TagID) found, that is not supported. The first column is selected.
+    tagid = models.ForeignKey('Tags', models.DO_NOTHING, db_column='TagID')  # Field name made lowercase.
 
     class Meta:
         managed = False
-        db_table = 'CandidateProfilePrivacySettings'
+        db_table = 'AchievementTagInstances'
+        unique_together = (('achievementid', 'tagid'),)
 
 
 class Certificate(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    candidateowner = models.ForeignKey(Candidateprofile, models.DO_NOTHING, db_column='CandidateOwner')  # Field name made lowercase.
+    certificateid = models.AutoField(db_column='CertificateID', primary_key=True)  # Field name made lowercase.
+    profileowner = models.ForeignKey('Profile', models.DO_NOTHING, db_column='ProfileOwner')  # Field name made lowercase.
     name = models.CharField(db_column='Name', max_length=200)  # Field name made lowercase.
     skill = models.CharField(db_column='Skill', max_length=100, blank=True, null=True)  # Field name made lowercase.
     description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)  # Field name made lowercase.
@@ -62,6 +43,16 @@ class Certificate(models.Model):
     class Meta:
         managed = False
         db_table = 'Certificate'
+
+
+class Certificatetaginstances(models.Model):
+    certificateid = models.OneToOneField(Certificate, models.DO_NOTHING, db_column='CertificateID', primary_key=True)  # Field name made lowercase. The composite primary key (CertificateID, TagID) found, that is not supported. The first column is selected.
+    tagid = models.ForeignKey('Tags', models.DO_NOTHING, db_column='TagID')  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'CertificateTagInstances'
+        unique_together = (('certificateid', 'tagid'),)
 
 
 class Countries(models.Model):
@@ -77,8 +68,8 @@ class Countries(models.Model):
 
 
 class Experience(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    candidateowner = models.ForeignKey(Candidateprofile, models.DO_NOTHING, db_column='CandidateOwner')  # Field name made lowercase.
+    experienceid = models.AutoField(db_column='ExperienceID', primary_key=True)  # Field name made lowercase.
+    profileowner = models.ForeignKey('Profile', models.DO_NOTHING, db_column='ProfileOwner')  # Field name made lowercase.
     companyname = models.CharField(db_column='CompanyName', max_length=100)  # Field name made lowercase.
     role = models.CharField(db_column='Role', max_length=100, blank=True, null=True)  # Field name made lowercase.
     location = models.CharField(db_column='Location', max_length=100, blank=True, null=True)  # Field name made lowercase.
@@ -91,10 +82,20 @@ class Experience(models.Model):
         db_table = 'Experience'
 
 
+class Experiencetaginstances(models.Model):
+    experienceid = models.OneToOneField(Experience, models.DO_NOTHING, db_column='ExperienceID', primary_key=True)  # Field name made lowercase. The composite primary key (ExperienceID, TagID) found, that is not supported. The first column is selected.
+    tagid = models.ForeignKey('Tags', models.DO_NOTHING, db_column='TagID')  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'ExperienceTagInstances'
+        unique_together = (('experienceid', 'tagid'),)
+
+
 class Matching(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    candidateid = models.ForeignKey(Candidateprofile, models.DO_NOTHING, db_column='CandidateID')  # Field name made lowercase.
-    startupid = models.ForeignKey('Startupprofile', models.DO_NOTHING, db_column='StartupID')  # Field name made lowercase.
+    candidateprofileid = models.ForeignKey('Profile', models.DO_NOTHING, db_column='CandidateProfileID')  # Field name made lowercase.
+    startupprofileid = models.ForeignKey('Profile', models.DO_NOTHING, db_column='StartupProfileID', related_name='matching_startupprofileid_set')  # Field name made lowercase.
     candidatestatus = models.TextField(db_column='CandidateStatus')  # Field name made lowercase. This field type is a guess.
     startupstatus = models.TextField(db_column='StartupStatus')  # Field name made lowercase. This field type is a guess.
     ismatched = models.BooleanField(db_column='IsMatched')  # Field name made lowercase.
@@ -131,11 +132,67 @@ class Phonenumber(models.Model):
         db_table = 'PhoneNumber'
 
 
+class Profile(models.Model):
+    profileid = models.AutoField(db_column='ProfileID', primary_key=True)  # Field name made lowercase.
+    userid = models.ForeignKey('Useraccount', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    isstartup = models.BooleanField(db_column='IsStartup')  # Field name made lowercase.
+    name = models.CharField(db_column='Name', max_length=100)  # Field name made lowercase.
+    email = models.CharField(db_column='Email', unique=True, max_length=255)  # Field name made lowercase.
+    industry = models.CharField(db_column='Industry', max_length=100)  # Field name made lowercase.
+    phonenumberid = models.OneToOneField(Phonenumber, models.DO_NOTHING, db_column='PhoneNumberID', blank=True, null=True)  # Field name made lowercase.
+    countryid = models.ForeignKey(Countries, models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
+    city = models.CharField(db_column='City', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    linkedinurl = models.CharField(db_column='LinkedInURL', unique=True, max_length=255, blank=True, null=True)  # Field name made lowercase.
+    slogan = models.CharField(db_column='Slogan', max_length=200, blank=True, null=True)  # Field name made lowercase.
+    websitelink = models.CharField(db_column='WebsiteLink', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    achievement = models.CharField(db_column='Achievement', max_length=2000, blank=True, null=True)  # Field name made lowercase.
+    avatar = models.CharField(db_column='Avatar', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)  # Field name made lowercase.
+    gender = models.TextField(db_column='Gender', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    hobbyinterest = models.CharField(db_column='HobbyInterest', max_length=2000, blank=True, null=True)  # Field name made lowercase.
+    education = models.CharField(db_column='Education', max_length=200, blank=True, null=True)  # Field name made lowercase.
+    currentstage = models.CharField(db_column='CurrentStage', max_length=2000, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'Profile'
+
+
+class Profileprivacysettings(models.Model):
+    profileid = models.OneToOneField(Profile, models.DO_NOTHING, db_column='ProfileID', primary_key=True)  # Field name made lowercase.
+    genderprivacy = models.TextField(db_column='GenderPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    industryprivacy = models.TextField(db_column='IndustryPrivacy')  # Field name made lowercase. This field type is a guess.
+    phonenumberidprivacy = models.TextField(db_column='PhoneNumberIDPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    countryidprivacy = models.TextField(db_column='CountryIDPrivacy')  # Field name made lowercase. This field type is a guess.
+    cityprivacy = models.TextField(db_column='CityPrivacy')  # Field name made lowercase. This field type is a guess.
+    universityprivacy = models.TextField(db_column='UniversityPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    linkedinurlprivacy = models.TextField(db_column='LinkedInURLPrivacy')  # Field name made lowercase. This field type is a guess.
+    sloganprivacy = models.TextField(db_column='SloganPrivacy')  # Field name made lowercase. This field type is a guess.
+    certificateprivacy = models.TextField(db_column='CertificatePrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    experienceprivacy = models.TextField(db_column='ExperiencePrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    hobbyinterestprivacy = models.TextField(db_column='HobbyInterestPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    viewgraphprivacy = models.TextField(db_column='ViewGraphPrivacy')  # Field name made lowercase. This field type is a guess.
+    achievementprivacy = models.TextField(db_column='AchievementPrivacy')  # Field name made lowercase. This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'ProfilePrivacySettings'
+
+
+class Profiletaginstances(models.Model):
+    profileownerid = models.OneToOneField(Profile, models.DO_NOTHING, db_column='ProfileOwnerID', primary_key=True)  # Field name made lowercase. The composite primary key (ProfileOwnerID, TagID) found, that is not supported. The first column is selected.
+    tagid = models.ForeignKey('Tags', models.DO_NOTHING, db_column='TagID')  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'ProfileTagInstances'
+        unique_together = (('profileownerid', 'tagid'),)
+
+
 class Profileviews(models.Model):
     viewid = models.AutoField(db_column='ViewID', primary_key=True)  # Field name made lowercase.
-    viewerid = models.ForeignKey('Useraccount', models.DO_NOTHING, db_column='ViewerID')  # Field name made lowercase.
-    viewedcandidateid = models.ForeignKey(Candidateprofile, models.DO_NOTHING, db_column='ViewedCandidateID', blank=True, null=True)  # Field name made lowercase.
-    viewedstartupid = models.ForeignKey('Startupprofile', models.DO_NOTHING, db_column='ViewedStartupID', blank=True, null=True)  # Field name made lowercase.
+    fromprofileid = models.ForeignKey(Profile, models.DO_NOTHING, db_column='FromProfileID', blank=True, null=True)  # Field name made lowercase.
+    toprofileid = models.ForeignKey(Profile, models.DO_NOTHING, db_column='ToProfileID', related_name='profileviews_toprofileid_set', blank=True, null=True)  # Field name made lowercase.
     viewedat = models.DateTimeField(db_column='ViewedAt')  # Field name made lowercase.
 
     class Meta:
@@ -145,9 +202,8 @@ class Profileviews(models.Model):
 
 class Savedprofiles(models.Model):
     saveid = models.AutoField(db_column='SaveID', primary_key=True)  # Field name made lowercase.
-    userid = models.ForeignKey('Useraccount', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
-    savedcandidateid = models.ForeignKey(Candidateprofile, models.DO_NOTHING, db_column='SavedCandidateID', blank=True, null=True)  # Field name made lowercase.
-    savedstartupid = models.ForeignKey('Startupprofile', models.DO_NOTHING, db_column='SavedStartupID', blank=True, null=True)  # Field name made lowercase.
+    savedfromprofileid = models.ForeignKey(Profile, models.DO_NOTHING, db_column='SavedFromProfileID')  # Field name made lowercase.
+    savedtoprofileid = models.ForeignKey(Profile, models.DO_NOTHING, db_column='SavedToProfileID', related_name='savedprofiles_savedtoprofileid_set')  # Field name made lowercase.
     savedat = models.DateTimeField(db_column='SavedAt')  # Field name made lowercase.
 
     class Meta:
@@ -157,9 +213,8 @@ class Savedprofiles(models.Model):
 
 class Skippedprofiles(models.Model):
     skipid = models.AutoField(db_column='SkipID', primary_key=True)  # Field name made lowercase.
-    userid = models.ForeignKey('Useraccount', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
-    skippedcandidateid = models.ForeignKey(Candidateprofile, models.DO_NOTHING, db_column='SkippedCandidateID', blank=True, null=True)  # Field name made lowercase.
-    skippedstartupid = models.ForeignKey('Startupprofile', models.DO_NOTHING, db_column='SkippedStartupID', blank=True, null=True)  # Field name made lowercase.
+    skippedfromprofileid = models.ForeignKey(Profile, models.DO_NOTHING, db_column='SkippedFromProfileID')  # Field name made lowercase.
+    skippedtoprofileid = models.ForeignKey(Profile, models.DO_NOTHING, db_column='SkippedToProfileID', related_name='skippedprofiles_skippedtoprofileid_set')  # Field name made lowercase.
     skippedat = models.DateTimeField(db_column='SkippedAt')  # Field name made lowercase.
 
     class Meta:
@@ -168,8 +223,8 @@ class Skippedprofiles(models.Model):
 
 
 class Startupmembership(models.Model):
-    id = models.IntegerField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    startupid = models.ForeignKey('Startupprofile', models.DO_NOTHING, db_column='StartupID')  # Field name made lowercase.
+    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
+    startupprofileid = models.ForeignKey(Profile, models.DO_NOTHING, db_column='StartupProfileID')  # Field name made lowercase.
     userid = models.ForeignKey('Useraccount', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
     role = models.CharField(db_column='Role', max_length=100)  # Field name made lowercase.
     description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)  # Field name made lowercase.
@@ -179,71 +234,10 @@ class Startupmembership(models.Model):
         db_table = 'StartupMembership'
 
 
-class Startupprofile(models.Model):
-    startupid = models.AutoField(db_column='StartupID', primary_key=True)  # Field name made lowercase.
-    userownerid = models.OneToOneField('Useraccount', models.DO_NOTHING, db_column='UserOwnerID')  # Field name made lowercase.
-    name = models.CharField(db_column='Name', max_length=100)  # Field name made lowercase.
-    email = models.CharField(db_column='Email', unique=True, max_length=255)  # Field name made lowercase.
-    logo = models.CharField(db_column='Logo', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    industry = models.CharField(db_column='Industry', max_length=100)  # Field name made lowercase.
-    phonenumberid = models.OneToOneField(Phonenumber, models.DO_NOTHING, db_column='PhoneNumberID')  # Field name made lowercase.
-    countryid = models.ForeignKey(Countries, models.DO_NOTHING, db_column='CountryID')  # Field name made lowercase.
-    city = models.CharField(db_column='City', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    linkedinurl = models.CharField(db_column='LinkedInURL', unique=True, max_length=255, blank=True, null=True)  # Field name made lowercase.
-    slogan = models.CharField(db_column='Slogan', max_length=200, blank=True, null=True)  # Field name made lowercase.
-    websitelink = models.CharField(db_column='WebsiteLink', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)  # Field name made lowercase.
-    currentstage = models.CharField(db_column='CurrentStage', max_length=2000, blank=True, null=True)  # Field name made lowercase.
-    achievement = models.CharField(db_column='Achievement', max_length=2000, blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'StartupProfile'
-
-
-class Startupprofileprivacysettings(models.Model):
-    startupid = models.ForeignKey(Startupprofile, models.DO_NOTHING, db_column='StartupID')  # Field name made lowercase.
-    industryprivacy = models.TextField(db_column='IndustryPrivacy')  # Field name made lowercase. This field type is a guess.
-    phonenumberidprivacy = models.TextField(db_column='PhoneNumberIDPrivacy')  # Field name made lowercase. This field type is a guess.
-    countryidprivacy = models.TextField(db_column='CountryIDPrivacy')  # Field name made lowercase. This field type is a guess.
-    cityprivacy = models.TextField(db_column='CityPrivacy')  # Field name made lowercase. This field type is a guess.
-    linkedinurlprivacy = models.TextField(db_column='LinkedInURLPrivacy')  # Field name made lowercase. This field type is a guess.
-    sloganprivacy = models.TextField(db_column='SloganPrivacy')  # Field name made lowercase. This field type is a guess.
-    websitelinkprivacy = models.TextField(db_column='WebsiteLinkPrivacy')  # Field name made lowercase. This field type is a guess.
-    descriptionprivacy = models.TextField(db_column='DescriptionPrivacy')  # Field name made lowercase. This field type is a guess.
-    currentstageprivacy = models.TextField(db_column='CurrentStagePrivacy')  # Field name made lowercase. This field type is a guess.
-    achievementprivacy = models.TextField(db_column='AchievementPrivacy')  # Field name made lowercase. This field type is a guess.
-    viewgraphprivacy = models.TextField(db_column='ViewGraphPrivacy')  # Field name made lowercase. This field type is a guess.
-
-    class Meta:
-        managed = False
-        db_table = 'StartupProfilePrivacySettings'
-
-
-class Tagcandidateinstances(models.Model):
-    candidateownerid = models.OneToOneField(Candidateprofile, models.DO_NOTHING, db_column='CandidateOwnerID', primary_key=True)  # Field name made lowercase. The composite primary key (CandidateOwnerID, TagID) found, that is not supported. The first column is selected.
-    tagid = models.ForeignKey('Tags', models.DO_NOTHING, db_column='TagID')  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'TagCandidateInstances'
-        unique_together = (('candidateownerid', 'tagid'),)
-
-
-class Tagstartupinstances(models.Model):
-    startupownerid = models.OneToOneField(Startupprofile, models.DO_NOTHING, db_column='StartupOwnerID', primary_key=True)  # Field name made lowercase. The composite primary key (StartupOwnerID, TagID) found, that is not supported. The first column is selected.
-    tagid = models.ForeignKey('Tags', models.DO_NOTHING, db_column='TagID')  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'TagStartupInstances'
-        unique_together = (('startupownerid', 'tagid'),)
-
-
 class Tags(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
     value = models.CharField(db_column='Value', max_length=50)  # Field name made lowercase.
-    description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)  # Field name made lowercase.
+    description = models.CharField(db_column='Description', max_length=500, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
@@ -256,8 +250,6 @@ class Useraccount(models.Model):
     email = models.CharField(db_column='Email', unique=True, max_length=255)  # Field name made lowercase.
     firstname = models.CharField(db_column='FirstName', max_length=50)  # Field name made lowercase.
     lastname = models.CharField(db_column='LastName', max_length=50)  # Field name made lowercase.
-    iscandidate = models.BooleanField(db_column='IsCandidate')  # Field name made lowercase.
-    isstartup = models.BooleanField(db_column='IsStartup')  # Field name made lowercase.
 
     class Meta:
         managed = False
