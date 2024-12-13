@@ -57,7 +57,7 @@ export const TypewriterEffectWithBackspace = ({
   return (
     <div
       className={cn(
-        "text-base sm:text-xl md:text-3xl lg:text-5xl font-bold text-center",
+        "text-base md:text-4xl lg:text-6xl font-bold text-center",
         className
       )}
     >
@@ -75,7 +75,7 @@ export const TypewriterEffectWithBackspace = ({
           repeatType: "reverse",
         }}
         className={cn(
-          "inline-block rounded-sm w-[4px] h-5 md:h-6 lg:h-11 bg-blue-500 translate-y-1",
+          "inline-block rounded-sm w-[4px] h-5 md:h-6 lg:h-14 bg-blue-500 translate-y-1",
           cursorClassName
         )}
       ></motion.span>

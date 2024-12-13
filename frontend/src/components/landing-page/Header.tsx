@@ -38,15 +38,15 @@ const Header = () => {
               <motion.a
                 key={index}
                 href={`#${item.toLowerCase().replace(/ /g, "-")}`}
-                className="text-lg cursor-pointer transition-colors duration-300 hover:text-blue-500"
+                className="text-lg cursor-pointer transition-colors duration-300 hover:text-[#0087C3]"
               >
                 {item}
               </motion.a>
             )
           )}
         </div>
-        
-         {/* CTA Button */}
+
+        {/* CTA Button */}
         <div className="flex flex-row space-x-4 ml-auto">
           <motion.button
             whileHover={{ scale: 1.1 }}
