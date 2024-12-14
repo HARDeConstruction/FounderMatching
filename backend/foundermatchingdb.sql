@@ -1,11 +1,24 @@
-CREATE TYPE gender_type AS ENUM ('male', 'female', 'other');
-CREATE TYPE privacy_type AS ENUM ('public', 'private', 'connections');
-CREATE TYPE match_status AS ENUM ('pending', 'accepted', 'rejected');
+CREATE TYPE "gender_type" AS ENUM (
+  'male',
+  'female',
+  'other'
+);
 
+CREATE TYPE "privacy_type" AS ENUM (
+  'public',
+  'private',
+  'connections'
+);
+
+CREATE TYPE "match_status" AS ENUM (
+  'pending',
+  'accepted',
+  'rejected'
+);
 
 CREATE TABLE "UserAccount" (
   "UserID" SERIAL PRIMARY KEY,
-  "ClerkUserID" uuid UNIQUE NOT NULL,
+  "ClerkUserID" varchar(255) UNIQUE NOT NULL,
   "Email" varchar(255) UNIQUE NOT NULL,
   "FirstName" varchar(50) NOT NULL,
   "LastName" varchar(50) NOT NULL
@@ -39,12 +52,12 @@ CREATE TABLE "Profile" (
   "LinkedInURL" varchar(255) UNIQUE,
   "Slogan" varchar(200),
   "WebsiteLink" varchar(255),
-  "Achievement" varchar(2000),
   "Avatar" varchar(255),
   "Description" varchar(2000),
   "Gender" gender_type,
   "HobbyInterest" varchar(2000),
   "Education" varchar(200),
+  "DateOfBirth" timestamp,
   "CurrentStage" varchar(2000)
 );
 
@@ -52,16 +65,19 @@ CREATE TABLE "ProfilePrivacySettings" (
   "ProfileID" integer PRIMARY KEY NOT NULL,
   "GenderPrivacy" privacy_type DEFAULT 'public',
   "IndustryPrivacy" privacy_type NOT NULL DEFAULT 'public',
+  "EmailPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "PhoneNumberIDPrivacy" privacy_type DEFAULT 'public',
   "CountryIDPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "CityPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "UniversityPrivacy" privacy_type DEFAULT 'public',
   "LinkedInURLPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "SloganPrivacy" privacy_type NOT NULL DEFAULT 'public',
+  "WebsiteLinkPrivacy" privacy_type DEFAULT 'public',
   "CertificatePrivacy" privacy_type DEFAULT 'public',
   "ExperiencePrivacy" privacy_type DEFAULT 'public',
   "HobbyInterestPrivacy" privacy_type DEFAULT 'public',
-  "ViewGraphPrivacy" privacy_type NOT NULL DEFAULT 'public',
+  "EducationPrivacy" privacy_type DEFAULT 'public',
+  "DateOfBirthPrivacy" privacy_type DEFAULT 'public',
   "AchievementPrivacy" privacy_type NOT NULL DEFAULT 'public'
 );
 
@@ -80,7 +96,7 @@ CREATE TABLE "Matching" (
   "CandidateStatus" match_status NOT NULL DEFAULT 'pending',
   "StartupStatus" match_status NOT NULL DEFAULT 'pending',
   "IsMatched" boolean NOT NULL DEFAULT false,
-  "MatchDate" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  "MatchDate" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "CandidateNotification" integer,
   "StartupNotification" integer
 );
@@ -90,7 +106,7 @@ CREATE TABLE "Notification" (
   "Recipient" integer NOT NULL,
   "Data" varchar(2000),
   "Read" boolean NOT NULL DEFAULT false,
-  "CreatedDateTime" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  "CreatedDateTime" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "IsStartupNotified" boolean NOT NULL DEFAULT false
 );
 
@@ -158,21 +174,21 @@ CREATE TABLE "ProfileViews" (
   "ViewID" SERIAL PRIMARY KEY,
   "FromProfileID" integer,
   "ToProfileID" integer,
-  "ViewedAt" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+  "ViewedAt" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "SavedProfiles" (
   "SaveID" SERIAL PRIMARY KEY,
   "SavedFromProfileID" integer NOT NULL,
   "SavedToProfileID" integer NOT NULL,
-  "SavedAt" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+  "SavedAt" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "SkippedProfiles" (
   "SkipID" SERIAL PRIMARY KEY,
   "SkippedFromProfileID" integer NOT NULL,
   "SkippedToProfileID" integer NOT NULL,
-  "SkippedAt" timestamp NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+  "SkippedAt" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE "Profile" ADD FOREIGN KEY ("UserID") REFERENCES "UserAccount" ("UserID");
@@ -224,3 +240,5 @@ ALTER TABLE "AchievementTagInstances" ADD FOREIGN KEY ("AchievementID") REFERENC
 ALTER TABLE "Experience" ADD FOREIGN KEY ("ProfileOwner") REFERENCES "Profile" ("ProfileID");
 
 ALTER TABLE "Certificate" ADD FOREIGN KEY ("ProfileOwner") REFERENCES "Profile" ("ProfileID");
+
+ALTER TABLE "Achievement" ADD FOREIGN KEY ("ProfileOwner") REFERENCES "Profile" ("ProfileID");
