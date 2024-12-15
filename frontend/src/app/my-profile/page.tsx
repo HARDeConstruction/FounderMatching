@@ -1,13 +1,22 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useRouter } from "next/router";
-import { Profile } from "../types/profile";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useProfileAPI } from "@/lib/api/profiles";
+import { ProfilePreviewCard } from "@/lib/types/profiles";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-const MyProfile: React.FC = () => {
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+const MyProfilePage = () => {
+  const { getUserProfiles } = useProfileAPI();
+  const [profiles, setProfiles] = useState<ProfilePreviewCard[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -15,11 +24,15 @@ const MyProfile: React.FC = () => {
     const fetchProfiles = async () => {
       try {
         setLoading(true);
-        const response = await axios.get<Profile[]>("/api/getUserProfiles"); // Replace with actual API endpoint
-        setProfiles(response.data);
-        setLoading(false);
+        const response = await getUserProfiles();
+        if (!response || !Array.isArray(response)) {
+          throw new Error("Invalid profiles returned from the API.");
+        }
+        setProfiles(response);
       } catch (err: any) {
-        setError(err.response?.data?.error || "Failed to load profiles.");
+        console.error("Error fetching profiles:", err.message);
+        setError("Failed to load profiles. Please try again later.");
+      } finally {
         setLoading(false);
       }
     };
@@ -27,30 +40,50 @@ const MyProfile: React.FC = () => {
     fetchProfiles();
   }, []);
 
-  const handleProfileClick = (profileId: string) => {
-    router.push(`/profile/me?id=${profileId}`);
-  };
-
-  if (loading) return <div className="p-4 text-center">Loading profiles...</div>;
-  if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
+  if (loading)
+    return <div className="text-center p-6">Loading profiles...</div>;
+  if (error) return <div className="text-center text-red-500 p-6">{error}</div>;
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">My Profiles</h1>
-      <div className="grid grid-cols-1 gap-4">
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6 text-center">My Profiles</h1>
+      <div className="flex flex-col items-center p-4">
+      <Button onClick={() => router.push("/my-profile/create")}>
+        Create New Profile
+      </Button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {profiles.map((profile) => (
-          <div
+          <Card
             key={profile.ProfileID}
-            className="p-4 border rounded cursor-pointer hover:bg-gray-100"
-            onClick={() => handleProfileClick(profile.ProfileID)}
+            className="cursor-pointer hover:shadow-md transition-all"
+            onClick={() =>
+              router.push(`/dashboard/profile/me?id=${profile.ProfileID}`)
+            }
           >
-            <h2 className="font-bold">{profile.Name}</h2>
-            <p>{profile.isStartup ? "Startup Profile" : "Candidate Profile"}</p>
-          </div>
+            <CardHeader className="flex items-center justify-center">
+              <img
+                src={profile.AvatarURL || "https://via.placeholder.com/150"}
+                alt={profile.Name}
+                className="h-24 w-24 rounded-full object-cover"
+              />
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardTitle className="text-lg font-bold break-words">
+                {profile.Name}
+              </CardTitle>
+              <CardDescription className="text-gray-600">
+                {profile.Occupation || "No occupation listed"}
+              </CardDescription>
+              <div className="mt-2 text-sm font-medium text-blue-600">
+                {profile.IsStartup ? "Startup" : "Candidate"}
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>
   );
 };
 
-export default MyProfile;
+export default MyProfilePage;
