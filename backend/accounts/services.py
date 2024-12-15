@@ -7,11 +7,11 @@ class UserAccountService:
     def create_or_update_user_account(clerk_user_id: str, email: str, first_name: str, last_name: str):
         try:
             user_account, created = UserAccount.objects.get_or_create(
-                clerkuserid=clerk_user_id,
+                clerkUserID=clerk_user_id,
                 defaults={
                     'email': email,
-                    'firstname': first_name,
-                    'lastname': last_name
+                    'firstName': first_name,
+                    'lastName': last_name
                 }
             )
             return user_account, None
