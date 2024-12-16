@@ -211,7 +211,7 @@ class Achievement(models.Model):
         managed = False
         db_table = 'Achievement'
 
-class Profileprivacysettings(models.Model):
+class ProfilePrivacySettings(models.Model):
     PRIVACY_CHOICES = [
         ('public', 'Public'),
         ('private', 'Private'),
@@ -244,3 +244,31 @@ class Profileprivacysettings(models.Model):
     class Meta:
         managed = False
         db_table = 'ProfilePrivacySettings'
+
+class Tags(models.Model):
+    id = models.AutoField(db_column='ID', primary_key=True)
+    value = models.CharField(db_column='Value', max_length=50)
+    description = models.CharField(db_column='Description', max_length=500, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'Tags'
+
+class ProfileTagInstances(models.Model):
+    profileOwnerID = models.ForeignKey(
+        Profile,
+        models.DO_NOTHING,
+        db_column='ProfileOwnerID',
+        primary_key=True,
+        related_name='tags'
+    )
+    tagID = models.ForeignKey(
+        Tags,
+        models.DO_NOTHING,
+        db_column='TagID'
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'ProfileTagInstances'
+        unique_together = (('profileOwnerID', 'tagID'),)
