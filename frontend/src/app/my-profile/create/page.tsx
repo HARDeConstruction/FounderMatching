@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import {
   Popover,
   PopoverContent,
@@ -342,11 +342,9 @@ export default function MyForm() {
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
+                    selected={field.value ? parseISO(field.value) : undefined}
                     onSelect={(date) =>
-                      field.onChange(
-                        date ? date.toISOString().split("T")[0] : ""
-                      )
+                      field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                     }
                   />
                 </PopoverContent>
