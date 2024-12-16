@@ -46,74 +46,74 @@ import { TagsInput } from "@/components/ui/tags-input";
 import { Switch } from "@/components/ui/switch";
 
 const formSchema = z.object({
-  IsStartup: z.boolean(),
-  Name: z
+  isStartup: z.boolean(),
+  name: z
     .string()
     .max(100, "Name cannot exceed 100 characters")
     .min(1, "Name is required"),
-  Email: z
+  email: z
     .string()
     .max(255, "Email cannot exceed 255 characters")
     .email("Invalid email format")
     .regex(/^[^@\s]+@[^@\s]+\.[^@\s]+$/, "Invalid email format"),
-  Avatar: z
+  avatar: z
     .instanceof(File)
     .optional()
     .refine(
       (file) => !file || file.size <= 2 * 1024 * 1024,
       "File size must be less than 2MB"
     ),
-  Industry: z
+  industry: z
     .string()
     .max(100, "Industry cannot exceed 100 characters")
     .regex(/^[A-Za-z\s&,-]+$/, "Invalid industry format"),
-  PhoneNumber: z
+  phoneNumber: z
     .string()
     .max(20, "Phone number cannot exceed 20 characters")
     .regex(/^\+[1-9]{1}[0-9]{3,14}$/, "Invalid phone number format"),
-  Country: z.string().max(100, "Country cannot exceed 100 characters"),
-  City: z.string().max(100, "City cannot exceed 100 characters"),
-  LinkedInURL: z
+  country: z.string().max(100, "Country cannot exceed 100 characters"),
+  city: z.string().max(100, "City cannot exceed 100 characters"),
+  linkedInURL: z
     .string()
     .max(255, "LinkedIn URL cannot exceed 255 characters")
     .optional(),
-  Slogan: z.string().max(255, "Slogan cannot exceed 255 characters").optional(),
-  WebsiteLink: z
+  slogan: z.string().max(255, "Slogan cannot exceed 255 characters").optional(),
+  websiteLink: z
     .string()
     .max(255, "Website link cannot exceed 255 characters")
     .optional(),
-  Description: z.string().max(5000, "Description cannot exceed 500 characters"),
-  HobbyInterest: z
+  description: z.string().max(5000, "Description cannot exceed 500 characters"),
+  hobbyInterest: z
     .string()
     .max(500, "Hobby Interest cannot exceed 500 characters")
     .optional(),
-  Gender: z.string().max(50).optional(),
+  gender: z.string().max(50).optional(),
   statement: z.string().max(1000, "Statement cannot exceed 500 characters"),
   aboutUs: z.string().max(5000, "About Us cannot exceed 500 characters"),
-  Tags: z
+  tags: z
     .array(z.string().max(300))
     .nonempty("Please add at least one tag")
     .optional(),
-  Education: z.string().max(500, "Education cannot exceed 500 characters"),
-  DateOfBirth: z
+  education: z.string().max(500, "Education cannot exceed 500 characters"),
+  dateOfBirth: z
     .string()
     .max(64, "Date of birth cannot exceed 64 characters")
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
-  CurrentStage: z
+  currentStage: z
     .string()
     .max(255, "Current stage cannot exceed 255 characters")
     .optional(),
   experiences: z
     .array(
       z.object({
-        companyname: z.string().max(255),
+        companyName: z.string().max(255),
         role: z.string().max(255),
         location: z.string().max(255),
         description: z.string().max(500).optional(),
-        startdate: z
+        startDate: z
           .string()
           .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid start date"),
-        enddate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid end date"),
+        endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid end date"),
       })
     )
     .max(20, "Cannot add more than 20 experiences"),
@@ -123,10 +123,10 @@ const formSchema = z.object({
         name: z.string().max(255),
         skill: z.string().max(255),
         description: z.string().max(500).optional(),
-        startdate: z
+        startDate: z
           .string()
           .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid start date"),
-        enddate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid end date"),
+        endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid end date"),
         gpa: z.number().optional(),
       })
     )
@@ -182,26 +182,26 @@ export default function MyForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      IsStartup: false,
-      Name: "",
-      Email: "",
-      DateOfBirth: "",
-      Avatar: undefined,
-      Industry: "",
-      PhoneNumber: "",
-      Country: countryName,
-      City: stateName,
-      WebsiteLink: "",
-      LinkedInURL: "",
-      Gender: "",
-      Slogan: "",
-      Description: "",
-      Tags: [],
+      isStartup: false,
+      name: "",
+      email: "",
+      dateOfBirth: "",
+      avatar: undefined,
+      industry: "",
+      phoneNumber: "",
+      country: countryName,
+      city: stateName,
+      websiteLink: "",
+      linkedInURL: "",
+      gender: "",
+      slogan: "",
+      description: "",
+      tags: [],
       statement: "",
       aboutUs: "",
-      HobbyInterest: "",
-      Education: "",
-      CurrentStage: "",
+      hobbyInterest: "",
+      education: "",
+      currentStage: "",
       experiences: [],
       certificates: [],
       achievements: [],
@@ -270,7 +270,7 @@ export default function MyForm() {
       >
         <FormField
           control={form.control}
-          name="IsStartup"
+          name="isStartup"
           render={({ field }) => (
             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
@@ -292,7 +292,7 @@ export default function MyForm() {
 
         <FormField
           control={form.control}
-          name="Name"
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Full Name</FormLabel>
@@ -309,7 +309,7 @@ export default function MyForm() {
 
         <FormField
           control={form.control}
-          name="Email"
+          name="email"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
@@ -326,7 +326,7 @@ export default function MyForm() {
 
         <FormField
           control={form.control}
-          name="DateOfBirth"
+          name="dateOfBirth"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Date of birth</FormLabel>
@@ -369,7 +369,7 @@ export default function MyForm() {
 
         <FormField
           control={form.control}
-          name="Avatar"
+          name="avatar"
           render={({ field: { onChange, value } }) => (
             <FormItem>
               <FormLabel>Avatar</FormLabel>
@@ -416,7 +416,7 @@ export default function MyForm() {
 
         <FormField
           control={form.control}
-          name="Industry"
+          name="industry"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Industry</FormLabel>
@@ -437,7 +437,7 @@ export default function MyForm() {
 
         <FormField
           control={form.control}
-          name="PhoneNumber"
+          name="phoneNumber"
           render={({ field }) => (
             <FormItem className="flex flex-col items-start">
               <FormLabel>Phone number</FormLabel>
@@ -456,7 +456,7 @@ export default function MyForm() {
 
         <FormField
           control={form.control}
-          name="Country"
+          name="country"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Select Country</FormLabel>
@@ -484,7 +484,7 @@ export default function MyForm() {
           <div className="col-span-6">
             <FormField
               control={form.control}
-              name="WebsiteLink"
+              name="websiteLink"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Website</FormLabel>
@@ -501,7 +501,7 @@ export default function MyForm() {
           <div className="col-span-6">
             <FormField
               control={form.control}
-              name="LinkedInURL"
+              name="linkedInURL"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>LinkedIn</FormLabel>
@@ -517,10 +517,10 @@ export default function MyForm() {
             />
           </div>
         </div>
-        {!form.watch("IsStartup") ? (
+        {!form.watch("isStartup") ? (
           <FormField
             control={form.control}
-            name="Gender"
+            name="gender"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Gender</FormLabel>
@@ -547,7 +547,7 @@ export default function MyForm() {
         ) : (
           <FormField
             control={form.control}
-            name="CurrentStage"
+            name="currentStage"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Startup Stage</FormLabel>
@@ -580,7 +580,7 @@ export default function MyForm() {
 
         <FormField
           control={form.control}
-          name="Slogan"
+          name="slogan"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Slogan</FormLabel>
@@ -601,7 +601,7 @@ export default function MyForm() {
 
         <FormField
           control={form.control}
-          name="Description"
+          name="description"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
@@ -619,11 +619,11 @@ export default function MyForm() {
           )}
         />
 
-        {!form.watch("IsStartup") ? (
+        {!form.watch("isStartup") ? (
           <>
             <FormField
               control={form.control}
-              name="HobbyInterest"
+              name="hobbyInterest"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Hobby Interest</FormLabel>
@@ -644,7 +644,7 @@ export default function MyForm() {
 
             <FormField
               control={form.control}
-              name="Education"
+              name="education"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Education</FormLabel>
@@ -668,7 +668,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`experiences.${index}.companyname`}
+                      name={`experiences.${index}.companyName`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Company Name</FormLabel>
@@ -757,7 +757,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`experiences.${index}.startdate`}
+                      name={`experiences.${index}.startDate`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Start Date</FormLabel>
@@ -781,7 +781,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`experiences.${index}.enddate`}
+                      name={`experiences.${index}.endDate`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>End Date</FormLabel>
@@ -819,12 +819,12 @@ export default function MyForm() {
                 type="button"
                 onClick={() =>
                   addExperience({
-                    companyname: "",
+                    companyName: "",
                     role: "",
                     location: "",
                     description: "",
-                    startdate: "",
-                    enddate: "",
+                    startDate: "",
+                    endDate: "",
                   })
                 }
               >
@@ -911,7 +911,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`certificates.${index}.startdate`}
+                      name={`certificates.${index}.startDate`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Start Date</FormLabel>
@@ -935,7 +935,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`certificates.${index}.enddate`}
+                      name={`certificates.${index}.endDate`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>End Date</FormLabel>
@@ -1004,8 +1004,8 @@ export default function MyForm() {
                     name: "",
                     skill: "",
                     description: "",
-                    startdate: "",
-                    enddate: "",
+                    startDate: "",
+                    endDate: "",
                     gpa: undefined,
                   })
                 }
