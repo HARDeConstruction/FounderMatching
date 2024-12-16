@@ -82,12 +82,18 @@ const formSchema = z.object({
     .string()
     .max(255, "Website link cannot exceed 255 characters")
     .optional(),
-  Description: z.string().max(500, "Description cannot exceed 500 characters"),
+  Description: z.string().max(5000, "Description cannot exceed 500 characters"),
   HobbyInterest: z
     .string()
     .max(500, "Hobby Interest cannot exceed 500 characters")
     .optional(),
-  Gender: z.string(),
+  Gender: z.string().max(50).optional(),
+  statement: z.string().max(1000, "Statement cannot exceed 500 characters"),
+  aboutUs: z.string().max(5000, "About Us cannot exceed 500 characters"),
+  Tags: z
+    .array(z.string().max(300))
+    .nonempty("Please add at least one tag")
+    .optional(),
   Education: z.string().max(500, "Education cannot exceed 500 characters"),
   DateOfBirth: z
     .string()
@@ -190,8 +196,12 @@ export default function MyForm() {
       Gender: "",
       Slogan: "",
       Description: "",
+      Tags: [],
+      statement: "",
+      aboutUs: "",
       HobbyInterest: "",
       Education: "",
+      CurrentStage: "",
       experiences: [],
       certificates: [],
       achievements: [],
@@ -357,23 +367,6 @@ export default function MyForm() {
           )}
         />
 
-        {/* <FormField
-          control={form.control}
-          name={`DateOfBirth`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Start Date</FormLabel>
-              <FormControl>
-                <Input placeholder="Select start date" type="date" {...field} />
-              </FormControl>
-              <FormDescription>
-                Enter the start date of this certificate.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
         <FormField
           control={form.control}
           name="Avatar"
@@ -524,30 +517,66 @@ export default function MyForm() {
             />
           </div>
         </div>
-
-        <FormField
-          control={form.control}
-          name="Gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gender</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>Choose your gender</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!form.watch("IsStartup") ? (
+          <FormField
+            control={form.control}
+            name="Gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Gender</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>Choose your gender</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : (
+          <FormField
+            control={form.control}
+            name="CurrentStage"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Startup Stage</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your startup stage" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="idea">Idea Stage</SelectItem>
+                    <SelectItem value="mvp">MVP Stage</SelectItem>
+                    <SelectItem value="seed">Seed Stage</SelectItem>
+                    <SelectItem value="series-a">Series A</SelectItem>
+                    <SelectItem value="series-b">Series B</SelectItem>
+                    <SelectItem value="growth">Growth Stage</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Select the current stage of your startup.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}
@@ -577,7 +606,10 @@ export default function MyForm() {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="" className="resize-none" {...field} />
+                <Textarea
+                  placeholder="Tell me about yourself/your startup"
+                  {...field}
+                />
               </FormControl>
               <FormDescription>
                 Write a short description or bio for the profile
@@ -617,11 +649,7 @@ export default function MyForm() {
                 <FormItem>
                   <FormLabel>Education</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder=""
-                      className="resize-none"
-                      {...field}
-                    />
+                    <Textarea placeholder="" {...field} />
                   </FormControl>
                   <FormDescription>
                     Highest education level or degree obtained.
@@ -713,7 +741,6 @@ export default function MyForm() {
                           <FormControl>
                             <Textarea
                               placeholder="Describe your role or work"
-                              className="resize-none"
                               {...field}
                             />
                           </FormControl>
@@ -1093,6 +1120,48 @@ export default function MyForm() {
           </>
         ) : (
           <>
+            <FormField
+              control={form.control}
+              name="statement"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Startup Statement</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Empowering businesses through AI-driven solutions."
+                      type="text"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Write a brief, impactful statement that defines your
+                    startup.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="aboutUs"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Startup About Us</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Tell us about your startup's mission, vision, and story."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Provide a detailed overview of your startup, including its
+                    mission, goals, and story.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             {/* Dynamic Job Positions Section */}
             <div>
               <h3 className="text-lg font-semibold">Job Positions</h3>
@@ -1245,7 +1314,6 @@ export default function MyForm() {
                           <FormControl>
                             <Textarea
                               placeholder="Describe the job position"
-                              className="resize-none"
                               {...field}
                             />
                           </FormControl>
