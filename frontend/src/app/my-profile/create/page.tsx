@@ -110,10 +110,8 @@ const formSchema = z.object({
         role: z.string().max(255),
         location: z.string().max(255),
         description: z.string().max(500).optional(),
-        startDate: z
-          .string()
-          .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid start date"),
-        endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid end date"),
+        startDate: z.string().max(64).optional(),
+        endDate: z.string().max(64).optional(),
       })
     )
     .max(20, "Cannot add more than 20 experiences"),
@@ -123,10 +121,8 @@ const formSchema = z.object({
         name: z.string().max(255),
         skill: z.string().max(255),
         description: z.string().max(500).optional(),
-        startDate: z
-          .string()
-          .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid start date"),
-        endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid end date"),
+        startDate: z.string().max(64).optional(),
+        endDate: z.string().max(64).optional(),
         gpa: z.number().optional(),
       })
     )
@@ -136,7 +132,7 @@ const formSchema = z.object({
       z.object({
         name: z.string().max(255),
         description: z.string().max(500).optional(),
-        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+        date: z.string().max(64).optional(),
       })
     )
     .max(20, "Cannot add more than 20 achievements"),
@@ -150,10 +146,7 @@ const formSchema = z.object({
         isOpening: z.boolean().default(true),
         country: z.string().max(100),
         city: z.string().max(100),
-        startDate: z
-          .string()
-          .max(64)
-          .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid start date format"),
+        startDate: z.string().max(64).optional(),
         description: z
           .string()
           .max(10000, "Description cannot exceed 10,000 characters")
@@ -992,7 +985,14 @@ export default function MyForm() {
                               step="0.1"
                               min={0}
                               max={4}
-                              {...field}
+                              value={field.value ?? ""} // Ensure no undefined value
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value === ""
+                                    ? undefined
+                                    : Number(e.target.value)
+                                )
+                              }
                             />
                           </FormControl>
                           <FormDescription>
