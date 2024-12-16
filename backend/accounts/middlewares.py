@@ -9,6 +9,7 @@ from django.core.cache import cache
 from jwt.algorithms import RSAAlgorithm
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+from .services import UserAccountService
 
 env = environ.Env()
 
@@ -28,19 +29,29 @@ class JWTAuthenticationMiddleware(BaseAuthentication):
         except IndexError:
             raise AuthenticationFailed("Bearer token not provided.")
         user = self.decode_jwt(token)
-        clerk = ClerkSDK()
-        info, found = clerk.fetch_user_info(user.username)
         if not user:
             return None
-        else:
-            if found:
-                #print(info)
-                user.email = info["email_address"]
-                user.first_name = info["first_name"]
-                user.last_name = info["last_name"]
-                user.last_login = info["last_login"]
+            
+        clerk = ClerkSDK()
+        info, found = clerk.fetch_user_info(user.username)
+        
+        if found:
+            user.email = info["email_address"]
+            user.first_name = info["first_name"]
+            user.last_name = info["last_name"]
+            user.last_login = info["last_login"]
             user.save()
-
+            
+            user_account, error = UserAccountService.create_or_update_user_account(
+                clerk_user_id=user.username,
+                email=info["email_address"],
+                first_name=info["first_name"],
+                last_name=info["last_name"]
+            )
+            
+            if error:
+                print(f"Error creating UserAccount: {error}")
+            
         return user, None
 
     def decode_jwt(self, token):
@@ -74,7 +85,6 @@ class ClerkSDK:
             f"{CLERK_API_URL}/users/{user_id}",
             headers={"Authorization": f"Bearer {CLERK_SECRET_KEY}"},
         )
-        print(response.json())
         if response.status_code == 200:
             data = response.json()
             return {
@@ -99,7 +109,7 @@ class ClerkSDK:
             response = requests.get(f"{CLERK_FRONTEND_API_URL}/.well-known/jwks.json")
             if response.status_code == 200:
                 jwks_data = response.json()
-                cache.set(CACHE_KEY, jwks_data)  # cache indefinitely
+                cache.set(CACHE_KEY, jwks_data)
             else:
                 raise AuthenticationFailed("Failed to fetch JWKS.")
         return jwks_data
