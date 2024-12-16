@@ -143,22 +143,22 @@ const formSchema = z.object({
   jobPositions: z
     .array(
       z.object({
-        JobTitle: z
+        jobTitle: z
           .string()
           .max(100, "Job title cannot exceed 100 characters")
           .regex(/^[A-Za-z0-9\s&',.-]+$/, "Invalid job title format"),
-        IsOpening: z.boolean().default(true),
-        Country: z.string().max(100),
-        City: z.string().max(100),
-        StartDate: z
+        isOpening: z.boolean().default(true),
+        country: z.string().max(100),
+        city: z.string().max(100),
+        startDate: z
           .string()
           .max(64)
           .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid start date format"),
-        Description: z
+        description: z
           .string()
           .max(10000, "Description cannot exceed 10,000 characters")
           .optional(),
-        Tags: z
+        tags: z
           .array(z.string().max(300))
           .nonempty("Please add at least one tag")
           .optional(),
@@ -613,6 +613,28 @@ export default function MyForm() {
               </FormControl>
               <FormDescription>
                 Write a short description or bio for the profile
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="tags"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Profile Tags</FormLabel>
+              <FormControl>
+                <TagsInput
+                  value={field.value || []}
+                  onValueChange={field.onChange}
+                  placeholder="Add tags (e.g., 'Tech, Startup, AI')"
+                />
+              </FormControl>
+              <FormDescription>
+                Add relevant tags to describe your profile (e.g., Tech, Startup,
+                AI).
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -1127,9 +1149,8 @@ export default function MyForm() {
                 <FormItem>
                   <FormLabel>Startup Statement</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       placeholder="e.g., Empowering businesses through AI-driven solutions."
-                      type="text"
                       {...field}
                     />
                   </FormControl>
@@ -1171,7 +1192,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`jobPositions.${index}.JobTitle`}
+                      name={`jobPositions.${index}.jobTitle`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Job Title</FormLabel>
@@ -1191,7 +1212,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`jobPositions.${index}.IsOpening`}
+                      name={`jobPositions.${index}.isOpening`}
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                           <FormControl>
@@ -1216,7 +1237,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`jobPositions.${index}.Country`}
+                      name={`jobPositions.${index}.country`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Country</FormLabel>
@@ -1239,7 +1260,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`jobPositions.${index}.City`}
+                      name={`jobPositions.${index}.city`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>City</FormLabel>
@@ -1259,7 +1280,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`jobPositions.${index}.StartDate`}
+                      name={`jobPositions.${index}.startDate`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Start Date</FormLabel>
@@ -1283,7 +1304,7 @@ export default function MyForm() {
                   <div className="col-span-1">
                     <FormField
                       control={form.control}
-                      name={`jobPositions.${index}.Tags`}
+                      name={`jobPositions.${index}.tags`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Tags</FormLabel>
@@ -1307,7 +1328,7 @@ export default function MyForm() {
                   <div className="col-span-2">
                     <FormField
                       control={form.control}
-                      name={`jobPositions.${index}.Description`}
+                      name={`jobPositions.${index}.description`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Description</FormLabel>
@@ -1344,13 +1365,13 @@ export default function MyForm() {
                 type="button"
                 onClick={() =>
                   addJobPosition({
-                    JobTitle: "",
-                    IsOpening: false,
-                    Country: "",
-                    City: "",
-                    StartDate: "",
-                    Description: "",
-                    Tags: [""],
+                    jobTitle: "",
+                    isOpening: false,
+                    country: "",
+                    city: "",
+                    startDate: "",
+                    description: "",
+                    tags: [""],
                   })
                 }
               >
