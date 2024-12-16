@@ -43,10 +43,14 @@ import LocationSelector from "@/components/ui/location-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TagsInput } from "@/components/ui/tags-input";
+import { Switch } from "@/components/ui/switch";
 
 const formSchema = z.object({
-  IsStartup: z.boolean().default(false),
-  Name: z.string().max(100, "Name cannot exceed 100 characters"),
+  IsStartup: z.boolean(),
+  Name: z
+    .string()
+    .max(100, "Name cannot exceed 100 characters")
+    .min(1, "Name is required"),
   Email: z
     .string()
     .max(255, "Email cannot exceed 255 characters")
@@ -254,6 +258,28 @@ export default function MyForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 max-w-3xl mx-auto py-10"
       >
+        <FormField
+          control={form.control}
+          name="IsStartup"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel>Are you a Startup?</FormLabel>
+                <FormDescription>
+                  Toggle on to create a Startup account, or off for a Candidate
+                  account.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="Name"
@@ -563,691 +589,710 @@ export default function MyForm() {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="HobbyInterest"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Hobby Interest</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Example: I love gaming."
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                You can list out what you like to do here
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!form.watch("IsStartup") ? (
+          <>
+            <FormField
+              control={form.control}
+              name="HobbyInterest"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hobby Interest</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Example: I love gaming."
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    You can list out what you like to do here
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="Education"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Education</FormLabel>
-              <FormControl>
-                <Textarea placeholder="" className="resize-none" {...field} />
-              </FormControl>
-              <FormDescription>
-                Highest education level or degree obtained.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="Education"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Education</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder=""
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Highest education level or degree obtained.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        {/* Dynamic Experiences Section */}
-        <div>
-          <h3 className="text-lg font-semibold">Experiences</h3>
-          {experienceFields.map((field, index) => (
-            <div key={field.id} className="mb-4 grid grid-cols-2 gap-4">
-              {/* Company Name */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`experiences.${index}.companyname`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter the company name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Provide the company name.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+            {/* Dynamic Experiences Section */}
+            <div>
+              <h3 className="text-lg font-semibold">Experiences</h3>
+              {experienceFields.map((field, index) => (
+                <div key={field.id} className="mb-4 grid grid-cols-2 gap-4">
+                  {/* Company Name */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`experiences.${index}.companyname`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Company Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter the company name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Provide the company name.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Role */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`experiences.${index}.role`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your role" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the job title or role.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Role */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`experiences.${index}.role`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Role</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your role" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Enter the job title or role.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Location */}
-              <div className="col-span-2">
-                <FormField
-                  control={form.control}
-                  name={`experiences.${index}.location`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Location</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter the location" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Specify the work location.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Location */}
+                  <div className="col-span-2">
+                    <FormField
+                      control={form.control}
+                      name={`experiences.${index}.location`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Location</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter the location"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Specify the work location.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Description */}
-              <div className="col-span-2">
-                <FormField
-                  control={form.control}
-                  name={`experiences.${index}.description`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe your role or work"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Briefly describe your responsibilities.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Description */}
+                  <div className="col-span-2">
+                    <FormField
+                      control={form.control}
+                      name={`experiences.${index}.description`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Describe your role or work"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Briefly describe your responsibilities.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Start Date */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`experiences.${index}.startdate`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Start Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Select start date"
-                          type="date"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the start date of this experience.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Start Date */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`experiences.${index}.startdate`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Date</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Select start date"
+                              type="date"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter the start date of this experience.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* End Date */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`experiences.${index}.enddate`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>End Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Select end date"
-                          type="date"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the end date of this experience.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* End Date */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`experiences.${index}.enddate`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>End Date</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Select end date"
+                              type="date"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter the end date of this experience.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Remove Button */}
-              <div className="col-span-2">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => removeExperience(index)}
-                >
-                  Remove Experience
-                </Button>
-              </div>
+                  {/* Remove Button */}
+                  <div className="col-span-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => removeExperience(index)}
+                    >
+                      Remove Experience
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Add Button */}
+              <Button
+                type="button"
+                onClick={() =>
+                  addExperience({
+                    companyname: "",
+                    role: "",
+                    location: "",
+                    description: "",
+                    startdate: "",
+                    enddate: "",
+                  })
+                }
+              >
+                Add Experience
+              </Button>
             </div>
-          ))}
 
-          {/* Add Button */}
-          <Button
-            type="button"
-            onClick={() =>
-              addExperience({
-                companyname: "",
-                role: "",
-                location: "",
-                description: "",
-                startdate: "",
-                enddate: "",
-              })
-            }
-          >
-            Add Experience
-          </Button>
-        </div>
+            {/* Dynamic Certificates Section */}
+            <div>
+              <h3 className="text-lg font-semibold">Certificates</h3>
+              {certificateFields.map((field, index) => (
+                <div key={field.id} className="mb-4 grid grid-cols-2 gap-4">
+                  {/* Certificate Name */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`certificates.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Certificate Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter certificate name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Provide the name of the certificate.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-        {/* Dynamic Certificates Section */}
-        <div>
-          <h3 className="text-lg font-semibold">Certificates</h3>
-          {certificateFields.map((field, index) => (
-            <div key={field.id} className="mb-4 grid grid-cols-2 gap-4">
-              {/* Certificate Name */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`certificates.${index}.name`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Certificate Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter certificate name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Provide the name of the certificate.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Skill */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`certificates.${index}.skill`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Skill</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter related skill"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Specify the skill associated with this certificate.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Skill */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`certificates.${index}.skill`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Skill</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter related skill" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Specify the skill associated with this certificate.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Description */}
+                  <div className="col-span-2">
+                    <FormField
+                      control={form.control}
+                      name={`certificates.${index}.description`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Brief description of the certificate"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Describe the certificate briefly.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Description */}
-              <div className="col-span-2">
-                <FormField
-                  control={form.control}
-                  name={`certificates.${index}.description`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Brief description of the certificate"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Describe the certificate briefly.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Start Date */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`certificates.${index}.startdate`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Date</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Select start date"
+                              type="date"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter the start date of this certificate.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Start Date */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`certificates.${index}.startdate`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Start Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Select start date"
-                          type="date"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the start date of this certificate.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* End Date */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`certificates.${index}.enddate`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>End Date</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Select end date"
+                              type="date"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter the end date of this certificate.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* End Date */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`certificates.${index}.enddate`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>End Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Select end date"
-                          type="date"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the end date of this certificate.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* GPA */}
+                  <div className="col-span-2">
+                    <FormField
+                      control={form.control}
+                      name={`certificates.${index}.gpa`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>GPA</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter GPA (e.g., 4.0)"
+                              type="number"
+                              step="0.1"
+                              min={0}
+                              max={4}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Optional: Enter GPA associated with this
+                            certificate.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* GPA */}
-              <div className="col-span-2">
-                <FormField
-                  control={form.control}
-                  name={`certificates.${index}.gpa`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>GPA</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter GPA (e.g., 4.0)"
-                          type="number"
-                          step="0.1"
-                          min={0}
-                          max={4}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Optional: Enter GPA associated with this certificate.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Remove Button */}
+                  <div className="col-span-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => removeCertificate(index)}
+                    >
+                      Remove Certificate
+                    </Button>
+                  </div>
+                </div>
+              ))}
 
-              {/* Remove Button */}
-              <div className="col-span-2">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => removeCertificate(index)}
-                >
-                  Remove Certificate
-                </Button>
-              </div>
+              {/* Add Certificate Button */}
+              <Button
+                type="button"
+                onClick={() =>
+                  addCertificate({
+                    name: "",
+                    skill: "",
+                    description: "",
+                    startdate: "",
+                    enddate: "",
+                    gpa: undefined,
+                  })
+                }
+              >
+                Add Certificate
+              </Button>
             </div>
-          ))}
 
-          {/* Add Certificate Button */}
-          <Button
-            type="button"
-            onClick={() =>
-              addCertificate({
-                name: "",
-                skill: "",
-                description: "",
-                startdate: "",
-                enddate: "",
-                gpa: undefined,
-              })
-            }
-          >
-            Add Certificate
-          </Button>
-        </div>
+            {/* Dynamic Achievements Section */}
+            <div>
+              <h3 className="text-lg font-semibold">Achievements</h3>
+              {achievementFields.map((field, index) => (
+                <div key={field.id} className="mb-4 grid grid-cols-2 gap-4">
+                  {/* Achievement Name */}
+                  <div className="col-span-2">
+                    <FormField
+                      control={form.control}
+                      name={`achievements.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Achievement Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter the achievement name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Provide the name of the achievement.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-        {/* Dynamic Achievements Section */}
-        <div>
-          <h3 className="text-lg font-semibold">Achievements</h3>
-          {achievementFields.map((field, index) => (
-            <div key={field.id} className="mb-4 grid grid-cols-2 gap-4">
-              {/* Achievement Name */}
-              <div className="col-span-2">
-                <FormField
-                  control={form.control}
-                  name={`achievements.${index}.name`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Achievement Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter the achievement name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Provide the name of the achievement.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Description */}
+                  <div className="col-span-2">
+                    <FormField
+                      control={form.control}
+                      name={`achievements.${index}.description`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Brief description of the achievement"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Describe the achievement briefly (optional).
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Description */}
-              <div className="col-span-2">
-                <FormField
-                  control={form.control}
-                  name={`achievements.${index}.description`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Brief description of the achievement"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Describe the achievement briefly (optional).
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Date */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`achievements.${index}.date`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Date</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Select date"
+                              type="date"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter the date of this achievement.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Date */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`achievements.${index}.date`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Select date"
-                          type="date"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the date of this achievement.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Remove Button */}
+                  <div className="col-span-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => removeAchievement(index)}
+                    >
+                      Remove Achievement
+                    </Button>
+                  </div>
+                </div>
+              ))}
 
-              {/* Remove Button */}
-              <div className="col-span-2">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => removeAchievement(index)}
-                >
-                  Remove Achievement
-                </Button>
-              </div>
+              {/* Add Achievement Button */}
+              <Button
+                type="button"
+                onClick={() =>
+                  addAchievement({
+                    name: "",
+                    description: "",
+                    date: "",
+                  })
+                }
+              >
+                Add Achievement
+              </Button>
             </div>
-          ))}
+          </>
+        ) : (
+          <>
+            {/* Dynamic Job Positions Section */}
+            <div>
+              <h3 className="text-lg font-semibold">Job Positions</h3>
+              {jobPositionFields.map((field, index) => (
+                <div key={field.id} className="mb-4 grid grid-cols-2 gap-4">
+                  {/* Job Title */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`jobPositions.${index}.JobTitle`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Job Title</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter job title" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Specify the title of the job position.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-          {/* Add Achievement Button */}
-          <Button
-            type="button"
-            onClick={() =>
-              addAchievement({
-                name: "",
-                description: "",
-                date: "",
-              })
-            }
-          >
-            Add Achievement
-          </Button>
-        </div>
+                  {/* Is Opening (Toggle) */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`jobPositions.${index}.IsOpening`}
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Is Open for Applications</FormLabel>
+                            <FormDescription>
+                              Check if this job position is currently open
+                            </FormDescription>
+                            <FormMessage />
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-        {/* Dynamic Job Positions Section */}
-        <div>
-          <h3 className="text-lg font-semibold">Job Positions</h3>
-          {jobPositionFields.map((field, index) => (
-            <div key={field.id} className="mb-4 grid grid-cols-2 gap-4">
-              {/* Job Title */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`jobPositions.${index}.JobTitle`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Job Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter job title" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Specify the title of the job position.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Country */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`jobPositions.${index}.Country`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Country</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter country name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Specify the country for this job.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Is Opening (Toggle) */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`jobPositions.${index}.IsOpening`}
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Is Open for Applications</FormLabel>
-                        <FormDescription>
-                          Check if this job position is currently open
-                        </FormDescription>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* City */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`jobPositions.${index}.City`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter city name" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Specify the city for this job.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Country */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`jobPositions.${index}.Country`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter country name" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Specify the country for this job.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Start Date */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`jobPositions.${index}.StartDate`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Date</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Select start date"
+                              type="date"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Provide the starting date for this position.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* City */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`jobPositions.${index}.City`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter city name" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Specify the city for this job.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Tags */}
+                  <div className="col-span-1">
+                    <FormField
+                      control={form.control}
+                      name={`jobPositions.${index}.Tags`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tags</FormLabel>
+                          <FormControl>
+                            <TagsInput
+                              value={field.value || []}
+                              onValueChange={field.onChange}
+                              placeholder="Enter your tags"
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Add relevant tags for this position.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Start Date */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`jobPositions.${index}.StartDate`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Start Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Select start date"
-                          type="date"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Provide the starting date for this position.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Description */}
+                  <div className="col-span-2">
+                    <FormField
+                      control={form.control}
+                      name={`jobPositions.${index}.Description`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Describe the job position"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Provide a detailed description of this job position.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              {/* Tags */}
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name={`jobPositions.${index}.Tags`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tags</FormLabel>
-                      <FormControl>
-                        <TagsInput
-                          value={field.value || []}
-                          onValueChange={field.onChange}
-                          placeholder="Enter your tags"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Add relevant tags for this position.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  {/* Remove Button */}
+                  <div className="col-span-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => removeJobPosition(index)}
+                    >
+                      Remove Job Position
+                    </Button>
+                  </div>
+                </div>
+              ))}
 
-              {/* Description */}
-              <div className="col-span-2">
-                <FormField
-                  control={form.control}
-                  name={`jobPositions.${index}.Description`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe the job position"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Provide a detailed description of this job position.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Remove Button */}
-              <div className="col-span-2">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => removeJobPosition(index)}
-                >
-                  Remove Job Position
-                </Button>
-              </div>
+              {/* Add Job Position Button */}
+              <Button
+                type="button"
+                onClick={() =>
+                  addJobPosition({
+                    JobTitle: "",
+                    IsOpening: false,
+                    Country: "",
+                    City: "",
+                    StartDate: "",
+                    Description: "",
+                    Tags: [""],
+                  })
+                }
+              >
+                Add Job Position
+              </Button>
             </div>
-          ))}
-
-          {/* Add Job Position Button */}
-          <Button
-            type="button"
-            onClick={() =>
-              addJobPosition({
-                JobTitle: "",
-                IsOpening: false,
-                Country: "",
-                City: "",
-                StartDate: "",
-                Description: "",
-                Tags: [""],
-              })
-            }
-          >
-            Add Job Position
-          </Button>
-        </div>
-
+          </>
+        )}
         <Button type="submit">Submit</Button>
       </form>
     </Form>
