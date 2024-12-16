@@ -1,18 +1,19 @@
 import React from "react";
-import EducationTag from "./EducationTag";
+import EducationTag, { EduTag } from "./EducationTag";
 
+const skills: EduTag[] = [
+  { year: 2024, skill: "Artificial Intelligence" },
+  { year: 2023, skill: "C++" },
+  { year: 2022, skill: "Python" },
+  { year: 2021, skill: "Ruby" },
+  { year: 2020, skill: "React" }
+];
 const EducationBoard = () => {
   return (
-    <div className="flex flex-col w-1/2 pb-5 bg-primaryBG gap-3 rounded-lg px-3">
-      <h1 className="my-2">Education</h1>
-      <div className="grid grid-cols-3" >
-        <EducationTag/>
-        <EducationTag/>
-        <EducationTag/>
-        <EducationTag/>
-        <EducationTag/>
-        <EducationTag/>
-      </div>
+    <div className="grid grid-cols-3">
+      {skills.map((item,i) => (
+        <EducationTag key={i} year={item.year} skill={item.skill}/>
+      ))}
     </div>
   );
 };
