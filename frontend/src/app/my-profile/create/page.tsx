@@ -46,18 +46,19 @@ import { TagsInput } from "@/components/ui/tags-input";
 
 const formSchema = z.object({
   IsStartup: z.boolean().default(false),
-  Name: z
-    .string()
-    .max(100, "Name cannot exceed 100 characters")
-    .regex(
-      /^[A-Za-z]+((\s)?((\'|\-|\.)?([A-Za-z])+))*$/,
-      "Invalid name format"
-    ),
+  Name: z.string().max(100, "Name cannot exceed 100 characters"),
   Email: z
     .string()
     .max(255, "Email cannot exceed 255 characters")
     .email("Invalid email format")
     .regex(/^[^@\s]+@[^@\s]+\.[^@\s]+$/, "Invalid email format"),
+  Avatar: z
+    .instanceof(File)
+    .optional()
+    .refine(
+      (file) => !file || file.size <= 2 * 1024 * 1024,
+      "File size must be less than 2MB"
+    ),
   Industry: z
     .string()
     .max(100, "Industry cannot exceed 100 characters")
@@ -66,56 +67,24 @@ const formSchema = z.object({
     .string()
     .max(20, "Phone number cannot exceed 20 characters")
     .regex(/^\+[1-9]{1}[0-9]{3,14}$/, "Invalid phone number format"),
-  Country: z
-    .string()
-    .max(100, "Country cannot exceed 100 characters")
-    .regex(
-      /^[A-Za-z]+((\s)?((\'|\-|\.)?([A-Za-z])+))*$/,
-      "Invalid country format"
-    ),
-  City: z
-    .string()
-    .max(100, "City cannot exceed 100 characters")
-    .regex(
-      /^[A-Za-z]+((\s)?((\'|\-|\.)?([A-Za-z])+))*$/,
-      "Invalid city format"
-    ),
+  Country: z.string().max(100, "Country cannot exceed 100 characters"),
+  City: z.string().max(100, "City cannot exceed 100 characters"),
   LinkedInURL: z
     .string()
     .max(255, "LinkedIn URL cannot exceed 255 characters")
-    .url("Invalid URL format")
-    .regex(/^https?:\/\/(www\.)?linkedin\.com\/.*$/, "Invalid LinkedIn URL")
     .optional(),
-  Slogan: z
-    .string()
-    .max(255, "Slogan cannot exceed 255 characters")
-    .regex(/^([[:print:]]|\r|\n)*$/, "Invalid slogan format")
-    .optional(),
+  Slogan: z.string().max(255, "Slogan cannot exceed 255 characters").optional(),
   WebsiteLink: z
     .string()
     .max(255, "Website link cannot exceed 255 characters")
-    .regex(
-      /^(?:http[s]?:\/\/.)?(?:www\.)?[-a-zA-Z0-9@%._\+~#=]{2,256}\.[a-z]{2,6}\b(?:[-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$/,
-      "Invalid website link format"
-    )
     .optional(),
-  Description: z
-    .string()
-    .max(500, "Description cannot exceed 500 characters")
-    .regex(/^([[:print:]]|\r|\n)*$/, "Invalid description format"),
+  Description: z.string().max(500, "Description cannot exceed 500 characters"),
   HobbyInterest: z
     .string()
     .max(500, "Hobby Interest cannot exceed 500 characters")
-    .regex(/^([[:print:]]|\r|\n)*$/, "Invalid hobby format")
     .optional(),
   Gender: z.string(),
-  Education: z
-    .string()
-    .max(500, "Education cannot exceed 500 characters")
-    .regex(
-      /^[A-Za-z]+((\s)?((\'|\-|\.)?([A-Za-z])+))*$/,
-      "Invalid education format"
-    ),
+  Education: z.string().max(500, "Education cannot exceed 500 characters"),
   DateOfBirth: z
     .string()
     .max(64, "Date of birth cannot exceed 64 characters")
@@ -123,7 +92,6 @@ const formSchema = z.object({
   CurrentStage: z
     .string()
     .max(255, "Current stage cannot exceed 255 characters")
-    .regex(/^([[:print:]]|\r|\n)*$/, "Invalid format")
     .optional(),
   experiences: z
     .array(
@@ -170,20 +138,8 @@ const formSchema = z.object({
           .max(100, "Job title cannot exceed 100 characters")
           .regex(/^[A-Za-z0-9\s&',.-]+$/, "Invalid job title format"),
         IsOpening: z.boolean().default(true),
-        Country: z
-          .string()
-          .max(100)
-          .regex(
-            /^[A-Za-z]+((\s)?((\'|\-|\.)?([A-Za-z])+))*$/,
-            "Invalid country format"
-          ),
-        City: z
-          .string()
-          .max(100)
-          .regex(
-            /^[A-Za-z]+((\s)?((\'|\-|\.)?([A-Za-z])+))*$/,
-            "Invalid city format"
-          ),
+        Country: z.string().max(100),
+        City: z.string().max(100),
         StartDate: z
           .string()
           .max(64)
@@ -220,10 +176,11 @@ export default function MyForm() {
       Name: "",
       Email: "",
       DateOfBirth: "",
+      Avatar: undefined,
       Industry: "",
       PhoneNumber: "",
-      Country: "",
-      City: "",
+      Country: countryName,
+      City: stateName,
       WebsiteLink: "",
       LinkedInURL: "",
       Gender: "",
@@ -395,14 +352,17 @@ export default function MyForm() {
 
         <FormField
           control={form.control}
-          name="AvatarURL"
-          render={({ field }) => (
+          name="Avatar"
+          render={({ field: { onChange, value } }) => (
             <FormItem>
               <FormLabel>Avatar</FormLabel>
               <FormControl>
                 <FileUploader
-                  value={files}
-                  onValueChange={setFiles}
+                  value={value ? [value] : []} // Show the current file in the uploader
+                  onValueChange={(files) => {
+                    const file = files?.[0] || null; // Only take the first file
+                    onChange(file); // Update the form state with the selected file
+                  }}
                   dropzoneOptions={dropZoneConfig}
                   className="relative bg-background rounded-lg p-2"
                 >
@@ -410,10 +370,10 @@ export default function MyForm() {
                     id="fileInput"
                     className="outline-dashed outline-1 outline-slate-500"
                   >
-                    <div className="flex items-center justify-center flex-col p-8 w-full ">
+                    <div className="flex items-center justify-center flex-col p-8 w-full">
                       <CloudUpload className="text-gray-500 w-10 h-10" />
                       <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
-                        <span className="font-semibold">Click to upload</span>
+                        <span className="font-semibold">Click to upload</span>{" "}
                         &nbsp; or drag and drop
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -422,14 +382,12 @@ export default function MyForm() {
                     </div>
                   </FileInput>
                   <FileUploaderContent>
-                    {files &&
-                      files.length > 0 &&
-                      files.map((file, i) => (
-                        <FileUploaderItem key={i} index={i}>
-                          <Paperclip className="h-4 w-4 stroke-current" />
-                          <span>{file.name}</span>
-                        </FileUploaderItem>
-                      ))}
+                    {value && (
+                      <FileUploaderItem index={0}>
+                        <Paperclip className="h-4 w-4 stroke-current" />
+                        <span>{value.name}</span>
+                      </FileUploaderItem>
+                    )}
                   </FileUploaderContent>
                 </FileUploader>
               </FormControl>
@@ -487,19 +445,12 @@ export default function MyForm() {
               <FormLabel>Select Country</FormLabel>
               <FormControl>
                 <LocationSelector
-                  onCountryChange={(country) => {
-                    setCountryName(country?.name || "");
-                    form.setValue(field.name, [
-                      country?.name || "",
-                      stateName || "",
-                    ]);
+                  onCountryChange={(selectedCountry) => {
+                    setCountryName(selectedCountry?.name || ""); // Update country state
+                    setStateName(""); // Reset city when country changes
                   }}
-                  onStateChange={(state) => {
-                    setStateName(state?.name || "");
-                    form.setValue(field.name, [
-                      countryName || "",
-                      state?.name || "",
-                    ]);
+                  onStateChange={(selectedState) => {
+                    setStateName(selectedState?.name || ""); // Update city state
                   }}
                 />
               </FormControl>
