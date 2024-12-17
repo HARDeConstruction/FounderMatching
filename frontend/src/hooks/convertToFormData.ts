@@ -12,13 +12,21 @@ export const convertToFormData = (data: any) => {
             formData.append(`${key}[${index}][${subKey}]`, item[subKey]);
           });
         });
-      } else if (key === "Avatar" && value instanceof File) {
-        formData.append("Avatar", value);
+      } else if (typeof value === "object" && !(value instanceof File)) {
+        Object.keys(value).forEach((subKey) => {
+          formData.append(`${key}[${subKey}]`, value[subKey]);
+        });
       } else {
         formData.append(key, value);
       }
     });
-  
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }    
+    if (formData.get("avatar")) {
+      console.log("Avatar File:", formData.get("avatar"));
+    }
+    
     return formData;
 };
   

@@ -44,6 +44,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TagsInput } from "@/components/ui/tags-input";
 import { Switch } from "@/components/ui/switch";
+import { useProfileAPI } from "@/lib/api/profiles";
 
 const formSchema = z.object({
   isStartup: z.boolean(),
@@ -62,6 +63,18 @@ const formSchema = z.object({
     .refine(
       (file) => !file || file.size <= 2 * 1024 * 1024,
       "File size must be less than 2MB"
+    )
+    .refine(
+      (file) =>
+        !file ||
+        [
+          "image/svg",
+          "image/png",
+          "image/jpeg",
+          "image/jpg",
+          "image/gif",
+        ].includes(file.type),
+      "Only SVG, PNG, JPG, JPEG, or GIF files are allowed"
     ),
   industry: z
     .string()
@@ -161,12 +174,15 @@ const formSchema = z.object({
 });
 
 export default function MyForm() {
-  const [files, setFiles] = useState<File[] | null>(null);
-
   const dropZoneConfig = {
     maxFiles: 1,
     maxSize: 1024 * 1024 * 2,
-    multiple: true,
+    accept: {
+      "image/svg": [".svg"],
+      "image/png": [".png"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/gif": [".gif"],
+    },
   };
 
   const [countryName, setCountryName] = useState<string>("");
@@ -238,19 +254,16 @@ export default function MyForm() {
     name: "jobPositions",
   });
 
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const { createUserProfile } = useProfileAPI();
+  async function onSubmit(profileData: z.infer<typeof formSchema>) {
     try {
-      console.log("Form submitted with values:", values);
-      
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
+      console.log("Sending profile data:", profileData);
+      await createUserProfile(profileData);
+
+      toast.success("Profile created successfully!");
     } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
+      console.error("Error creating profile:", error);
+      toast.error("Failed to create profile.");
     }
   }
 
@@ -367,10 +380,10 @@ export default function MyForm() {
               <FormLabel>Avatar</FormLabel>
               <FormControl>
                 <FileUploader
-                  value={value ? [value] : []} // Show the current file in the uploader
+                  value={value ? [value] : []}
                   onValueChange={(files) => {
-                    const file = files?.[0] || null; // Only take the first file
-                    onChange(file); // Update the form state with the selected file
+                    const file = files?.[0] || null;
+                    onChange(file);
                   }}
                   dropzoneOptions={dropZoneConfig}
                   className="relative bg-background rounded-lg p-2"
@@ -386,7 +399,7 @@ export default function MyForm() {
                         &nbsp; or drag and drop
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        SVG, PNG, JPG or GIF
+                        SVG, PNG, JPG, JPEG, or GIF (max size: 2MB)
                       </p>
                     </div>
                   </FileInput>
