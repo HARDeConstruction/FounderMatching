@@ -161,12 +161,14 @@ class Profile(models.Model):
     websitelink = models.CharField(db_column='WebsiteLink', max_length=255, blank=True, null=True)  # Field name made lowercase.
     avatar = models.BinaryField(db_column='Avatar', blank=True, null=True)  # Field name made lowercase.
     avatarfiletype = models.CharField(db_column='AvatarFileType', max_length=8, blank=True, null=True)  # Field name made lowercase.
-    description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)  # Field name made lowercase.
+    description = models.CharField(db_column='Description', max_length=5000, blank=True, null=True)  # Field name made lowercase.
     gender = models.TextField(db_column='Gender', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
     hobbyinterest = models.CharField(db_column='HobbyInterest', max_length=2000, blank=True, null=True)  # Field name made lowercase.
     education = models.CharField(db_column='Education', max_length=200, blank=True, null=True)  # Field name made lowercase.
     dateofbirth = models.DateTimeField(db_column='DateOfBirth', blank=True, null=True)  # Field name made lowercase.
     currentstage = models.CharField(db_column='CurrentStage', max_length=2000, blank=True, null=True)  # Field name made lowercase.
+    aboutus = models.CharField(db_column='AboutUs', max_length=5000, blank=True, null=True)  # Field name made lowercase.
+    statement = models.CharField(db_column='Statement', max_length=5000, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
@@ -178,7 +180,7 @@ class Profileprivacysettings(models.Model):
     genderprivacy = models.TextField(db_column='GenderPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
     industryprivacy = models.TextField(db_column='IndustryPrivacy')  # Field name made lowercase. This field type is a guess.
     emailprivacy = models.TextField(db_column='EmailPrivacy')  # Field name made lowercase. This field type is a guess.
-    phonenumberprivacy = models.TextField(db_column='PhoneNumberPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    phonenumberidprivacy = models.TextField(db_column='PhoneNumberIDPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
     countryidprivacy = models.TextField(db_column='CountryIDPrivacy')  # Field name made lowercase. This field type is a guess.
     cityprivacy = models.TextField(db_column='CityPrivacy')  # Field name made lowercase. This field type is a guess.
     universityprivacy = models.TextField(db_column='UniversityPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
@@ -264,7 +266,7 @@ class Tags(models.Model):
 
 class Useraccount(models.Model):
     userid = models.AutoField(db_column='UserID', primary_key=True)  # Field name made lowercase.
-    clerkuserid = models.CharField(db_column='ClerkUserID', unique=True, max_length=255)  # Field name made lowercase.
+    clerkuserid = models.UUIDField(db_column='ClerkUserID', unique=True)  # Field name made lowercase.
     email = models.CharField(db_column='Email', unique=True, max_length=255)  # Field name made lowercase.
     firstname = models.CharField(db_column='FirstName', max_length=50)  # Field name made lowercase.
     lastname = models.CharField(db_column='LastName', max_length=50)  # Field name made lowercase.
