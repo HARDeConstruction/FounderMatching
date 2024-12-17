@@ -86,12 +86,19 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+import os
+
+# Read credentials from .credentials file
+with open(os.path.join(Path(__file__).resolve().parent, ".credentials"), "r") as f:
+    credentials = f.readline().split("|")
+
+# Extract user and password
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'foundermatchingdb',
-        'USER': 'crimson',
-        'PASSWORD': '@123qaz123',
+        'USER': credentials[0].strip(),
+        'PASSWORD': credentials[1].strip(),
         'HOST': 'localhost',
         'PORT': '5432',
     }
