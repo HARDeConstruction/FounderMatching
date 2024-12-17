@@ -180,8 +180,8 @@ class Profileprivacysettings(models.Model):
     genderprivacy = models.TextField(db_column='GenderPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
     industryprivacy = models.TextField(db_column='IndustryPrivacy')  # Field name made lowercase. This field type is a guess.
     emailprivacy = models.TextField(db_column='EmailPrivacy')  # Field name made lowercase. This field type is a guess.
-    phonenumberidprivacy = models.TextField(db_column='PhoneNumberIDPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
-    countryidprivacy = models.TextField(db_column='CountryIDPrivacy')  # Field name made lowercase. This field type is a guess.
+    phonenumberprivacy = models.TextField(db_column='PhoneNumberPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    countryprivacy = models.TextField(db_column='CountryPrivacy')  # Field name made lowercase. This field type is a guess.
     cityprivacy = models.TextField(db_column='CityPrivacy')  # Field name made lowercase. This field type is a guess.
     universityprivacy = models.TextField(db_column='UniversityPrivacy', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
     linkedinurlprivacy = models.TextField(db_column='LinkedInURLPrivacy')  # Field name made lowercase. This field type is a guess.
@@ -266,7 +266,7 @@ class Tags(models.Model):
 
 class Useraccount(models.Model):
     userid = models.AutoField(db_column='UserID', primary_key=True)  # Field name made lowercase.
-    clerkuserid = models.UUIDField(db_column='ClerkUserID', unique=True)  # Field name made lowercase.
+    clerkuserid = models.CharField(db_column='ClerkUserID', unique=True, max_length=255)  # Field name made lowercase.
     email = models.CharField(db_column='Email', unique=True, max_length=255)  # Field name made lowercase.
     firstname = models.CharField(db_column='FirstName', max_length=50)  # Field name made lowercase.
     lastname = models.CharField(db_column='LastName', max_length=50)  # Field name made lowercase.

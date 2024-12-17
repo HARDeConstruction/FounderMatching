@@ -18,7 +18,7 @@ CREATE TYPE "match_status" AS ENUM (
 
 CREATE TABLE "UserAccount" (
   "UserID" SERIAL PRIMARY KEY,
-  "ClerkUserID" uuid UNIQUE NOT NULL,
+  "ClerkUserID" varchar(255) UNIQUE NOT NULL,
   "Email" varchar(255) UNIQUE NOT NULL,
   "FirstName" varchar(50) NOT NULL,
   "LastName" varchar(50) NOT NULL
@@ -62,8 +62,8 @@ CREATE TABLE "ProfilePrivacySettings" (
   "GenderPrivacy" privacy_type DEFAULT 'public',
   "IndustryPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "EmailPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "PhoneNumberIDPrivacy" privacy_type DEFAULT 'public',
-  "CountryIDPrivacy" privacy_type NOT NULL DEFAULT 'public',
+  "PhoneNumberPrivacy" privacy_type DEFAULT 'public',
+  "CountryPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "CityPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "UniversityPrivacy" privacy_type DEFAULT 'public',
   "LinkedInURLPrivacy" privacy_type NOT NULL DEFAULT 'public',

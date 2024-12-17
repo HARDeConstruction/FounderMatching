@@ -62,6 +62,10 @@ class Profile(models.Model):
         max_length=20,
         blank=True,
         null=True,
+        validators=[RegexValidator(
+            r'^\+[1-9]{1}[0-9]{3,14}$',
+            'Invalid phone number format.'
+        )]
     )
     country = models.CharField(
         db_column='Country',
@@ -90,16 +94,27 @@ class Profile(models.Model):
             'Invalid LinkedIn URL.'
         )]
     )
-    slogan = models.CharField(db_column='Slogan', max_length=200, blank=True, null=True)
-    websiteLink = models.CharField(db_column='WebsiteLink', max_length=255, blank=True, null=True)
+    slogan = models.CharField(db_column='Slogan', max_length=255, blank=True, null=True)
+    websiteLink = models.CharField(
+        db_column='WebsiteLink',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[RegexValidator(
+            r'(?:http[s]?://)?(?:www\.)?[-a-zA-Z0-9@%._\+~#=]{2,256}\.[a-z]{2,6}\b(?:[-a-zA-Z0-9@:%_\+.~#?&//=]*)',
+            'Invalid website URL.'
+        )]
+    )
     avatar = models.CharField(db_column='Avatar', max_length=255, blank=True, null=True)
     avatarFileType = models.CharField(db_column='AvatarFileType', max_length=8, blank=True, null=True)
-    description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)
+    description = models.CharField(db_column='Description', max_length=5000, blank=True, null=True)
     gender = models.TextField(db_column='Gender', blank=True, null=True, choices=GENDER_CHOICES)
-    hobbyInterest = models.CharField(db_column='HobbyInterest', max_length=2000, blank=True, null=True)
-    education = models.CharField(db_column='Education', max_length=200, blank=True, null=True)
+    hobbyInterest = models.CharField(db_column='HobbyInterest', max_length=500, blank=True, null=True)
+    education = models.CharField(db_column='Education', max_length=500, blank=True, null=True)
     dateOfBirth = models.DateTimeField(db_column='DateOfBirth', blank=True, null=True)
-    currentStage = models.CharField(db_column='CurrentStage', max_length=2000, blank=True, null=True)
+    currentStage = models.CharField(db_column='CurrentStage', max_length=255, blank=True, null=True)
+    statement = models.CharField(db_column='Statement', max_length=1000, blank=True, null=True)
+    aboutUs = models.CharField(db_column='AboutUs', max_length=5000, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -228,7 +243,7 @@ class ProfilePrivacySettings(models.Model):
     industryPrivacy = models.TextField(db_column='IndustryPrivacy', choices=PRIVACY_CHOICES)
     emailPrivacy = models.TextField(db_column='EmailPrivacy', choices=PRIVACY_CHOICES)
     phoneNumberPrivacy = models.TextField(db_column='PhoneNumberPrivacy', blank=True, null=True, choices=PRIVACY_CHOICES)
-    countryIDPrivacy = models.TextField(db_column='CountryIDPrivacy', choices=PRIVACY_CHOICES)
+    countryPrivacy = models.TextField(db_column='CountryPrivacy', choices=PRIVACY_CHOICES)
     cityPrivacy = models.TextField(db_column='CityPrivacy', choices=PRIVACY_CHOICES)
     universityPrivacy = models.TextField(db_column='UniversityPrivacy', blank=True, null=True, choices=PRIVACY_CHOICES)
     linkedInURLPrivacy = models.TextField(db_column='LinkedInURLPrivacy', choices=PRIVACY_CHOICES)
@@ -272,3 +287,64 @@ class ProfileTagInstances(models.Model):
         managed = False
         db_table = 'ProfileTagInstances'
         unique_together = (('profileOwnerID', 'tagID'),)
+
+class JobPosition(models.Model):
+    jobPositionID = models.AutoField(db_column='JobPositionID', primary_key=True)
+    profileOwner = models.ForeignKey(
+        Profile,
+        models.DO_NOTHING,
+        db_column='ProfileOwner',
+        related_name='jobPositions'
+    )
+    jobTitle = models.CharField(
+        db_column='JobTitle',
+        max_length=100,
+        validators=[RegexValidator(
+            r'^[A-Za-z0-9\s&\',.-]+$',
+            'Invalid job title format.'
+        )]
+    )
+    isOpening = models.BooleanField(db_column='IsOpening', default=True)
+    country = models.CharField(
+        db_column='Country',
+        max_length=100,
+        validators=[RegexValidator(
+            r'^[A-Za-z]+((\s)?((\'|\-|\.)?([A-Za-z])+))*$',
+            'Invalid country format.'
+        )]
+    )
+    city = models.CharField(
+        db_column='City',
+        max_length=100,
+        blank=True,
+        null=True,
+        validators=[RegexValidator(
+            r'^[A-Za-z]+((\s)?((\'|\-|\.)?([A-Za-z])+))*$',
+            'Invalid city format.'
+        )]
+    )
+    startDate = models.DateTimeField(db_column='StartDate', blank=True, null=True)
+    description = models.CharField(db_column='Description', max_length=10000, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'JobPosition'
+
+class JobPositionTagInstances(models.Model):
+    jobPositionID = models.ForeignKey(
+        JobPosition,
+        models.DO_NOTHING,
+        db_column='JobPositionID',
+        primary_key=True,
+        related_name='tags'
+    )
+    tagID = models.ForeignKey(
+        Tags,
+        models.DO_NOTHING,
+        db_column='TagID'
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'JobPositionTagInstances'
+        unique_together = (('jobPositionID', 'tagID'),)

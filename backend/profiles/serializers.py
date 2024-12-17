@@ -2,10 +2,11 @@ from rest_framework import serializers
 from .models import (
     Profile, Experience, Certificate,
     Achievement, ProfilePrivacySettings, Countries,
-    Tags, ProfileTagInstances
+    Tags, ProfileTagInstances, JobPosition, JobPositionTagInstances
 )
 from datetime import datetime
 import re
+import os
 
 class ModelSerializer(serializers.ModelSerializer):
     """Base serializer that preserves the exact field names from the model"""
@@ -17,15 +18,16 @@ class ModelSerializer(serializers.ModelSerializer):
 
 class ProfilePreviewCardSerializer(ModelSerializer):
     tags = serializers.SerializerMethodField()
+    occupation = serializers.CharField(source='industry')
+    avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
-        fields = ['profileID', 'isStartup', 'name', 'avatar', 'tags']
+        fields = ['profileID', 'isStartup', 'name', 'occupation', 'avatar', 'tags']
         extra_kwargs = {
             'profileID': {'read_only': True},
             'isStartup': {'read_only': True},
             'name': {'read_only': True},
-            'avatar': {'read_only': True},
         }
 
     def get_tags(self, obj):
@@ -33,6 +35,12 @@ class ProfilePreviewCardSerializer(ModelSerializer):
             return [tag_instance.tagID.value for tag_instance in obj.tags.all()]
         except Exception:
             return []
+
+    def get_avatar(self, obj):
+        avatar_number = self.context.get('avatar_number')
+        if avatar_number is not None and obj.avatar:
+            return str(avatar_number)
+        return None
 
 class ExperienceSerializer(ModelSerializer):
     class Meta:
@@ -66,6 +74,20 @@ class AchievementSerializer(ModelSerializer):
             'name': {'required': True},
         }
 
+class JobPositionSerializer(ModelSerializer):
+    tags = serializers.ListField(child=serializers.CharField(), required=False)
+
+    class Meta:
+        model = JobPosition
+        fields = [
+            'jobTitle', 'isOpening', 'country', 'city',
+            'startDate', 'description', 'tags'
+        ]
+        extra_kwargs = {
+            'jobTitle': {'required': True},
+            'country': {'required': True},
+        }
+
 class ProfilePrivacySettingsSerializer(ModelSerializer):
     class Meta:
         model = ProfilePrivacySettings
@@ -85,9 +107,12 @@ class ProfileSerializer(ModelSerializer):
     experiences = ExperienceSerializer(many=True, required=False)
     certificates = CertificateSerializer(many=True, required=False)
     achievements = AchievementSerializer(many=True, required=False)
+    jobPositions = JobPositionSerializer(many=True, required=False)
     privacySettings = ProfilePrivacySettingsSerializer(source='profileprivacysettings', required=False)
     dateOfBirth = serializers.CharField(required=False, allow_null=True)
     tags = serializers.ListField(child=serializers.CharField(), required=False)
+    avatar = serializers.DictField(required=False, write_only=True)
+    avatar_file = serializers.CharField(required=False, write_only=True)
 
     class Meta:
         model = Profile
@@ -95,17 +120,48 @@ class ProfileSerializer(ModelSerializer):
             'userID', 'isStartup', 'name', 'email',
             'industry', 'phoneNumber', 'country', 'city',
             'linkedInURL', 'slogan', 'websiteLink',
-            'avatar', 'avatarFileType', 'description', 'hobbyInterest',
+            'avatar', 'avatar_file', 'avatarFileType', 'description', 'hobbyInterest',
             'gender', 'education', 'dateOfBirth',
-            'currentStage', 'experiences', 'certificates',
-            'achievements', 'privacySettings', 'tags'
+            'currentStage', 'statement', 'aboutUs',
+            'experiences', 'certificates', 'achievements',
+            'jobPositions', 'privacySettings', 'tags'
         ]
         extra_kwargs = {
             'userID': {'required': True},
             'name': {'required': True},
             'email': {'required': True},
             'industry': {'required': True},
+            'avatarFileType': {'read_only': True},
         }
+
+    # def validate_name(self, value):
+    #     if not re.match(r'^[\p{L}\s\'\-\.]+$', value, re.UNICODE):
+    #         raise serializers.ValidationError("Invalid name format.")
+    #     return value
+
+    def validate_avatar(self, value):
+        if not value:
+            return None
+
+        if not isinstance(value, dict):
+            raise serializers.ValidationError("Avatar must be a dictionary with path and relativePath")
+
+        path = value.get('path')
+        if not path:
+            raise serializers.ValidationError("Avatar path is required")
+
+        # Extract file extension
+        _, ext = os.path.splitext(path)
+        if not ext:
+            raise serializers.ValidationError("Avatar file must have an extension")
+        ext = ext[1:].lower()
+        
+        # Validate extension
+        valid_extensions = ['jpg', 'jpeg', 'png', 'gif']
+        if ext not in valid_extensions:
+            raise serializers.ValidationError(f"Invalid file extension. Allowed extensions are: {', '.join(valid_extensions)}")
+
+        return value
 
     def get_default_privacy_settings(self):
         return {
@@ -113,7 +169,7 @@ class ProfileSerializer(ModelSerializer):
             'industryPrivacy': 'public',
             'emailPrivacy': 'public',
             'phoneNumberPrivacy': 'public',
-            'countryIDPrivacy': 'public',
+            'countryPrivacy': 'public',
             'cityPrivacy': 'public',
             'universityPrivacy': 'public',
             'linkedInURLPrivacy': 'public',
@@ -160,8 +216,21 @@ class ProfileSerializer(ModelSerializer):
         experiences_data = validated_data.pop('experiences', [])
         certificates_data = validated_data.pop('certificates', [])
         achievements_data = validated_data.pop('achievements', [])
+        job_positions_data = validated_data.pop('jobPositions', [])
         privacy_settings_data = validated_data.pop('profileprivacysettings', None)
         tags_data = validated_data.pop('tags', [])
+        avatar_data = validated_data.pop('avatar', None)
+        avatar_file = validated_data.pop('avatar_file', None)
+
+        # Handle avatar file type
+        if avatar_data and 'path' in avatar_data:
+            _, ext = os.path.splitext(avatar_data['path'])
+            if ext:
+                validated_data['avatarFileType'] = ext[1:].lower()
+
+        # Set avatar binary data if provided
+        if avatar_file:
+            validated_data['avatar'] = avatar_file
 
         profile = Profile.objects.create(**validated_data)
 
@@ -173,6 +242,20 @@ class ProfileSerializer(ModelSerializer):
 
         for ach_data in achievements_data:
             Achievement.objects.create(profileOwner=profile, **ach_data)
+
+        for job_data in job_positions_data:
+            tags_data = job_data.pop('tags', [])
+            job = JobPosition.objects.create(profileOwner=profile, **job_data)
+            
+            for tag_value in tags_data:
+                tag, _ = Tags.objects.get_or_create(
+                    value=tag_value,
+                    defaults={'description': None}
+                )
+                JobPositionTagInstances.objects.create(
+                    jobPositionID=job,
+                    tagID=tag
+                )
 
         if privacy_settings_data is None:
             privacy_settings_data = self.get_default_privacy_settings()
