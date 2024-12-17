@@ -238,12 +238,11 @@ export default function MyForm() {
     name: "jobPositions",
   });
 
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       console.log("Form submitted with values:", values);
-      if (files) {
-        console.log("Submitted Files:", files);
-      }
+      
       toast(
         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
           <code className="text-white">{JSON.stringify(values, null, 2)}</code>
