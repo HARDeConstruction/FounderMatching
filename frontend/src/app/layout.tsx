@@ -7,6 +7,8 @@ import {
   SignInButton,
   UserButton,
 } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
+
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-mont" });
 const cabin = Cabin({ subsets: ["latin"], variable: "--font-cabin" });
@@ -28,6 +30,7 @@ export default function RootLayout({
           className={`${montserrat.className} ${cabin.variable} antialiased`}
         >
           {children}
+          <Toaster richColors/>
         </body>
       </html>
     </ClerkProvider>
