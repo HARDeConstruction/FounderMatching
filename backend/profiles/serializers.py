@@ -15,6 +15,25 @@ class ModelSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         return super().to_internal_value(data)
 
+class ProfilePreviewCardSerializer(ModelSerializer):
+    tags = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Profile
+        fields = ['profileID', 'isStartup', 'name', 'avatar', 'tags']
+        extra_kwargs = {
+            'profileID': {'read_only': True},
+            'isStartup': {'read_only': True},
+            'name': {'read_only': True},
+            'avatar': {'read_only': True},
+        }
+
+    def get_tags(self, obj):
+        try:
+            return [tag_instance.tagID.value for tag_instance in obj.tags.all()]
+        except Exception:
+            return []
+
 class ExperienceSerializer(ModelSerializer):
     class Meta:
         model = Experience
@@ -174,6 +193,7 @@ class ProfileSerializer(ModelSerializer):
                     tagID=tag
                 )
             except Exception as e:
+                print(f"Error creating tag {tag_value}: {str(e)}")
                 continue
 
         return profile
