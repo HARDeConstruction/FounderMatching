@@ -71,43 +71,59 @@ export default function ProfilePage() {
             </Button>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-x-6 gap-y-4">
-            <p>
-              <strong>Name:</strong> {profileData.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {profileData.email}
-            </p>
-            <p>
-              <strong>Date of Birth:</strong> {profileData.dateOfBirth}
-            </p>
-            <p>
-              <strong>Gender:</strong>{" "}
-              {profileData.gender.charAt(0).toUpperCase() +
-                profileData.gender.slice(1)}
-            </p>
-            <p>
-              <strong>Phone:</strong> {profileData.phoneNumber}
-            </p>
-            <p>
-              <strong>Location:</strong> {profileData.city},{" "}
-              {profileData.country}
-            </p>
-            <p>
-              <strong>Website:</strong>{" "}
-              {profileData.websiteLink ? (
-                profileData.websiteLink
-              ) : (
-                <i>Not available</i>
-              )}
-            </p>
-            <p>
-              <strong>LinkedIn:</strong>{" "}
-              {profileData.linkedInURL ? (
-                profileData.linkedInURL
-              ) : (
-                <i>Not available</i>
-              )}
-            </p>
+            <div>
+              <p className="text-sm text-gray-500">Name</p>
+              <p className="font-semibold text-gray-800">{profileData.name}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Email</p>
+              <p className="font-semibold text-gray-800">{profileData.email}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Date of Birth</p>
+              <p className="font-semibold text-gray-800">
+                {profileData.dateOfBirth}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Gender</p>
+              <p className="font-semibold text-gray-800">
+                {profileData.gender.charAt(0).toUpperCase() +
+                  profileData.gender.slice(1)}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Phone</p>
+              <p className="font-semibold text-gray-800">
+                {profileData.phoneNumber}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Location</p>
+              <p className="font-semibold text-gray-800">
+                {profileData.city}, {profileData.country}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Website</p>
+              <p className="font-semibold text-gray-800">
+                {profileData.websiteLink ? (
+                  profileData.websiteLink
+                ) : (
+                  <i className="text-gray-500">Not available</i>
+                )}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">LinkedIn</p>
+              <p className="font-semibold text-gray-800">
+                {profileData.linkedInURL ? (
+                  profileData.linkedInURL
+                ) : (
+                  <i className="text-gray-500">Not available</i>
+                )}
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -130,34 +146,51 @@ export default function ProfilePage() {
             </Button>
           </CardHeader>
           <CardContent className="flex flex-col justify-between gap-y-4">
-            <p>
-              <strong>Slogan:</strong>{" "}
-              {profileData.slogan ? profileData.slogan : <i>Not Available</i>}
-            </p>
-            <p>
-              <strong>Hobby:</strong>{" "}
-              {profileData.hobbyInterest ? (
-                profileData.hobbyInterest
-              ) : (
-                <i>Not Available</i>
-              )}
-            </p>
-            <p>
-              <strong>Bio:</strong>{" "}
-              {profileData.description ? (
-                profileData.description
-              ) : (
-                <i>Not Available</i>
-              )}
-            </p>
-            <p>
-              <strong>Tags:</strong>{" "}
-              {profileData.tags ? (
-                profileData.tags.join(", ")
-              ) : (
-                <i>Not Available</i>
-              )}
-            </p>
+            <div className="flex flex-col">
+              <span className="text-xs uppercase tracking-wide text-gray-500">
+                Slogan
+              </span>
+              <span className="text-base text-gray-700">
+                {profileData.slogan || (
+                  <i className="text-gray-400">Not Available</i>
+                )}
+              </span>
+            </div>
+
+            <div className="flex flex-col">
+              <span className="text-xs uppercase tracking-wide text-gray-500">
+                Hobby
+              </span>
+              <span className="text-base text-gray-700">
+                {profileData.hobbyInterest || (
+                  <i className="text-gray-400">Not Available</i>
+                )}
+              </span>
+            </div>
+
+            <div className="flex flex-col">
+              <span className="text-xs uppercase tracking-wide text-gray-500">
+                Bio
+              </span>
+              <span className="text-base text-gray-700 leading-relaxed">
+                {profileData.description || (
+                  <i className="text-gray-400">Not Available</i>
+                )}
+              </span>
+            </div>
+
+            <div className="flex flex-col">
+              <span className="text-xs uppercase tracking-wide text-gray-500">
+                Tags
+              </span>
+              <span className="text-base text-gray-700">
+                {profileData.tags?.length > 0 ? (
+                  profileData.tags.join(", ")
+                ) : (
+                  <i className="text-gray-400">Not Available</i>
+                )}
+              </span>
+            </div>
           </CardContent>
         </Card>
 
@@ -246,7 +279,7 @@ export default function ProfilePage() {
         {/* Achievements */}
         <Card className="shadow-md my-6">
           <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6">
               <MedalIcon className="w-16 h-16" />
               <div>
                 <CardTitle className="text-xl">Achievements</CardTitle>
