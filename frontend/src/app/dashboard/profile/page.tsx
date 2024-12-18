@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  BadgeInfoIcon,
+  BriefcaseBusinessIcon,
+  AwardIcon,
+  MedalIcon,
+} from "lucide-react";
 
 export default function ProfilePage() {
   const { getCurrentUserProfile } = useProfileAPI();
@@ -109,12 +115,15 @@ export default function ProfilePage() {
 
         <Card className="shadow-md my-6">
           <CardHeader className="flex flex-row items-center justify-between">
-            <div className=" items-center gap-6">
-              <CardTitle className="text-xl">Profile Highlights</CardTitle>
-              <p className="text-base text-gray-500">
-                The Profile Highlights include a catchy Tagline, a detailed
-                Description, and Hobby Interests to showcase personality.
-              </p>
+            <div className="flex items-center gap-6">
+              <BadgeInfoIcon className="w-16 h-16" />
+              <div>
+                <CardTitle className="text-xl">Profile Highlights</CardTitle>
+                <p className="text-base text-gray-500">
+                  The Profile Highlights include a catchy Tagline, a detailed
+                  Description, and Hobby Interests to showcase personality.
+                </p>
+              </div>
             </div>
             <Button size="sm" variant="outline">
               Edit
@@ -155,7 +164,16 @@ export default function ProfilePage() {
         {/* Experiences */}
         <Card className="shadow-md my-6">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl">Experiences</CardTitle>
+            <div className="flex items-center gap-6">
+              <BriefcaseBusinessIcon className="w-16 h-16" />
+              <div>
+                <CardTitle className="text-xl">Experience</CardTitle>
+                <p className="text-base text-gray-500">
+                  The Profile Highlights include a catchy Tagline, a detailed
+                  Description, and Hobby Interests to showcase personality.
+                </p>
+              </div>
+            </div>
             <Button size="sm" variant="outline">
               Edit
             </Button>
@@ -186,7 +204,16 @@ export default function ProfilePage() {
         {/* Certificates */}
         <Card className="shadow-md my-6">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl">Certificates</CardTitle>
+            <div className="flex items-center gap-6">
+              <AwardIcon className="w-16 h-16" />
+              <div>
+                <CardTitle className="text-xl">Certificates</CardTitle>
+                <p className="text-base text-gray-500">
+                  The Profile Highlights include a catchy Tagline, a detailed
+                  Description, and Hobby Interests to showcase personality.
+                </p>
+              </div>
+            </div>
             <Button size="sm" variant="outline">
               Edit
             </Button>
@@ -219,7 +246,16 @@ export default function ProfilePage() {
         {/* Achievements */}
         <Card className="shadow-md my-6">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl">Achievements</CardTitle>
+          <div className="flex items-center gap-6">
+              <MedalIcon className="w-16 h-16" />
+              <div>
+                <CardTitle className="text-xl">Achievements</CardTitle>
+                <p className="text-base text-gray-500">
+                  The Profile Highlights include a catchy Tagline, a detailed
+                  Description, and Hobby Interests to showcase personality.
+                </p>
+              </div>
+            </div>
             <Button size="sm" variant="outline">
               Edit
             </Button>
