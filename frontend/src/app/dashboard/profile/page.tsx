@@ -12,6 +12,7 @@ import {
   BriefcaseBusinessIcon,
   AwardIcon,
   MedalIcon,
+  CircleIcon,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -61,7 +62,7 @@ export default function ProfilePage() {
               </Avatar>
               <div>
                 <CardTitle className="text-xl">Basic Information</CardTitle>
-                <p className="text-base text-gray-500">
+                <p className="text-sm text-gray-500">
                   You can update or edit your profile information.
                 </p>
               </div>
@@ -146,44 +147,36 @@ export default function ProfilePage() {
             </Button>
           </CardHeader>
           <CardContent className="flex flex-col justify-between gap-y-4">
-            <div className="flex flex-col">
-              <span className="text-xs uppercase tracking-wide text-gray-500">
-                Slogan
-              </span>
-              <span className="text-base text-gray-700">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm text-gray-500">Slogan</span>
+              <span className="text-base font-medium text-gray-800 italic">
                 {profileData.slogan || (
                   <i className="text-gray-400">Not Available</i>
                 )}
               </span>
             </div>
 
-            <div className="flex flex-col">
-              <span className="text-xs uppercase tracking-wide text-gray-500">
-                Hobby
-              </span>
-              <span className="text-base text-gray-700">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm text-gray-500">Hobby</span>
+              <span className="text-base font-medium text-gray-800">
                 {profileData.hobbyInterest || (
                   <i className="text-gray-400">Not Available</i>
                 )}
               </span>
             </div>
 
-            <div className="flex flex-col">
-              <span className="text-xs uppercase tracking-wide text-gray-500">
-                Bio
-              </span>
-              <span className="text-base text-gray-700 leading-relaxed">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm text-gray-500">Bio</span>
+              <span className="text-base font-medium text-gray-800 leading-relaxed">
                 {profileData.description || (
                   <i className="text-gray-400">Not Available</i>
                 )}
               </span>
             </div>
 
-            <div className="flex flex-col">
-              <span className="text-xs uppercase tracking-wide text-gray-500">
-                Tags
-              </span>
-              <span className="text-base text-gray-700">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm text-gray-500">Tags</span>
+              <span className="text-base font-medium text-gray-800">
                 {profileData.tags?.length > 0 ? (
                   profileData.tags.join(", ")
                 ) : (
@@ -201,7 +194,7 @@ export default function ProfilePage() {
               <BriefcaseBusinessIcon className="w-16 h-16" />
               <div>
                 <CardTitle className="text-xl">Experience</CardTitle>
-                <p className="text-base text-gray-500">
+                <p className="text-sm text-gray-500">
                   The Profile Highlights include a catchy Tagline, a detailed
                   Description, and Hobby Interests to showcase personality.
                 </p>
@@ -216,20 +209,39 @@ export default function ProfilePage() {
               profileData.experiences.map((exp: any, index: number) => (
                 <div
                   key={index}
-                  className="flex flex-col gap-1 p-4 border rounded-lg mb-4 bg-gray-50"
+                  className="relative flex flex-col gap-1 p-4 mb-4"
                 >
-                  <h4 className="text-md font-bold text-gray-800">
-                    {exp.role}
-                  </h4>
-                  <p className="text-sm text-gray-500">{exp.companyName}</p>
-                  <p className="text-sm text-gray-600">
-                    {exp.startDate} - {exp.endDate}
-                  </p>
-                  <p className="text-gray-700">{exp.description}</p>
+                  <div className="flex flex-row justify-between items-center">
+                    <div className="flex items-center gap-6">
+                      <CircleIcon className="w-[22px] h-[22px] z-10 -translate-y-2" />
+                      <div
+                        className="absolute top-[42px] left-6 translate-x-[2px] w-[2px] bg-gray-800"
+                        style={{
+                          height:
+                            index === profileData.experiences.length - 1
+                              ? "calc(100% - 30px)"
+                              : "calc(100% + 15px)",
+                        }}
+                      ></div>
+
+                      <div>
+                        <h1 className="text-lg font-bold text-gray-800">
+                          {exp.role}
+                        </h1>
+                        <h2 className="text-md font-semibold text-gray-700">
+                          {exp.companyName} | {exp.location}
+                        </h2>
+                      </div>
+                    </div>
+                    <div className="text-md font-semibold text-gray-800">
+                      {exp.startDate} - {exp.endDate}
+                    </div>
+                  </div>
+                  <p className="text-gray-800 ml-12 mt-2">{exp.description}</p>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 italic">No experiences added yet.</p>
+              <p className="text-gray-800 italic">No experiences added yet.</p>
             )}
           </CardContent>
         </Card>
@@ -241,9 +253,9 @@ export default function ProfilePage() {
               <AwardIcon className="w-16 h-16" />
               <div>
                 <CardTitle className="text-xl">Certificates</CardTitle>
-                <p className="text-base text-gray-500">
-                  The Profile Highlights include a catchy Tagline, a detailed
-                  Description, and Hobby Interests to showcase personality.
+                <p className="text-sm text-gray-500">
+                  Showcase your certifications, highlighting key skills,
+                  achievements, and educational milestones.
                 </p>
               </div>
             </div>
@@ -283,9 +295,9 @@ export default function ProfilePage() {
               <MedalIcon className="w-16 h-16" />
               <div>
                 <CardTitle className="text-xl">Achievements</CardTitle>
-                <p className="text-base text-gray-500">
-                  The Profile Highlights include a catchy Tagline, a detailed
-                  Description, and Hobby Interests to showcase personality.
+                <p className="text-sm text-gray-500">
+                  Highlight your notable accomplishments, showcasing milestones
+                  and successes that set you apart.
                 </p>
               </div>
             </div>
