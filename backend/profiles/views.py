@@ -118,7 +118,7 @@ class GetUserProfilesView(APIView):
                     with open(temp_path, 'rb') as f:
                         file_content = f.read()
                         mime_type = mimetypes.guess_type(temp_path)[0]
-                        avatar_files.append((f"avatar_{i}", file_content, mime_type))
+                        avatar_files.append((str(i), file_content, mime_type))
 
         finally:
             import shutil
@@ -163,7 +163,7 @@ class GetUserProfilesView(APIView):
 
             response = HttpResponse(content_type='multipart/form-data; boundary=boundary')
             
-            json_data = json.dumps({'profiles': profile_data})
+            json_data = json.dumps(profile_data)
             response.write(b'--boundary\r\n')
             response.write(b'Content-Disposition: form-data; name="ProfileInfo"\r\n')
             response.write(b'Content-Type: application/json\r\n\r\n')
