@@ -458,3 +458,94 @@ class GetUserProfileByIdView(APIView):
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class UpdateProfileView(APIView):
+    authentication_classes = [JWTAuthenticationMiddleware]
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+
+    def validate_avatar_file(self, file):
+        if not file:
+            return None
+
+        # Check file size
+        if file.size > 2097152:
+            raise ValidationError("Avatar file size must be less than 2MB")
+
+        # Read and encode file data
+        file_data = file.read()
+        return base64.b64encode(file_data).decode('utf-8')
+
+    @transaction.atomic
+    def patch(self, request):
+        try:
+            try:
+                user_account = UserAccount.objects.get(clerkUserID=request.user.username)
+                user_id = user_account.userID
+            except UserAccount.DoesNotExist:
+                return Response(
+                    {'error': 'User account not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            profile_info = request.data.get('ProfileInfo')
+            if isinstance(profile_info, str):
+                try:
+                    profile_data = json.loads(profile_info)
+                except json.JSONDecodeError as e:
+                    return Response(
+                        {'error': f'Invalid JSON data: {str(e)}'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            else:
+                profile_data = profile_info
+
+            if not profile_data:
+                return Response(
+                    {'error': 'ProfileInfo is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Get the current active profile for the user
+            try:
+                profile = Profile.objects.filter(userID=user_id).latest('profileID')
+            except Profile.DoesNotExist:
+                return Response(
+                    {'error': 'No profile found for this user'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Set userID in profile data
+            profile_data['userID'] = user_id
+            profile_data['ProfileID'] = profile.profileID
+
+            # Handle avatar file
+            avatar_file = request.FILES.get('avatar')
+            if avatar_file:
+                try:
+                    avatar_data = self.validate_avatar_file(avatar_file)
+                    if avatar_data:
+                        profile_data['avatar_file'] = avatar_data
+                except ValidationError as e:
+                    return Response(
+                        {'error': str(e)},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            # Update profile data
+            serializer = ProfileSerializer(profile, data=profile_data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    {'message': 'Profile updated successfully'},
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}", exc_info=True)
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -104,10 +104,10 @@ class ProfilePrivacySettingsSerializer(ModelSerializer):
         }
 
 class ProfileSerializer(ModelSerializer):
-    experiences = ExperienceSerializer(many=True, required=False, read_only=True)
-    certificates = CertificateSerializer(many=True, required=False, read_only=True)
-    achievements = AchievementSerializer(many=True, required=False, read_only=True)
-    jobPositions = JobPositionSerializer(many=True, required=False, read_only=True, source='jobpositions')
+    experiences = ExperienceSerializer(many=True, required=False)
+    certificates = CertificateSerializer(many=True, required=False)
+    achievements = AchievementSerializer(many=True, required=False)
+    jobPositions = JobPositionSerializer(many=True, required=False, source='jobpositions')
     privacySettings = ProfilePrivacySettingsSerializer(source='profileprivacysettings', required=False)
     dateOfBirth = serializers.CharField(required=False, allow_null=True)
     tags = serializers.SerializerMethodField()
@@ -158,6 +158,75 @@ class ProfileSerializer(ModelSerializer):
             raise serializers.ValidationError(f"Invalid file extension. Allowed extensions are: {', '.join(valid_extensions)}")
 
         return value
+
+    def update(self, instance, validated_data):
+        # Handle nested fields
+        experiences_data = validated_data.pop('experiences', None)
+        certificates_data = validated_data.pop('certificates', None)
+        achievements_data = validated_data.pop('achievements', None)
+        job_positions_data = validated_data.pop('jobPositions', None)
+        privacy_settings_data = validated_data.pop('profileprivacysettings', None)
+        avatar_data = validated_data.pop('avatar', None)
+        avatar_file = validated_data.pop('avatar_file', None)
+
+        # Update avatar file type if new avatar
+        if avatar_data and 'path' in avatar_data:
+            _, ext = os.path.splitext(avatar_data['path'])
+            if ext:
+                validated_data['avatarFileType'] = ext[1:].lower()
+
+        # Set avatar binary data if provided
+        if avatar_file:
+            validated_data['avatar'] = avatar_file
+
+        # Update main profile fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update experiences if provided
+        if experiences_data is not None:
+            instance.experiences.all().delete()
+            for exp_data in experiences_data:
+                Experience.objects.create(profileOwner=instance, **exp_data)
+
+        # Update certificates if provided
+        if certificates_data is not None:
+            instance.certificates.all().delete()
+            for cert_data in certificates_data:
+                Certificate.objects.create(profileOwner=instance, **cert_data)
+
+        # Update achievements if provided
+        if achievements_data is not None:
+            instance.achievements.all().delete()
+            for ach_data in achievements_data:
+                Achievement.objects.create(profileOwner=instance, **ach_data)
+
+        # Update job positions if provided
+        if job_positions_data is not None:
+            instance.jobpositions.all().delete()
+            for job_data in job_positions_data:
+                tags_data = job_data.pop('tags', [])
+                job = JobPosition.objects.create(profileOwner=instance, **job_data)
+                
+                for tag_value in tags_data:
+                    tag, _ = Tags.objects.get_or_create(
+                        value=tag_value,
+                        defaults={'description': None}
+                    )
+                    JobPositionTagInstances.objects.create(
+                        jobPositionID=job,
+                        tagID=tag
+                    )
+
+        # Update privacy settings if provided
+        if privacy_settings_data is not None:
+            privacy_settings = instance.profileprivacysettings
+            for field, value in privacy_settings_data.items():
+                setattr(privacy_settings, field, value)
+            privacy_settings.save()
+
+        return instance
 
     def get_default_privacy_settings(self):
         return {
