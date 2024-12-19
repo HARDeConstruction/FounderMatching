@@ -25,8 +25,8 @@ const MyProfilePage = () => {
       try {
         setLoading(true);
         const response = await getUserProfiles();
-        const formData = await response.formData();
-        const profilesJson = formData.get("ProfileInfo") as string;
+        // const formData = await response.formData();
+        const profilesJson = response.get("ProfileInfo") as string;
 
         if (!profilesJson) {
           throw new Error("Missing ProfileInfo in response");
@@ -35,7 +35,7 @@ const MyProfilePage = () => {
         const parsedProfiles: ProfilePreviewCard[] = JSON.parse(profilesJson);
 
         const updatedProfiles = parsedProfiles.map((profile) => {
-          const avatarFile = formData.get(String(profile.avatar)) as File;
+          const avatarFile = response.get(String(profile.avatar)) as File;
           if (!avatarFile) {
             console.warn(`No file found for avatar ID ${profile.avatar}`);
           }
