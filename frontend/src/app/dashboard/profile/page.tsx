@@ -1466,13 +1466,7 @@ export default function ProfilePage() {
     const loadProfileData = async () => {
       try {
         const response = await getCurrentUserProfile();
-        const formData = await response.formData();
-
-        const profileJson = formData.get("ProfileInfo") as string;
-        const profileData: ProfileData = JSON.parse(profileJson);
-
-        const avatarFile = formData.get("avatar") as File;
-        if (avatarFile) profileData.avatar = avatarFile;
+        const profileInfo: ProfileData = await response.json();
 
         setProfileData(profileData);
       } catch (error) {
@@ -1506,7 +1500,10 @@ export default function ProfilePage() {
             <div className="flex items-center gap-6">
               <Avatar className="w-20 h-20">
                 <AvatarImage
-                  src={profileData.avatar || "/default-avatar.png"}
+                  src={
+                    `data:image/jpeg;base64,${profileData.avatar}` ||
+                    "/default-avatar.png"
+                  }
                 />
                 <AvatarFallback>{profileData.name?.[0] || "?"}</AvatarFallback>
               </Avatar>
@@ -1781,8 +1778,8 @@ export default function ProfilePage() {
                 </Button>
               </CardHeader>
               <CardContent className="flex flex-col gap-y-4">
-                {profileData.certificates.length > 0 ? (
-                  profileData.certificates.map((cert: any, index: number) => (
+                {profileData.certificates ?? [].length > 0 ? (
+                  profileData?.certificates?.map((cert: any, index: number) => (
                     <div
                       key={index}
                       className="relative flex flex-col gap-1 p-4 mb-4"

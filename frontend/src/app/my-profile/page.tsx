@@ -54,10 +54,10 @@ const MyProfilePage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {profiles.map((profile) => (
           <Card
-            key={profile.ProfileID}
+            key={profile.profileID}
             className="cursor-pointer hover:shadow-md transition-all"
             onClick={() =>
-              router.push(`/dashboard/profile/me?id=${profile.ProfileID}`)
+              router.push(`/dashboard/profile/me?id=${profile.profileID}`)
             }
           >
             <CardHeader className="flex items-center justify-center">
@@ -84,13 +84,13 @@ const MyProfilePage = () => {
             </CardHeader>
             <CardContent className="text-center">
               <CardTitle className="text-lg font-bold break-words">
-                {profile.Name}
+                {profile.name}
               </CardTitle>
               <CardDescription className="text-gray-600">
-                {profile.Occupation || "No occupation listed"}
+                {profile.occupation || "No occupation listed"}
               </CardDescription>
               <div className="mt-2 text-sm font-medium text-blue-600">
-                {profile.IsStartup ? "Startup" : "Candidate"}
+                {profile.isStartup ? "Startup" : "Candidate"}
               </div>
             </CardContent>
           </Card>
