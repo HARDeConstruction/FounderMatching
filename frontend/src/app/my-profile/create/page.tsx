@@ -257,8 +257,11 @@ export default function MyForm() {
   const { createUserProfile } = useProfileAPI();
   async function onSubmit(profileData: z.infer<typeof formSchema>) {
     try {
-      console.log("Sending profile data:", profileData);
-      await createUserProfile(profileData);
+      const formData = new FormData();
+      formData.append("ProfileInfo", JSON.stringify(profileData));
+      formData.append("avatar", profileData.avatar as File);
+      console.log("Sending profile data:", formData);
+      await createUserProfile(formData);
 
       toast.success("Profile created successfully!");
     } catch (error) {

@@ -67,6 +67,7 @@ import { Switch } from "@/components/ui/switch";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import Profile from "../discover/candidates/page";
 
 const formSchema = z.object({
   isStartup: z.boolean(),
@@ -1458,127 +1459,40 @@ const EditDialog = ({ data }) => {
 
 export default function ProfilePage() {
   const { getCurrentUserProfile } = useProfileAPI();
-  const [profileData, setProfileData] = useState<ProfileData | null>({
-    isStartup: true,
-    name: "Lưu Nguyễn Chí Đức",
-    email: "DUCLNC2004@GMAIL.COM",
-    avatar: {
-      path: "./bruhwhywasidoingthis.jpg",
-      relativePath: "./bruhwhywasidoingthis.jpg",
-    },
-    industry: "Software Developer",
-    phoneNumber: "+90868408875",
-    country: "Vietnam",
-    city: "Hanoi",
-    linkedInURL: "",
-    slogan: "YOLO",
-    websiteLink: "https://thedlcrimson.vercel.app/",
-    description: "Tell me why aint",
-    hobbyInterest: "l want to die",
-    gender: "male",
-    statement: "",
-    aboutUs: "",
-    tags: ["ai", "react", "tailwind", "fuckmylife"],
-    education: "VinUniversity - 2022 - 2024",
-    dateOfBirth: "2004-11-14",
-    currentStage: "",
-    experiences: [
-      {
-        companyName: "NaviAI",
-        role: "Frontend Dev",
-        location: "VinUni - Hanoi - Vietnam",
-        description: "The project cleaner",
-        startDate: "2023-12-07",
-        endDate: "2024-12-04",
-      },
-      {
-        companyName: "HardDeconstruction",
-        role: "Bruh",
-        location: "Hanoi",
-        description: "For the course",
-        startDate: "2024-09-05",
-        endDate: "2024-12-31",
-      },
-    ],
-    certificates: [
-      {
-        name: "Hackathon",
-        skill: "Programming",
-        description: "Me code, me win",
-        startDate: "2023-02-14",
-        endDate: "2024-12-12",
-        gpa: 3.4,
-      },
-    ],
-    achievements: [
-      {
-        name: "OLP 2023",
-        description: "Yea I just code",
-        date: "2023-12-07",
-      },
-    ],
-    jobPositions: [
-      {
-        JobTitle: "Data Scientist",
-        IsOpening: false,
-        Country: "India",
-        City: "Bangalore",
-        StartDate: "2023-05-20",
-        Description:
-          "Analyze large datasets to provide actionable insights. Collaborate with cross-functional teams to implement machine learning models.",
-        Tags: [
-          "Python",
-          "Machine Learning",
-          "Data Visualization",
-          "Big Data",
-          "AI",
-          "Statistics",
-        ],
-      },
-      {
-        JobTitle: "Data Scientist",
-        IsOpening: false,
-        Country: "India",
-        City: "Bangalore",
-        StartDate: "2023-05-20",
-        Description:
-          "Analyze large datasets to provide actionable insights. Collaborate with cross-functional teams to implement machine learning models.",
-        Tags: [
-          "Python",
-          "Machine Learning",
-          "Data Visualization",
-          "Big Data",
-          "AI",
-          "Statistics",
-        ],
-      },
-    ],
-  });
-  // const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const loadProfileData = async () => {
-  //     try {
-  //       const data = await getCurrentUserProfile();
-  //       setProfileData(data);
-  //     } catch (error) {
-  //       console.error("Error fetching profile data:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   loadProfileData();
-  // }, []);
+  useEffect(() => {
+    const loadProfileData = async () => {
+      try {
+        const response = await getCurrentUserProfile();
+        const formData = await response.formData();
 
-  // if (loading || !profileData) {
-  //   return (
-  //     <div className="p-8">
-  //       <Skeleton className="h-8 w-1/3 mb-4" />
-  //       <Skeleton className="h-16 w-full mb-4" />
-  //       <Skeleton className="h-8 w-1/4" />
-  //     </div>
-  //   );
-  // }
+        const profileJson = formData.get("ProfileInfo") as string;
+        const profileData: ProfileData = JSON.parse(profileJson);
+
+        const avatarFile = formData.get("avatar") as File;
+        if (avatarFile) profileData.avatar = avatarFile;
+
+        setProfileData(profileData);
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProfileData();
+  }, []);
+
+  if (loading || !profileData) {
+    return (
+      <div className="p-8">
+        <Skeleton className="h-8 w-1/3 mb-4" />
+        <Skeleton className="h-16 w-full mb-4" />
+        <Skeleton className="h-8 w-1/4" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 mt-4">

@@ -25,10 +25,28 @@ const MyProfilePage = () => {
       try {
         setLoading(true);
         const response = await getUserProfiles();
-        if (!response || !Array.isArray(response)) {
-          throw new Error("Invalid profiles returned from the API.");
+        const formData = await response.formData();
+        const profilesJson = formData.get("ProfileInfo") as string;
+
+        if (!profilesJson) {
+          throw new Error("Missing ProfileInfo in response");
         }
-        setProfiles(response);
+
+        const parsedProfiles: ProfilePreviewCard[] = JSON.parse(profilesJson);
+
+        const updatedProfiles = parsedProfiles.map((profile) => {
+          const avatarFile = formData.get(String(profile.avatar)) as File;
+          if (!avatarFile) {
+            console.warn(`No file found for avatar ID ${profile.avatar}`);
+          }
+
+          return {
+            ...profile,
+            avatar: avatarFile,
+          };
+        });
+
+        setProfiles(updatedProfiles);
       } catch (err: any) {
         console.error("Error fetching profiles:", err.message);
         setError("Failed to load profiles. Please try again later.");
@@ -48,9 +66,9 @@ const MyProfilePage = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6 text-center">My Profiles</h1>
       <div className="flex flex-col items-center p-4">
-      <Button onClick={() => router.push("/my-profile/create")}>
-        Create New Profile
-      </Button>
+        <Button onClick={() => router.push("/my-profile/create")}>
+          Create New Profile
+        </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {profiles.map((profile) => (
