@@ -25,7 +25,7 @@ const MyProfilePage = () => {
       try {
         setLoading(true);
         const response = await getUserProfiles();
-        // const formData = await response.formData();
+        const formData = await response.formData();
         const profilesJson = response.get("ProfileInfo") as string;
 
         if (!profilesJson) {

@@ -5,11 +5,11 @@ export const useProfileAPI = () => {
   //const BASE_URL = "https://2347bb17-7489-41d1-8035-912e50be3857.mock.pstmn.io/";
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const getUserProfiles = async () => {
-    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/getUserProfiles/`, "GET");
+    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/getUserProfiles/`, "GET", {}), true;
   };
 
   const getCurrentUserProfile = async () => {
-    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/me/`, "GET");
+    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/me/`, "GET", {}, true);
   };
 
   const updateUserProfile = async (profileData: any) => {
