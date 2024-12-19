@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Montserrat, Cabin } from "next/font/google";
 import {
   ClerkProvider,
   SignedIn,
@@ -7,8 +7,11 @@ import {
   SignInButton,
   UserButton,
 } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({ subsets: ["latin"] });
+
+const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-mont" });
+const cabin = Cabin({ subsets: ["latin"], variable: "--font-cabin" });
 
 export const metadata = {
   title: "Founder Matching",
@@ -23,7 +26,12 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={inter.className}>{children}</body>
+        <body
+          className={`${montserrat.className} ${cabin.variable} antialiased`}
+        >
+          {children}
+          <Toaster richColors/>
+        </body>
       </html>
     </ClerkProvider>
   );

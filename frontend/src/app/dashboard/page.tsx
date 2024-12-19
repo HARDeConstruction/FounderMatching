@@ -18,7 +18,8 @@ const DashboardPage = () => {
         const data = await makeAuthenticatedRequest(
           "http://127.0.0.1:8000/api/protected-dashboard/",
           "POST",
-          {}
+          {},
+          false
         );
         console.log("Token is valid. Backend Response:", data);
         setIsAuthenticated(true);

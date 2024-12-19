@@ -1,18 +1,16 @@
+"use client";
 
-import { Button } from "@/components/ui/button";
-
+import Header from "@/components/landing-page/Header";
+import HeroSection from "@/components/landing-page/HeroSection";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <>
-      <h1>THIS WILL BE THE LANDING PAGE</h1>
-      <h1>However, we just look here instead</h1>
-      <div className="flex flex-col">
-        <Link href="/dashboard">Here</Link>
-        <Link href="/sign-in">Sign-in</Link>
+      <div>
+        <Header/>
+        <HeroSection />
       </div>
     </>
   );
 }
-

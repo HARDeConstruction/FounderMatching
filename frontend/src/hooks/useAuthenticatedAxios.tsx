@@ -6,23 +6,33 @@ const useAuthenticatedAxios = () => {
   const { getToken } = useAuth();
 
   const makeAuthenticatedRequest = useCallback(
-    async (url: string, method: string = "GET", data: any = null) => {
+    async (
+      url: string,
+      method: string = "GET",
+      data: any = null,
+      isFormData: boolean = false
+    ) => {
       try {
         const token = await getToken();
-        console.log(token);
-        console.log("URL: ", url);
+        //console.log(token);
+        //console.log("URL: ", url);
 
         if (!token) {
           throw new Error("Failed to retrieve the token");
         }
 
+        const headers: Record<string, string> = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        if (!isFormData) {
+          headers["Content-Type"] = "application/json";
+        }
+
         const response = await axios({
           url,
           method,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          headers,
           data,
         });
         console.log(response.data);
@@ -32,7 +42,7 @@ const useAuthenticatedAxios = () => {
         throw error;
       }
     },
-    [getToken] // Memoize with dependency on getToken
+    [getToken] // Memoize with dependency on getToken, so it doesnt re-render
   );
 
   return { makeAuthenticatedRequest };
