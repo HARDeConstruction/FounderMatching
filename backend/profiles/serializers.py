@@ -104,20 +104,20 @@ class ProfilePrivacySettingsSerializer(ModelSerializer):
         }
 
 class ProfileSerializer(ModelSerializer):
-    experiences = ExperienceSerializer(many=True, required=False)
-    certificates = CertificateSerializer(many=True, required=False)
-    achievements = AchievementSerializer(many=True, required=False)
-    jobPositions = JobPositionSerializer(many=True, required=False)
+    experiences = ExperienceSerializer(many=True, required=False, read_only=True)
+    certificates = CertificateSerializer(many=True, required=False, read_only=True)
+    achievements = AchievementSerializer(many=True, required=False, read_only=True)
+    jobPositions = JobPositionSerializer(many=True, required=False, read_only=True, source='jobpositions')
     privacySettings = ProfilePrivacySettingsSerializer(source='profileprivacysettings', required=False)
     dateOfBirth = serializers.CharField(required=False, allow_null=True)
-    tags = serializers.ListField(child=serializers.CharField(), required=False)
+    tags = serializers.SerializerMethodField()
     avatar = serializers.DictField(required=False, write_only=True)
     avatar_file = serializers.CharField(required=False, write_only=True)
 
     class Meta:
         model = Profile
         fields = [
-            'userID', 'isStartup', 'name', 'email',
+            'profileID', 'userID', 'isStartup', 'name', 'email',
             'industry', 'phoneNumber', 'country', 'city',
             'linkedInURL', 'slogan', 'websiteLink',
             'avatar', 'avatar_file', 'avatarFileType', 'description', 'hobbyInterest',
@@ -134,10 +134,8 @@ class ProfileSerializer(ModelSerializer):
             'avatarFileType': {'read_only': True},
         }
 
-    # def validate_name(self, value):
-    #     if not re.match(r'^[\p{L}\s\'\-\.]+$', value, re.UNICODE):
-    #         raise serializers.ValidationError("Invalid name format.")
-    #     return value
+    def get_tags(self, instance):
+        return [tag_instance.tagID.value for tag_instance in instance.tags.all()]
 
     def validate_avatar(self, value):
         if not value:
@@ -150,13 +148,11 @@ class ProfileSerializer(ModelSerializer):
         if not path:
             raise serializers.ValidationError("Avatar path is required")
 
-        # Extract file extension
         _, ext = os.path.splitext(path)
         if not ext:
             raise serializers.ValidationError("Avatar file must have an extension")
         ext = ext[1:].lower()
-        
-        # Validate extension
+
         valid_extensions = ['jpg', 'jpeg', 'png', 'gif']
         if ext not in valid_extensions:
             raise serializers.ValidationError(f"Invalid file extension. Allowed extensions are: {', '.join(valid_extensions)}")
@@ -204,12 +200,6 @@ class ProfileSerializer(ModelSerializer):
         data = super().to_representation(instance)
         if instance.dateOfBirth:
             data['dateOfBirth'] = instance.dateOfBirth.strftime('%Y-%m-%d')
-        
-        data['tags'] = [
-            tag_instance.tagID.value 
-            for tag_instance in instance.tags.all()
-        ]
-        
         return data
 
     def create(self, validated_data):
