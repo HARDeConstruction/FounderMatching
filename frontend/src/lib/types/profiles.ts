@@ -3,7 +3,7 @@ export interface ProfilePreviewCard {
   isStartup: boolean; 
   name: string; 
   occupation: string; 
-  avatar: File; 
+  avatar: string; 
   tags: string[];
 }
 

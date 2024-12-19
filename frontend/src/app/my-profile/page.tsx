@@ -12,6 +12,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const MyProfilePage = () => {
   const { getUserProfiles } = useProfileAPI();
@@ -25,28 +26,8 @@ const MyProfilePage = () => {
       try {
         setLoading(true);
         const response = await getUserProfiles();
-        const formData = await response.formData();
-        const profilesJson = response.get("ProfileInfo") as string;
-
-        if (!profilesJson) {
-          throw new Error("Missing ProfileInfo in response");
-        }
-
-        const parsedProfiles: ProfilePreviewCard[] = JSON.parse(profilesJson);
-
-        const updatedProfiles = parsedProfiles.map((profile) => {
-          const avatarFile = response.get(String(profile.avatar)) as File;
-          if (!avatarFile) {
-            console.warn(`No file found for avatar ID ${profile.avatar}`);
-          }
-
-          return {
-            ...profile,
-            avatar: avatarFile,
-          };
-        });
-
-        setProfiles(updatedProfiles);
+        const profilesData: ProfilePreviewCard[] = await response.json();
+        setProfiles(profilesData);
       } catch (err: any) {
         console.error("Error fetching profiles:", err.message);
         setError("Failed to load profiles. Please try again later.");
@@ -80,11 +61,26 @@ const MyProfilePage = () => {
             }
           >
             <CardHeader className="flex items-center justify-center">
-              <img
-                src={profile.AvatarURL || "https://via.placeholder.com/150"}
-                alt={profile.Name}
-                className="h-24 w-24 rounded-full object-cover"
-              />
+              <Avatar className="h-24 w-24">
+                <AvatarImage
+                  src={
+                    profile.avatar
+                      ? `data:image/jpeg;base64,${profile.avatar}`
+                      : undefined // Fallback will be shown if undefined
+                  }
+                  alt={profile.name}
+                  className="rounded-full object-cover"
+                />
+                <AvatarFallback>
+                  {profile.name
+                    ? profile.name
+                        .split(" ")
+                        .map((word) => word.charAt(0))
+                        .join("")
+                        .toUpperCase()
+                    : "?"}
+                </AvatarFallback>
+              </Avatar>
             </CardHeader>
             <CardContent className="text-center">
               <CardTitle className="text-lg font-bold break-words">

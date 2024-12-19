@@ -27,8 +27,6 @@ const useAuthenticatedAxios = () => {
 
         if (!isFormData) {
           headers["Content-Type"] = "application/json";
-        } else {
-          headers["Content-Type"] = "multipart/form-data";
         }
 
         const response = await axios({
