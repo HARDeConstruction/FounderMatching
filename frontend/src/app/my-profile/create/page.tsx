@@ -100,7 +100,7 @@ const formSchema = z.object({
     .string()
     .max(500, "Hobby Interest cannot exceed 500 characters")
     .optional(),
-  gender: z.string().max(50).optional(),
+  gender: z.string().max(50).optional().nullable(),
   statement: z.string().max(1000, "Statement cannot exceed 500 characters"),
   aboutUs: z.string().max(5000, "About Us cannot exceed 500 characters"),
   tags: z
@@ -202,7 +202,7 @@ export default function MyForm() {
       city: stateName,
       websiteLink: "",
       linkedInURL: "",
-      gender: "",
+      gender: null,
       slogan: "",
       description: "",
       tags: [],
@@ -534,7 +534,7 @@ export default function MyForm() {
                 <FormLabel>Gender</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  defaultValue={field.value || undefined}
                 >
                   <FormControl>
                     <SelectTrigger>
