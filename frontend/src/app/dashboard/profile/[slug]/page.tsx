@@ -1467,6 +1467,9 @@ export default function ProfilePage() {
   useEffect(() => {
     const loadProfileData = async () => {
       try {
+        if (!profileId || Array.isArray(profileId)) {
+          throw new Error("Invalid profile ID.");
+        }
         const response = await getCurrentUserProfile(profileId);
         //const profileInfo: ProfileData = await response.json();
 
