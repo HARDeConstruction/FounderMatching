@@ -32,9 +32,9 @@ class CreateProfileView(APIView):
         if file.size > 2097152:
             raise ValidationError("Avatar file size must be less than 2MB")
 
-        # Read and encode file data
+        # Read file data and encode to base64
         file_data = file.read()
-        return base64.b64encode(file_data).decode('utf-8')
+        return base64.b64encode(file_data)
 
     @transaction.atomic
     def post(self, request):
@@ -57,7 +57,10 @@ class CreateProfileView(APIView):
                 try:
                     avatar_data = self.validate_avatar_file(avatar_file)
                     if avatar_data:
-                        profile_data['avatar_file'] = avatar_data
+                        profile_data['avatar'] = avatar_data
+                        _, ext = os.path.splitext(avatar_file.name)
+                        if ext:
+                            profile_data['avatarFileType'] = ext[1:].lower()
                 except ValidationError as e:
                     return Response(
                         {'error': str(e)},
@@ -98,34 +101,6 @@ class CreateProfileView(APIView):
 class GetUserProfilesView(APIView):
     authentication_classes = [JWTAuthenticationMiddleware]
 
-    def prepare_avatar_files(self, profiles):
-        """Prepare avatar files and return a list of (filename, content) tuples"""
-        avatar_files = []
-        temp_dir = tempfile.mkdtemp()
-        
-        try:
-            for i, profile in enumerate(profiles, 1):
-                if profile.avatar and profile.avatarFileType:
-                    if isinstance(profile.avatar, memoryview):
-                        avatar_data = profile.avatar.tobytes()
-                    else:
-                        avatar_data = profile.avatar
-
-                    temp_path = os.path.join(temp_dir, f"{i}.{profile.avatarFileType}")
-                    with open(temp_path, 'wb') as f:
-                        f.write(avatar_data)
-
-                    with open(temp_path, 'rb') as f:
-                        file_content = f.read()
-                        mime_type = mimetypes.guess_type(temp_path)[0]
-                        avatar_files.append((str(i), file_content, mime_type))
-
-        finally:
-            import shutil
-            shutil.rmtree(temp_dir, ignore_errors=True)
-
-        return avatar_files
-
     def get(self, request):
         try:
             try:
@@ -152,33 +127,12 @@ class GetUserProfilesView(APIView):
                     status=status.HTTP_404_NOT_FOUND
                 )
             
-            avatar_files = self.prepare_avatar_files(profiles)
             profile_data = []
-            for i, profile in enumerate(profiles, 1):
-                serializer = ProfilePreviewCardSerializer(
-                    profile,
-                    context={'avatar_number': i if profile.avatar else None}
-                )
+            for profile in profiles:
+                serializer = ProfilePreviewCardSerializer(profile)
                 profile_data.append(serializer.data)
 
-            response = HttpResponse(content_type='multipart/form-data; boundary=boundary')
-            
-            json_data = json.dumps(profile_data)
-            response.write(b'--boundary\r\n')
-            response.write(b'Content-Disposition: form-data; name="ProfileInfo"\r\n')
-            response.write(b'Content-Type: application/json\r\n\r\n')
-            response.write(json_data.encode())
-            response.write(b'\r\n')
-
-            for filename, content, mime_type in avatar_files:
-                response.write(b'--boundary\r\n')
-                response.write(f'Content-Disposition: form-data; name="{filename}"; filename="{filename}"\r\n'.encode())
-                response.write(f'Content-Type: {mime_type}\r\n\r\n'.encode())
-                response.write(content)
-                response.write(b'\r\n')
-
-            response.write(b'--boundary--\r\n')
-            return response
+            return Response(profile_data, status=status.HTTP_200_OK)
 
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}", exc_info=True)
@@ -190,32 +144,6 @@ class GetUserProfilesView(APIView):
 class GetCurrentUserProfileView(APIView):
     authentication_classes = [JWTAuthenticationMiddleware]
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-
-    def prepare_avatar_file(self, profile):
-        """Prepare avatar file and return a tuple of (filename, content, mime_type)"""
-        if not profile.avatar or not profile.avatarFileType:
-            return None
-
-        temp_dir = tempfile.mkdtemp()
-        try:
-            if isinstance(profile.avatar, memoryview):
-                avatar_data = profile.avatar.tobytes()
-            else:
-                avatar_data = profile.avatar
-            temp_path = os.path.join(temp_dir, f"avatar.{profile.avatarFileType}")
-            with open(temp_path, 'wb') as f:
-                f.write(avatar_data)
-            with open(temp_path, 'rb') as f:
-                file_content = f.read()
-                mime_type = mimetypes.guess_type(temp_path)[0]
-                return ("avatar", file_content, mime_type)
-
-        except Exception as e:
-            logger.error(f"Error preparing avatar file: {str(e)}", exc_info=True)
-            return None
-        finally:
-            import shutil
-            shutil.rmtree(temp_dir, ignore_errors=True)
 
     def get(self, request):
         try:
@@ -267,26 +195,7 @@ class GetCurrentUserProfileView(APIView):
                 )
 
             serializer = ProfileSerializer(profile)
-            profile_data = serializer.data
-            response = HttpResponse(content_type='multipart/form-data; boundary=boundary')
-            
-            json_data = json.dumps({'ProfileInfo': profile_data})
-            response.write(b'--boundary\r\n')
-            response.write(b'Content-Disposition: form-data; name="ProfileInfo"\r\n')
-            response.write(b'Content-Type: application/json\r\n\r\n')
-            response.write(json_data.encode())
-            response.write(b'\r\n')
-            avatar_file = self.prepare_avatar_file(profile)
-            if avatar_file:
-                filename, content, mime_type = avatar_file
-                response.write(b'--boundary\r\n')
-                response.write(f'Content-Disposition: form-data; name="{filename}"; filename="{filename}"\r\n'.encode())
-                response.write(f'Content-Type: {mime_type}\r\n\r\n'.encode())
-                response.write(content)
-                response.write(b'\r\n')
-
-            response.write(b'--boundary--\r\n')
-            return response
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}", exc_info=True)
@@ -298,33 +207,6 @@ class GetCurrentUserProfileView(APIView):
 class GetUserProfileByIdView(APIView):
     authentication_classes = [JWTAuthenticationMiddleware]
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-
-    def prepare_avatar_file(self, profile):
-        """Prepare avatar file and return a tuple of (filename, content, mime_type)"""
-        if not profile.avatar or not profile.avatarFileType:
-            return None
-
-        temp_dir = tempfile.mkdtemp()
-        try:
-            if isinstance(profile.avatar, memoryview):
-                avatar_data = profile.avatar.tobytes()
-            else:
-                avatar_data = profile.avatar
-
-            temp_path = os.path.join(temp_dir, f"avatar.{profile.avatarFileType}")
-            with open(temp_path, 'wb') as f:
-                f.write(avatar_data)
-            with open(temp_path, 'rb') as f:
-                file_content = f.read()
-                mime_type = mimetypes.guess_type(temp_path)[0]
-                return ("avatar", file_content, mime_type)
-
-        except Exception as e:
-            logger.error(f"Error preparing avatar file: {str(e)}", exc_info=True)
-            return None
-        finally:
-            import shutil
-            shutil.rmtree(temp_dir, ignore_errors=True)
 
     def check_connection_status(self, profile_owner_id, request_user_id):
         """Check if the requesting user is connected to the profile owner"""
@@ -370,7 +252,7 @@ class GetUserProfileByIdView(APIView):
                 'gender', 'industry', 'email', 'phoneNumber', 'country', 'city',
                 'linkedInURL', 'slogan', 'websiteLink', 'hobbyInterest',
                 'education', 'dateOfBirth', 'description', 'currentStage',
-                'statement', 'aboutUs'
+                'statement', 'aboutUs', 'avatar'
             ]
 
             for field in privacy_fields:
@@ -427,30 +309,8 @@ class GetUserProfileByIdView(APIView):
 
             serializer = ProfileSerializer(profile)
             profile_data = serializer.data
-
             filtered_data = self.filter_profile_data(profile_data, profile, privacy_settings, user_id)
-
-            response = HttpResponse(content_type='multipart/form-data; boundary=boundary')
-            
-            json_data = json.dumps({'ProfileInfo': filtered_data})
-            response.write(b'--boundary\r\n')
-            response.write(b'Content-Disposition: form-data; name="ProfileInfo"\r\n')
-            response.write(b'Content-Type: application/json\r\n\r\n')
-            response.write(json_data.encode())
-            response.write(b'\r\n')
-
-            if self.check_field_visibility(profile, 'avatar', privacy_settings, user_id):
-                avatar_file = self.prepare_avatar_file(profile)
-                if avatar_file:
-                    filename, content, mime_type = avatar_file
-                    response.write(b'--boundary\r\n')
-                    response.write(f'Content-Disposition: form-data; name="{filename}"; filename="{filename}"\r\n'.encode())
-                    response.write(f'Content-Type: {mime_type}\r\n\r\n'.encode())
-                    response.write(content)
-                    response.write(b'\r\n')
-
-            response.write(b'--boundary--\r\n')
-            return response
+            return Response(filtered_data, status=status.HTTP_200_OK)
 
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}", exc_info=True)
@@ -471,9 +331,9 @@ class UpdateProfileView(APIView):
         if file.size > 2097152:
             raise ValidationError("Avatar file size must be less than 2MB")
 
-        # Read and encode file data
+        # Read file data and encode to base64
         file_data = file.read()
-        return base64.b64encode(file_data).decode('utf-8')
+        return base64.b64encode(file_data)
 
     @transaction.atomic
     def patch(self, request):
@@ -523,7 +383,10 @@ class UpdateProfileView(APIView):
                 try:
                     avatar_data = self.validate_avatar_file(avatar_file)
                     if avatar_data:
-                        profile_data['avatar_file'] = avatar_data
+                        profile_data['avatar'] = avatar_data
+                        _, ext = os.path.splitext(avatar_file.name)
+                        if ext:
+                            profile_data['avatarFileType'] = ext[1:].lower()
                 except ValidationError as e:
                     return Response(
                         {'error': str(e)},

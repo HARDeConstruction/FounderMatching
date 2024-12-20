@@ -105,7 +105,7 @@ class Profile(models.Model):
             'Invalid website URL.'
         )]
     )
-    avatar = models.CharField(db_column='Avatar', max_length=255, blank=True, null=True)
+    avatar = models.BinaryField(db_column='Avatar', blank=True, null=True)
     avatarFileType = models.CharField(db_column='AvatarFileType', max_length=8, blank=True, null=True)
     description = models.CharField(db_column='Description', max_length=5000, blank=True, null=True)
     gender = models.TextField(db_column='Gender', blank=True, null=True, choices=GENDER_CHOICES)

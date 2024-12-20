@@ -7,6 +7,10 @@ from .models import (
 from datetime import datetime
 import re
 import os
+import base64
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ModelSerializer(serializers.ModelSerializer):
     """Base serializer that preserves the exact field names from the model"""
@@ -37,9 +41,16 @@ class ProfilePreviewCardSerializer(ModelSerializer):
             return []
 
     def get_avatar(self, obj):
-        avatar_number = self.context.get('avatar_number')
-        if avatar_number is not None and obj.avatar:
-            return str(avatar_number)
+        if obj.avatar:
+            try:
+                if isinstance(obj.avatar, memoryview):
+                    avatar_data = obj.avatar.tobytes()
+                else:
+                    avatar_data = obj.avatar
+                return base64.b64encode(avatar_data).decode('utf-8')
+            except Exception as e:
+                logger.error(f"Error encoding avatar: {str(e)}")
+                return None
         return None
 
 class ExperienceSerializer(ModelSerializer):
@@ -107,11 +118,11 @@ class ProfileSerializer(ModelSerializer):
     experiences = ExperienceSerializer(many=True, required=False)
     certificates = CertificateSerializer(many=True, required=False)
     achievements = AchievementSerializer(many=True, required=False)
-    jobPositions = JobPositionSerializer(many=True, required=False, source='jobpositions')
+    jobPositions = JobPositionSerializer(many=True, required=False)
     privacySettings = ProfilePrivacySettingsSerializer(source='profileprivacysettings', required=False)
     dateOfBirth = serializers.CharField(required=False, allow_null=True)
     tags = serializers.SerializerMethodField()
-    avatar = serializers.DictField(required=False, write_only=True)
+    avatar = serializers.SerializerMethodField()
     avatar_file = serializers.CharField(required=False, write_only=True)
 
     class Meta:
@@ -136,6 +147,19 @@ class ProfileSerializer(ModelSerializer):
 
     def get_tags(self, instance):
         return [tag_instance.tagID.value for tag_instance in instance.tags.all()]
+
+    def get_avatar(self, obj):
+        if obj.avatar:
+            try:
+                if isinstance(obj.avatar, memoryview):
+                    avatar_data = obj.avatar.tobytes()
+                else:
+                    avatar_data = obj.avatar
+                return base64.b64encode(avatar_data).decode('utf-8')
+            except Exception as e:
+                logger.error(f"Error encoding avatar: {str(e)}")
+                return None
+        return None
 
     def validate_avatar(self, value):
         if not value:
