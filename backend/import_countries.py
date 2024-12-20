@@ -1,4 +1,4 @@
-import csv
+import json
 import os
 import django
 import sys
@@ -10,43 +10,26 @@ django.setup()
 from profiles.models import Countries
 
 def import_countries():
-    csv_file_path = 'ISO 3166 Countries All.csv'
+    json_file_path = '../frontend/src/data/countries.json'
     
     Countries.objects.all().delete()
     print('Cleared existing countries data')
  
-    with open(csv_file_path, 'r', encoding='utf-8') as file:
-        csv_reader = csv.DictReader(file)
-        countries_data = []
-        for row in csv_reader:
-            nationality = row['name']
-            if ' and ' in nationality:
-                nationality += 'n'
-            elif nationality.endswith('s'):
-                nationality = nationality[:-1] + 'n'
-            else:
-                nationality += 'ese' if not nationality.endswith('ese') else ''
-            
-            countries_data.append({
-                'num_code': int(row['country-code']),
-                'alpha_2_code': row['alpha-2'],
-                'alpha_3_code': row['alpha-3'],
-                'en_short_name': row['name'],
-                'nationality': nationality
-            })
-        
-        countries_data.sort(key=lambda x: x['en_short_name'])
-        
+    with open(json_file_path, 'r', encoding='utf-8') as file:
+        countries_data = json.load(file)
         countries_to_create = [
             Countries(
-                num_code=country['num_code'],
-                alpha_2_code=country['alpha_2_code'],
-                alpha_3_code=country['alpha_3_code'],
-                en_short_name=country['en_short_name'],
-                nationality=country['nationality']
+                num_code=int(country['numeric_code']),
+                alpha_2_code=country['iso2'],
+                alpha_3_code=country['iso3'],
+                en_short_name=country['name'],
+                nationality=country['nationality'].strip()
             )
             for country in countries_data
         ]
+        
+        # Sort by name before creating
+        countries_to_create.sort(key=lambda x: x.en_short_name)
         
         Countries.objects.bulk_create(countries_to_create)
         
