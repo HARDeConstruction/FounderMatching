@@ -57,7 +57,9 @@ const MyProfilePage = () => {
             key={profile.profileID}
             className="cursor-pointer hover:shadow-md transition-all"
             onClick={() =>
-              router.push(`/dashboard/profile/me?id=${profile.profileID}`)
+              router.push(
+                `/dashboard/profile/me?profileId=${profile.profileID}`
+              )
             }
           >
             <CardHeader className="flex items-center justify-center">

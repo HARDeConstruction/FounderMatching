@@ -67,7 +67,8 @@ import { Switch } from "@/components/ui/switch";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import Profile from "../discover/candidates/page";
+import Profile from "../../discover/candidates/page";
+import { useParams } from "next/navigation";
 
 const formSchema = z.object({
   isStartup: z.boolean(),
@@ -1461,11 +1462,12 @@ export default function ProfilePage() {
   const { getCurrentUserProfile } = useProfileAPI();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { profileId } = useParams();
 
   useEffect(() => {
     const loadProfileData = async () => {
       try {
-        const response = await getCurrentUserProfile();
+        const response = await getCurrentUserProfile(profileId);
         //const profileInfo: ProfileData = await response.json();
 
         setProfileData(response);
