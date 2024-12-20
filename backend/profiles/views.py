@@ -143,6 +143,14 @@ class GetCurrentUserProfileView(APIView):
 
     def get(self, request):
         try:
+            # Get profile ID from query params
+            profile_id = request.query_params.get('profileId')
+            if not profile_id:
+                return Response(
+                    {'error': 'Profile ID is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             try:
                 user_account = UserAccount.objects.get(clerkUserID=request.user.username)
                 user_id = user_account.userID
@@ -152,6 +160,7 @@ class GetCurrentUserProfileView(APIView):
                     status=status.HTTP_404_NOT_FOUND
                 )
 
+            # Query profile with both profileId and userId for ownership validation
             try:
                 profile = (
                     Profile.objects.prefetch_related(
@@ -161,12 +170,12 @@ class GetCurrentUserProfileView(APIView):
                         'jobPositions',
                         'profileprivacysettings',
                         'tags'
-                    ).get(userID=user_id)
+                    ).get(profileID=profile_id, userID=user_id)
                 )
             except Profile.DoesNotExist:
                 return Response(
-                    {'error': 'Profile not found'},
-                    status=status.HTTP_404_NOT_FOUND
+                    {'error': 'Profile not found or access denied'},
+                    status=status.HTTP_403_FORBIDDEN
                 )
 
             serializer = ProfileSerializer(profile)

@@ -19,22 +19,38 @@ class ModelSerializer(serializers.ModelSerializer):
 
 class ProfilePreviewCardSerializer(ModelSerializer):
     tags = serializers.SerializerMethodField()
-    occupation = serializers.CharField(source='industry')
+    avatar = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         model = Profile
-        fields = ['profileID', 'isStartup', 'name', 'occupation', 'avatar', 'tags']
-        extra_kwargs = {
-            'profileID': {'read_only': True},
-            'isStartup': {'read_only': True},
-            'name': {'read_only': True},
-        }
+        fields = ['profileID', 'isStartup', 'name', 'industry', 'avatar', 'tags']
 
     def get_tags(self, obj):
-        try:
-            return [tag_instance.tagID.value for tag_instance in obj.tags.all()]
-        except Exception:
-            return []
+        return [tag.tagID.value for tag in obj.tags.all()]
+
+    def validate_avatar(self, value):
+        if value is None:
+            return None
+            
+        # Check if it's already a base64 string
+        if value.startswith('data:image/'):
+            try:
+                # Validate base64 format
+                header, encoded = value.split(',', 1)
+                if not header.startswith('data:image/'):
+                    raise serializers.ValidationError("Invalid image format")
+                
+                # Try decoding to validate base64
+                try:
+                    base64.b64decode(encoded)
+                except Exception:
+                    raise serializers.ValidationError("Invalid base64 encoding")
+                    
+                return value
+            except Exception as e:
+                raise serializers.ValidationError(f"Invalid avatar format: {str(e)}")
+                
+        raise serializers.ValidationError("Avatar must be a base64 encoded image string")
 
 class ExperienceSerializer(ModelSerializer):
     class Meta:
@@ -130,26 +146,28 @@ class ProfileSerializer(ModelSerializer):
         return [tag_instance.tagID.value for tag_instance in instance.tags.all()]
 
     def validate_avatar(self, value):
-        if not value:
+        if value is None:
             return None
-
-        # If it's already a base64 string, validate its format
+            
+        # Check if it's already a base64 string
         if value.startswith('data:image/'):
-            # Validate base64 format: data:image/[type];base64,[data]
             try:
-                header, data = value.split(',', 1)
-                if not header.startswith('data:image/') or not header.endswith(';base64'):
-                    raise serializers.ValidationError("Invalid base64 image format")
-                # Try to decode base64 to validate it
+                # Validate base64 format
+                header, encoded = value.split(',', 1)
+                if not header.startswith('data:image/'):
+                    raise serializers.ValidationError("Invalid image format")
+                
+                # Try decoding to validate base64
                 try:
-                    base64.b64decode(data)
+                    base64.b64decode(encoded)
                 except Exception:
                     raise serializers.ValidationError("Invalid base64 encoding")
+                    
                 return value
-            except ValueError:
-                raise serializers.ValidationError("Invalid base64 image format")
-
-        raise serializers.ValidationError("Invalid avatar format")
+            except Exception as e:
+                raise serializers.ValidationError(f"Invalid avatar format: {str(e)}")
+                
+        raise serializers.ValidationError("Avatar must be a base64 encoded image string")
 
     def update(self, instance, validated_data):
         # Handle nested fields

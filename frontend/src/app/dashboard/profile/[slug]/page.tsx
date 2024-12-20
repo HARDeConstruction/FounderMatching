@@ -68,7 +68,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Profile from "../../discover/candidates/page";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 const formSchema = z.object({
   isStartup: z.boolean(),
@@ -1462,17 +1462,19 @@ export default function ProfilePage() {
   const { getCurrentUserProfile } = useProfileAPI();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
-  const { profileId } = useParams();
+  const searchParams = useSearchParams();
+  const profileId = searchParams.get('profileId');
 
+  const params = useParams();
   useEffect(() => {
     const loadProfileData = async () => {
       try {
-        if (!profileId || Array.isArray(profileId)) {
-          throw new Error("Invalid profile ID.");
+        console.log("profileId", profileId);
+        console.log(params);
+        if (!profileId) {
+          throw new Error("Profile ID is required");
         }
         const response = await getCurrentUserProfile(profileId);
-        //const profileInfo: ProfileData = await response.json();
-
         setProfileData(response);
       } catch (error) {
         console.error("Error fetching profile data:", error);
@@ -1481,7 +1483,7 @@ export default function ProfilePage() {
       }
     };
     loadProfileData();
-  }, []);
+  }, [profileId]);
 
   if (loading || !profileData) {
     return (
