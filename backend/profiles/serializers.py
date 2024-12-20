@@ -8,9 +8,6 @@ from datetime import datetime
 import re
 import os
 import base64
-import logging
-
-logger = logging.getLogger(__name__)
 
 class ModelSerializer(serializers.ModelSerializer):
     """Base serializer that preserves the exact field names from the model"""
@@ -23,7 +20,6 @@ class ModelSerializer(serializers.ModelSerializer):
 class ProfilePreviewCardSerializer(ModelSerializer):
     tags = serializers.SerializerMethodField()
     occupation = serializers.CharField(source='industry')
-    avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -39,21 +35,6 @@ class ProfilePreviewCardSerializer(ModelSerializer):
             return [tag_instance.tagID.value for tag_instance in obj.tags.all()]
         except Exception:
             return []
-
-    def get_avatar(self, obj):
-        if obj.avatar:
-            try:
-                if isinstance(obj.avatar, memoryview):
-                    avatar_data = obj.avatar.tobytes()
-                else:
-                    avatar_data = obj.avatar
-                mime_type = f"image/{obj.avatarFileType.lower()}" if obj.avatarFileType else "image/jpeg"
-                base64_data = base64.b64encode(avatar_data).decode('utf-8')
-                return f"data:{mime_type};base64,{base64_data}"
-            except Exception as e:
-                logger.error(f"Error encoding avatar: {str(e)}")
-                return None
-        return None
 
 class ExperienceSerializer(ModelSerializer):
     class Meta:
@@ -124,8 +105,7 @@ class ProfileSerializer(ModelSerializer):
     privacySettings = ProfilePrivacySettingsSerializer(source='profileprivacysettings', required=False)
     dateOfBirth = serializers.CharField(required=False, allow_null=True)
     tags = serializers.SerializerMethodField()
-    avatar = serializers.SerializerMethodField()
-    avatar_file = serializers.CharField(required=False, write_only=True)
+    avatar = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         model = Profile
@@ -133,7 +113,7 @@ class ProfileSerializer(ModelSerializer):
             'profileID', 'userID', 'isStartup', 'name', 'email',
             'industry', 'phoneNumber', 'country', 'city',
             'linkedInURL', 'slogan', 'websiteLink',
-            'avatar', 'avatar_file', 'avatarFileType', 'description', 'hobbyInterest',
+            'avatar', 'description', 'hobbyInterest',
             'gender', 'education', 'dateOfBirth',
             'currentStage', 'statement', 'aboutUs',
             'experiences', 'certificates', 'achievements',
@@ -144,48 +124,32 @@ class ProfileSerializer(ModelSerializer):
             'name': {'required': True},
             'email': {'required': True},
             'industry': {'required': True},
-            'avatarFileType': {'read_only': True},
         }
 
     def get_tags(self, instance):
         return [tag_instance.tagID.value for tag_instance in instance.tags.all()]
 
-    def get_avatar(self, obj):
-        if obj.avatar:
-            try:
-                if isinstance(obj.avatar, memoryview):
-                    avatar_data = obj.avatar.tobytes()
-                else:
-                    avatar_data = obj.avatar
-                mime_type = f"image/{obj.avatarFileType.lower()}" if obj.avatarFileType else "image/jpeg"
-                base64_data = base64.b64encode(avatar_data).decode('utf-8')
-                return f"data:{mime_type};base64,{base64_data}"
-            except Exception as e:
-                logger.error(f"Error encoding avatar: {str(e)}")
-                return None
-        return None
-
     def validate_avatar(self, value):
         if not value:
             return None
 
-        if not isinstance(value, dict):
-            raise serializers.ValidationError("Avatar must be a dictionary with path and relativePath")
+        # If it's already a base64 string, validate its format
+        if value.startswith('data:image/'):
+            # Validate base64 format: data:image/[type];base64,[data]
+            try:
+                header, data = value.split(',', 1)
+                if not header.startswith('data:image/') or not header.endswith(';base64'):
+                    raise serializers.ValidationError("Invalid base64 image format")
+                # Try to decode base64 to validate it
+                try:
+                    base64.b64decode(data)
+                except Exception:
+                    raise serializers.ValidationError("Invalid base64 encoding")
+                return value
+            except ValueError:
+                raise serializers.ValidationError("Invalid base64 image format")
 
-        path = value.get('path')
-        if not path:
-            raise serializers.ValidationError("Avatar path is required")
-
-        _, ext = os.path.splitext(path)
-        if not ext:
-            raise serializers.ValidationError("Avatar file must have an extension")
-        ext = ext[1:].lower()
-
-        valid_extensions = ['jpg', 'jpeg', 'png', 'gif']
-        if ext not in valid_extensions:
-            raise serializers.ValidationError(f"Invalid file extension. Allowed extensions are: {', '.join(valid_extensions)}")
-
-        return value
+        raise serializers.ValidationError("Invalid avatar format")
 
     def update(self, instance, validated_data):
         # Handle nested fields
@@ -194,18 +158,6 @@ class ProfileSerializer(ModelSerializer):
         achievements_data = validated_data.pop('achievements', None)
         job_positions_data = validated_data.pop('jobPositions', None)
         privacy_settings_data = validated_data.pop('profileprivacysettings', None)
-        avatar_data = validated_data.pop('avatar', None)
-        avatar_file = validated_data.pop('avatar_file', None)
-
-        # Update avatar file type if new avatar
-        if avatar_data and 'path' in avatar_data:
-            _, ext = os.path.splitext(avatar_data['path'])
-            if ext:
-                validated_data['avatarFileType'] = ext[1:].lower()
-
-        # Set avatar binary data if provided
-        if avatar_file:
-            validated_data['avatar'] = avatar_file
 
         # Update main profile fields
         for attr, value in validated_data.items():
@@ -306,18 +258,6 @@ class ProfileSerializer(ModelSerializer):
         job_positions_data = validated_data.pop('jobPositions', [])
         privacy_settings_data = validated_data.pop('profileprivacysettings', None)
         tags_data = validated_data.pop('tags', [])
-        avatar_data = validated_data.pop('avatar', None)
-        avatar_file = validated_data.pop('avatar_file', None)
-
-        # Handle avatar file type
-        if avatar_data and 'path' in avatar_data:
-            _, ext = os.path.splitext(avatar_data['path'])
-            if ext:
-                validated_data['avatarFileType'] = ext[1:].lower()
-
-        # Set avatar binary data if provided
-        if avatar_file:
-            validated_data['avatar'] = avatar_file
 
         profile = Profile.objects.create(**validated_data)
 

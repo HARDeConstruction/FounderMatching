@@ -105,8 +105,12 @@ class Profile(models.Model):
             'Invalid website URL.'
         )]
     )
-    avatar = models.BinaryField(db_column='Avatar', blank=True, null=True)
-    avatarFileType = models.CharField(db_column='AvatarFileType', max_length=8, blank=True, null=True)
+    avatar = models.TextField(
+        db_column='Avatar',
+        blank=True,
+        null=True,
+        help_text='Base64 encoded image data with format: data:image/[type];base64,[data]'
+    )
     description = models.CharField(db_column='Description', max_length=5000, blank=True, null=True)
     gender = models.TextField(db_column='Gender', blank=True, null=True, choices=GENDER_CHOICES)
     hobbyInterest = models.CharField(db_column='HobbyInterest', max_length=500, blank=True, null=True)

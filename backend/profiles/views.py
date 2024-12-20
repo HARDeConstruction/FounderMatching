@@ -32,9 +32,20 @@ class CreateProfileView(APIView):
         if file.size > 2097152:
             raise ValidationError("Avatar file size must be less than 2MB")
 
-        # Read file data and encode to base64
+        # Get file type from content type or filename
+        content_type = file.content_type if hasattr(file, 'content_type') else None
+        if content_type and content_type.startswith('image/'):
+            file_type = content_type.split('/')[-1]
+        else:
+            file_type = os.path.splitext(file.name)[-1].lstrip('.')
+        
+        if file_type not in ['jpeg', 'jpg', 'png', 'gif']:
+            raise ValidationError("Invalid file type. Allowed types: jpeg, jpg, png, gif")
+
+        # Read and encode file data
         file_data = file.read()
-        return base64.b64encode(file_data)
+        base64_data = base64.b64encode(file_data).decode('utf-8')
+        return f'data:image/{file_type};base64,{base64_data}'
 
     @transaction.atomic
     def post(self, request):
@@ -58,9 +69,6 @@ class CreateProfileView(APIView):
                     avatar_data = self.validate_avatar_file(avatar_file)
                     if avatar_data:
                         profile_data['avatar'] = avatar_data
-                        _, ext = os.path.splitext(avatar_file.name)
-                        if ext:
-                            profile_data['avatarFileType'] = ext[1:].lower()
                 except ValidationError as e:
                     return Response(
                         {'error': str(e)},
@@ -71,26 +79,14 @@ class CreateProfileView(APIView):
             if serializer.is_valid():
                 profile = serializer.save()
                 return Response(
-                    {'message': 'Profile created successfully.'},
-                    status=status.HTTP_200_OK
+                    serializer.data,
+                    status=status.HTTP_201_CREATED
                 )
             return Response(
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        except ValidationError as e:
-            logger.error(f"Validation error: {str(e)}")
-            return Response(
-                {'error': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON decode error: {str(e)}")
-            return Response(
-                {'error': 'Invalid JSON data'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}", exc_info=True)
             return Response(
@@ -117,7 +113,7 @@ class GetUserProfilesView(APIView):
                 .prefetch_related('tags__tagID')
                 .only(
                     'profileID', 'isStartup', 'name',
-                    'industry', 'avatar', 'avatarFileType', 'userID_id'
+                    'industry', 'avatar', 'userID_id'
                 )
             )
 
@@ -147,25 +143,6 @@ class GetCurrentUserProfileView(APIView):
 
     def get(self, request):
         try:
-            # Get and validate profile_id from query parameters
-            profile_id = request.query_params.get('profileId')
-            if not profile_id:
-                return Response(
-                    {'error': 'profileId query parameter is required'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            try:
-                profile_id = int(profile_id)
-                if profile_id < 0:
-                    raise ValueError("Profile ID must be positive")
-            except ValueError as e:
-                return Response(
-                    {'error': 'Invalid profileId format. Must be a positive integer.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Get authenticated user
             try:
                 user_account = UserAccount.objects.get(clerkUserID=request.user.username)
                 user_id = user_account.userID
@@ -174,6 +151,7 @@ class GetCurrentUserProfileView(APIView):
                     {'error': 'User account not found'},
                     status=status.HTTP_404_NOT_FOUND
                 )
+
             try:
                 profile = (
                     Profile.objects.prefetch_related(
@@ -183,15 +161,12 @@ class GetCurrentUserProfileView(APIView):
                         'jobPositions',
                         'profileprivacysettings',
                         'tags'
-                    ).get(
-                        profileID=profile_id,  # Verify specific profile
-                        userID=user_id        # Verify ownership
-                    )
+                    ).get(userID=user_id)
                 )
             except Profile.DoesNotExist:
                 return Response(
-                    {'error': 'Profile not found or access denied'},
-                    status=status.HTTP_403_FORBIDDEN
+                    {'error': 'Profile not found'},
+                    status=status.HTTP_404_NOT_FOUND
                 )
 
             serializer = ProfileSerializer(profile)
@@ -211,7 +186,6 @@ class GetUserProfileByIdView(APIView):
     def check_connection_status(self, profile_owner_id, request_user_id):
         """Check if the requesting user is connected to the profile owner"""
         try:
-            # Query to check if users are connected (accepted connection status)
             connection = Connection.objects.filter(
                 (Q(fromProfileID=profile_owner_id) & Q(toProfileID=request_user_id)) |
                 (Q(fromProfileID=request_user_id) & Q(toProfileID=profile_owner_id)),
@@ -258,6 +232,7 @@ class GetUserProfileByIdView(APIView):
             for field in privacy_fields:
                 if field in filtered_data and not self.check_field_visibility(profile, field, privacy_settings, request_user_id):
                     filtered_data.pop(field)
+
             nested_objects = {
                 'experiences': 'experience',
                 'certificates': 'certificate',
@@ -310,6 +285,7 @@ class GetUserProfileByIdView(APIView):
             serializer = ProfileSerializer(profile)
             profile_data = serializer.data
             filtered_data = self.filter_profile_data(profile_data, profile, privacy_settings, user_id)
+
             return Response(filtered_data, status=status.HTTP_200_OK)
 
         except Exception as e:
@@ -331,9 +307,20 @@ class UpdateProfileView(APIView):
         if file.size > 2097152:
             raise ValidationError("Avatar file size must be less than 2MB")
 
-        # Read file data and encode to base64
+        # Get file type from content type or filename
+        content_type = file.content_type if hasattr(file, 'content_type') else None
+        if content_type and content_type.startswith('image/'):
+            file_type = content_type.split('/')[-1]
+        else:
+            file_type = os.path.splitext(file.name)[-1].lstrip('.')
+        
+        if file_type not in ['jpeg', 'jpg', 'png', 'gif']:
+            raise ValidationError("Invalid file type. Allowed types: jpeg, jpg, png, gif")
+
+        # Read and encode file data
         file_data = file.read()
-        return base64.b64encode(file_data)
+        base64_data = base64.b64encode(file_data).decode('utf-8')
+        return f'data:image/{file_type};base64,{base64_data}'
 
     @transaction.atomic
     def patch(self, request):
@@ -346,36 +333,17 @@ class UpdateProfileView(APIView):
                     {'error': 'User account not found'},
                     status=status.HTTP_404_NOT_FOUND
                 )
-            profile_info = request.data.get('ProfileInfo')
-            if isinstance(profile_info, str):
-                try:
-                    profile_data = json.loads(profile_info)
-                except json.JSONDecodeError as e:
-                    return Response(
-                        {'error': f'Invalid JSON data: {str(e)}'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-            else:
-                profile_data = profile_info
 
-            if not profile_data:
-                return Response(
-                    {'error': 'ProfileInfo is required'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Get the current active profile for the user
             try:
-                profile = Profile.objects.filter(userID=user_id).latest('profileID')
+                profile = Profile.objects.get(userID=user_id)
             except Profile.DoesNotExist:
                 return Response(
-                    {'error': 'No profile found for this user'},
+                    {'error': 'Profile not found'},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
-            # Set userID in profile data
+            profile_data = json.loads(request.data.get('ProfileInfo', '{}'))
             profile_data['userID'] = user_id
-            profile_data['ProfileID'] = profile.profileID
 
             # Handle avatar file
             avatar_file = request.FILES.get('avatar')
@@ -384,21 +352,17 @@ class UpdateProfileView(APIView):
                     avatar_data = self.validate_avatar_file(avatar_file)
                     if avatar_data:
                         profile_data['avatar'] = avatar_data
-                        _, ext = os.path.splitext(avatar_file.name)
-                        if ext:
-                            profile_data['avatarFileType'] = ext[1:].lower()
                 except ValidationError as e:
                     return Response(
                         {'error': str(e)},
                         status=status.HTTP_400_BAD_REQUEST
                     )
 
-            # Update profile data
             serializer = ProfileSerializer(profile, data=profile_data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(
-                    {'message': 'Profile updated successfully'},
+                    serializer.data,
                     status=status.HTTP_200_OK
                 )
             return Response(

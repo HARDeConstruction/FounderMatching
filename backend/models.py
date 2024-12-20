@@ -159,8 +159,7 @@ class Profile(models.Model):
     linkedinurl = models.CharField(db_column='LinkedInURL', unique=True, max_length=255, blank=True, null=True)  # Field name made lowercase.
     slogan = models.CharField(db_column='Slogan', max_length=200, blank=True, null=True)  # Field name made lowercase.
     websitelink = models.CharField(db_column='WebsiteLink', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    avatar = models.BinaryField(db_column='Avatar', blank=True, null=True)  # Field name made lowercase.
-    avatarfiletype = models.CharField(db_column='AvatarFileType', max_length=8, blank=True, null=True)  # Field name made lowercase.
+    avatar = models.TextField(db_column='Avatar', blank=True, null=True)  # Field name made lowercase.
     description = models.CharField(db_column='Description', max_length=5000, blank=True, null=True)  # Field name made lowercase.
     gender = models.TextField(db_column='Gender', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
     hobbyinterest = models.CharField(db_column='HobbyInterest', max_length=2000, blank=True, null=True)  # Field name made lowercase.
