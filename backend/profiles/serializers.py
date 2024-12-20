@@ -47,7 +47,9 @@ class ProfilePreviewCardSerializer(ModelSerializer):
                     avatar_data = obj.avatar.tobytes()
                 else:
                     avatar_data = obj.avatar
-                return base64.b64encode(avatar_data).decode('utf-8')
+                mime_type = f"image/{obj.avatarFileType.lower()}" if obj.avatarFileType else "image/jpeg"
+                base64_data = base64.b64encode(avatar_data).decode('utf-8')
+                return f"data:{mime_type};base64,{base64_data}"
             except Exception as e:
                 logger.error(f"Error encoding avatar: {str(e)}")
                 return None
@@ -155,7 +157,9 @@ class ProfileSerializer(ModelSerializer):
                     avatar_data = obj.avatar.tobytes()
                 else:
                     avatar_data = obj.avatar
-                return base64.b64encode(avatar_data).decode('utf-8')
+                mime_type = f"image/{obj.avatarFileType.lower()}" if obj.avatarFileType else "image/jpeg"
+                base64_data = base64.b64encode(avatar_data).decode('utf-8')
+                return f"data:{mime_type};base64,{base64_data}"
             except Exception as e:
                 logger.error(f"Error encoding avatar: {str(e)}")
                 return None

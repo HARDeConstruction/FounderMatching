@@ -1500,10 +1500,7 @@ export default function ProfilePage() {
             <div className="flex items-center gap-6">
               <Avatar className="w-20 h-20">
                 <AvatarImage
-                  src={
-                    `data:image/jpeg;base64,${profileData.avatar}` ||
-                    "/default-avatar.png"
-                  }
+                  src={profileData.avatar || "/default-avatar.png"}
                 />
                 <AvatarFallback>{profileData.name?.[0] || "?"}</AvatarFallback>
               </Avatar>
