@@ -63,11 +63,7 @@ const MyProfilePage = () => {
             <CardHeader className="flex items-center justify-center">
               <Avatar className="h-24 w-24">
                 <AvatarImage
-                  src={
-                    profile.avatar
-                      ? `${profile.avatar}`
-                      : undefined // Fallback will be shown if undefined
-                  }
+                  src={profile.avatar || undefined}
                   alt={profile.name}
                   className="rounded-full object-cover"
                 />

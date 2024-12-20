@@ -1499,12 +1499,7 @@ export default function ProfilePage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-6">
               <Avatar className="w-20 h-20">
-                <AvatarImage
-                  src={
-                    `data:image/jpeg;base64,${profileData.avatar}` ||
-                    "/default-avatar.png"
-                  }
-                />
+                <AvatarImage src={profileData.avatar || undefined} />
                 <AvatarFallback>{profileData.name?.[0] || "?"}</AvatarFallback>
               </Avatar>
               <div>
