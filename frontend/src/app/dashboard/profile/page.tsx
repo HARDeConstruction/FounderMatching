@@ -1466,9 +1466,9 @@ export default function ProfilePage() {
     const loadProfileData = async () => {
       try {
         const response = await getCurrentUserProfile();
-        const profileInfo: ProfileData = await response.json();
+        //const profileInfo: ProfileData = await response.json();
 
-        setProfileData(profileData);
+        setProfileData(response);
       } catch (error) {
         console.error("Error fetching profile data:", error);
       } finally {

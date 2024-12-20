@@ -26,8 +26,8 @@ const MyProfilePage = () => {
       try {
         setLoading(true);
         const response = await getUserProfiles();
-        const profilesData: ProfilePreviewCard[] = await response.json();
-        setProfiles(profilesData);
+        //const profilesData: ProfilePreviewCard[] = await response.json();
+        setProfiles(response);
       } catch (err: any) {
         console.error("Error fetching profiles:", err.message);
         setError("Failed to load profiles. Please try again later.");

@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.9.3",
+    "@clerk/nextjs": "^6.9.5",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/primitive": "^1.1.1",
     "@radix-ui/react-avatar": "^1.1.2",
@@ -28,7 +28,7 @@
     "@radix-ui/react-toast": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.1.6",
     "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.47.8",
+    "@supabase/supabase-js": "^2.47.10",
     "axios": "^1.7.9",
     "badge": "^1.0.3",
     "class-variance-authority": "^0.7.1",
@@ -38,7 +38,7 @@
     "founder-matching": "file:",
     "framer-motion": "^11.15.0",
     "lucide-react": "^0.468.0",
-    "next": "15.1.0",
+    "next": "15.1.2",
     "next-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-day-picker": "9.4.4",
@@ -54,12 +54,12 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "@types/react": "^19.0.1",
+    "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "eslint": "^9.17.0",
-    "eslint-config-next": "15.1.0",
+    "eslint-config-next": "15.1.2",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.16",
+    "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
   }
 }
