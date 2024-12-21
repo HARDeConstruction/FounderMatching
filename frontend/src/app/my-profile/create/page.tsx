@@ -89,7 +89,8 @@ const formSchema = z.object({
   linkedInURL: z
     .string()
     .max(255, "LinkedIn URL cannot exceed 255 characters")
-    .optional(),
+    .optional()
+    .nullable(),
   slogan: z.string().max(255, "Slogan cannot exceed 255 characters").optional(),
   websiteLink: z
     .string()
@@ -201,7 +202,7 @@ export default function MyForm() {
       country: countryName,
       city: stateName,
       websiteLink: "",
-      linkedInURL: "",
+      linkedInURL: null,
       gender: null,
       slogan: "",
       description: "",
