@@ -14,7 +14,7 @@ export const useProfileAPI = () => {
 
   const updateUserProfile = async (profileData: any, profileId: string) => {
     const formData = profileData;
-    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/me/update/?profileId=${profileData.profileID}`, "PATCH", formData, true);
+    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/me/update/?profileId=${profileId}`, "PATCH", formData, true);
   };
 
   const createUserProfile = async (profileData: any) => {

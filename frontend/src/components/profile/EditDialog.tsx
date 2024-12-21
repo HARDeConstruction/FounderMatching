@@ -249,7 +249,7 @@ export const EditDialog: React.FC<EditDialogProps> = ({ currentData }) => {
   });
 
   const searchParams = useSearchParams();
-  const profileId = searchParams.get("profileId");
+  const profileId = searchParams.get("profileId")?.trim();
   const { updateUserProfile } = useProfileAPI();
   async function onSubmit(profileData: z.infer<typeof formSchema>) {
     console.log("Submit button clicked.");
@@ -257,6 +257,7 @@ export const EditDialog: React.FC<EditDialogProps> = ({ currentData }) => {
       if (!profileId) {
         throw new Error("Profile ID is required");
       }
+      console.log("ProfileID: ", profileId);
       const formData = new FormData();
       console.log("profileData: ", profileData);
       formData.append("ProfileInfo", JSON.stringify(profileData));
