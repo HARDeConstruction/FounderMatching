@@ -12,7 +12,7 @@ export interface ProfileData {
   name: string;
   email: string;
   dateOfBirth: string;
-  avatar?: File;
+  avatar?: File | string;
   industry: string;
   phoneNumber: string;
   country: string;

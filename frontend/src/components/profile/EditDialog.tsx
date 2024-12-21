@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { CloudUpload, Paperclip } from "lucide-react";
+import { CloudUpload, Paperclip, XIcon } from "lucide-react";
 import {
   FileInput,
   FileUploader,
@@ -54,6 +54,8 @@ import { Switch } from "@/components/ui/switch";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import Image from "next/image";
+import { useProfileAPI } from "@/lib/api/profiles";
 
 const formSchema = z.object({
   isStartup: z.boolean(),
@@ -66,25 +68,28 @@ const formSchema = z.object({
     .max(255, "Email cannot exceed 255 characters")
     .email("Invalid email format")
     .regex(/^[^@\s]+@[^@\s]+\.[^@\s]+$/, "Invalid email format"),
-  avatar: z
-    .instanceof(File)
-    .optional()
-    .refine(
-      (file) => !file || file.size <= 2 * 1024 * 1024,
-      "File size must be less than 2MB"
-    )
-    .refine(
-      (file) =>
-        !file ||
-        [
-          "image/svg",
-          "image/png",
-          "image/jpeg",
-          "image/jpg",
-          "image/gif",
-        ].includes(file.type),
-      "Only SVG, PNG, JPG, JPEG, or GIF files are allowed"
-    ),
+  avatar: z.union([
+    z.string(),
+    z
+      .instanceof(File)
+      .optional()
+      .refine(
+        (file) => !file || file.size <= 2 * 1024 * 1024,
+        "File size must be less than 2MB"
+      )
+      .refine(
+        (file) =>
+          !file ||
+          [
+            "image/svg",
+            "image/png",
+            "image/jpeg",
+            "image/jpg",
+            "image/gif",
+          ].includes(file.type),
+        "Only SVG, PNG, JPG, JPEG, or GIF files are allowed"
+      ),
+  ]),
   industry: z
     .string()
     .max(100, "Industry cannot exceed 100 characters")
@@ -98,7 +103,8 @@ const formSchema = z.object({
   linkedInURL: z
     .string()
     .max(255, "LinkedIn URL cannot exceed 255 characters")
-    .optional(),
+    .optional()
+    .nullable(),
   slogan: z.string().max(255, "Slogan cannot exceed 255 characters").optional(),
   websiteLink: z
     .string()
@@ -145,7 +151,7 @@ const formSchema = z.object({
         description: z.string().max(500).optional(),
         startDate: z.string().max(64).optional(),
         endDate: z.string().max(64).optional(),
-        gpa: z.number().optional(),
+        gpa: z.number().optional().nullable(),
       })
     )
     .max(20, "Cannot add more than 20 certificates"),
@@ -241,38 +247,41 @@ export const EditDialog: React.FC<EditDialogProps> = ({ currentData }) => {
     name: "jobPositions",
   });
 
-  const handleSubmit = (profileData: z.infer<typeof formSchema>) => {
+  const { updateUserProfile } = useProfileAPI();
+  async function onSubmit(profileData: z.infer<typeof formSchema>) {
+    console.log("Submit button clicked.");
     try {
-      console.log("Saving profile...");
-      console.log("Form values:", profileData);
-      const transformedData = { ...profileData };
+      const formData = new FormData();
+      console.log("profileData: ", profileData);
+      formData.append("ProfileInfo", JSON.stringify(profileData));
+      formData.append("avatar", profileData.avatar as File);
+      console.log("Sending profile data:", formData);
 
-      //await saveProfileData(transformedData); // Replace with your API logic
-      console.log(transformedData);
+      await updateUserProfile(formData);
       toast.success("Profile saved successfully!");
     } catch (error) {
       console.error("Error saving profile:", error);
       toast.error("Failed to save profile. Please try again.");
     }
-  };
+  }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
-          Edit
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-screen w-full max-w-lg overflow-hidden">
-        <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
-        </DialogHeader>
-        <div className="h-[400px] overflow-y-auto px-4">
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-8 max-w-3xl mx-auto py-10"
-            >
+    <Form {...form}>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button size="sm" variant="outline">
+            Edit
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-h-screen w-full max-w-lg overflow-hidden">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 max-w-3xl mx-auto py-10"
+          >
+            <DialogHeader>
+              <DialogTitle>Edit Profile</DialogTitle>
+            </DialogHeader>
+            <div className="h-[400px] overflow-y-auto px-4">
               <FormField
                 control={form.control}
                 name="isStartup"
@@ -392,10 +401,12 @@ export const EditDialog: React.FC<EditDialogProps> = ({ currentData }) => {
                     <FormLabel>Avatar</FormLabel>
                     <FormControl>
                       <FileUploader
-                        value={value ? [value] : []}
+                        value={value instanceof File ? [value] : []}
                         onValueChange={(files) => {
                           const file = files?.[0] || null;
-                          onChange(file);
+                          if (file) {
+                            onChange(file);
+                          }
                         }}
                         dropzoneOptions={dropZoneConfig}
                         className="relative bg-background rounded-lg p-2"
@@ -418,16 +429,36 @@ export const EditDialog: React.FC<EditDialogProps> = ({ currentData }) => {
                           </div>
                         </FileInput>
                         <FileUploaderContent>
-                          {value && (
+                          {value instanceof File ? (
                             <FileUploaderItem index={0}>
                               <Paperclip className="h-4 w-4 stroke-current" />
                               <span>{value.name}</span>
                             </FileUploaderItem>
-                          )}
+                          ) : value ? (
+                            <div className="flex items-center justify-between m-1">
+                              <Image
+                                className="w-12 h-12 rounded-full"
+                                src={value}
+                                alt="Avatar"
+                                width={60}
+                                height={60}
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                onClick={() => onChange("")}
+                                size="icon"
+                              >
+                                <XIcon />
+                              </Button>
+                            </div>
+                          ) : null}
                         </FileUploaderContent>
                       </FileUploader>
                     </FormControl>
-                    <FormDescription>Select a file to upload.</FormDescription>
+                    <FormDescription>
+                      Optional: Upload a new file or keep the current avatar.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -478,21 +509,21 @@ export const EditDialog: React.FC<EditDialogProps> = ({ currentData }) => {
                 name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Select Country</FormLabel>
+                    <FormLabel>Change Country</FormLabel>
                     <FormControl>
                       <LocationSelector
                         onCountryChange={(selectedCountry) => {
-                          setCountryName(selectedCountry?.name || ""); // Update country state
-                          setStateName(""); // Reset city when country changes
+                          setCountryName(selectedCountry?.name || "");
+                          form.setValue("country", selectedCountry?.name || "");
+                          setStateName("");
                         }}
                         onStateChange={(selectedState) => {
-                          setStateName(selectedState?.name || ""); // Update city state
+                          setStateName(selectedState?.name || "");
                         }}
                       />
                     </FormControl>
                     <FormDescription>
-                      If your country has states, it will be appear after
-                      selecting country
+                      Select the country you want to set
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -527,7 +558,12 @@ export const EditDialog: React.FC<EditDialogProps> = ({ currentData }) => {
                       <FormItem>
                         <FormLabel>LinkedIn</FormLabel>
                         <FormControl>
-                          <Input placeholder="" type="text" {...field} />
+                          <Input
+                            placeholder=""
+                            type="text"
+                            {...field}
+                            value={field.value ?? ""}
+                          />
                         </FormControl>
                         <FormDescription>
                           Enter your LinkedIn profile URL.
@@ -1433,15 +1469,13 @@ export const EditDialog: React.FC<EditDialogProps> = ({ currentData }) => {
                   </div>
                 </>
               )}
-            </form>
-          </Form>
-        </div>
-        <DialogFooter>
-          <Button type="submit" onClick={form.handleSubmit(handleSubmit)}>
-            Save changes
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </Form>
   );
 };
