@@ -56,6 +56,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
 import { useProfileAPI } from "@/lib/api/profiles";
+import { useSearchParams } from "next/navigation";
 
 const formSchema = z.object({
   isStartup: z.boolean(),
@@ -247,17 +248,22 @@ export const EditDialog: React.FC<EditDialogProps> = ({ currentData }) => {
     name: "jobPositions",
   });
 
+  const searchParams = useSearchParams();
+  const profileId = searchParams.get("profileId");
   const { updateUserProfile } = useProfileAPI();
   async function onSubmit(profileData: z.infer<typeof formSchema>) {
     console.log("Submit button clicked.");
     try {
+      if (!profileId) {
+        throw new Error("Profile ID is required");
+      }
       const formData = new FormData();
       console.log("profileData: ", profileData);
       formData.append("ProfileInfo", JSON.stringify(profileData));
       formData.append("avatar", profileData.avatar as File);
       console.log("Sending profile data:", formData);
 
-      await updateUserProfile(formData);
+      await updateUserProfile(formData, profileId);
       toast.success("Profile saved successfully!");
     } catch (error) {
       console.error("Error saving profile:", error);
