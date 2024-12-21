@@ -334,6 +334,14 @@ class UpdateProfileView(APIView):
     @transaction.atomic
     def patch(self, request):
         try:
+            # Get profile ID from query params
+            profile_id = request.query_params.get('profileId')
+            if not profile_id:
+                return Response(
+                    {'error': 'Profile ID is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             try:
                 user_account = UserAccount.objects.get(clerkUserID=request.user.username)
                 user_id = user_account.userID
@@ -344,11 +352,11 @@ class UpdateProfileView(APIView):
                 )
 
             try:
-                profile = Profile.objects.get(userID=user_id)
+                profile = Profile.objects.get(profileID=profile_id, userID=user_id)
             except Profile.DoesNotExist:
                 return Response(
-                    {'error': 'Profile not found'},
-                    status=status.HTTP_404_NOT_FOUND
+                    {'error': 'Profile not found or access denied'},
+                    status=status.HTTP_403_FORBIDDEN
                 )
 
             profile_data = json.loads(request.data.get('ProfileInfo', '{}'))
