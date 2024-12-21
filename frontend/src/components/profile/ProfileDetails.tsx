@@ -241,43 +241,46 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                 </Button>
               </CardHeader>
               <CardContent className="flex flex-col gap-y-4">
-                {profileData.experiences.length > 0 ? (
-                  profileData.experiences.map((exp: any, index: number) => (
-                    <div
-                      key={index}
-                      className="relative flex flex-col gap-1 p-4 mb-4"
-                    >
-                      <div className="flex flex-row justify-between items-center">
-                        <div className="flex items-center gap-6">
-                          <CircleChevronUpIcon className="w-[22px] h-[22px] z-10 -translate-y-2" />
-                          <div
-                            className="absolute top-[42px] left-6 translate-x-[2px] w-[2px] bg-gray-800"
-                            style={{
-                              height:
-                                index === profileData.experiences.length - 1
-                                  ? "calc(100% - 30px)"
-                                  : "calc(100% + 15px)",
-                            }}
-                          ></div>
+                {(profileData.experiences ?? []).length > 0 ? (
+                  (profileData.experiences ?? []).map(
+                    (exp: any, index: number) => (
+                      <div
+                        key={index}
+                        className="relative flex flex-col gap-1 p-4 mb-4"
+                      >
+                        <div className="flex flex-row justify-between items-center">
+                          <div className="flex items-center gap-6">
+                            <CircleChevronUpIcon className="w-[22px] h-[22px] z-10 -translate-y-2" />
+                            <div
+                              className="absolute top-[42px] left-6 translate-x-[2px] w-[2px] bg-gray-800"
+                              style={{
+                                height:
+                                  index ===
+                                  (profileData.experiences ?? []).length - 1
+                                    ? "calc(100% - 30px)"
+                                    : "calc(100% + 15px)",
+                              }}
+                            ></div>
 
-                          <div>
-                            <h1 className="text-lg font-bold text-gray-800">
-                              {exp.role}
-                            </h1>
-                            <h2 className="text-md font-semibold text-gray-700">
-                              {exp.companyName} | {exp.location}
-                            </h2>
+                            <div>
+                              <h1 className="text-lg font-bold text-gray-800">
+                                {exp.role}
+                              </h1>
+                              <h2 className="text-md font-semibold text-gray-700">
+                                {exp.companyName} | {exp.location}
+                              </h2>
+                            </div>
+                          </div>
+                          <div className="text-md font-semibold text-gray-800">
+                            {exp.startDate} - {exp.endDate}
                           </div>
                         </div>
-                        <div className="text-md font-semibold text-gray-800">
-                          {exp.startDate} - {exp.endDate}
-                        </div>
+                        <p className="text-gray-800 ml-12 mt-2">
+                          {exp.description}
+                        </p>
                       </div>
-                      <p className="text-gray-800 ml-12 mt-2">
-                        {exp.description}
-                      </p>
-                    </div>
-                  ))
+                    )
+                  )
                 ) : (
                   <p className="text-gray-800 italic">
                     No experiences added yet.
@@ -303,44 +306,47 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                 </Button>
               </CardHeader>
               <CardContent className="flex flex-col gap-y-4">
-                {profileData.certificates ?? [].length > 0 ? (
-                  profileData?.certificates?.map((cert: any, index: number) => (
-                    <div
-                      key={index}
-                      className="relative flex flex-col gap-1 p-4 mb-4"
-                    >
-                      <div className="flex flex-row justify-between items-center">
-                        <div className="flex items-center gap-6">
-                          <FileBadge2Icon className="w-[22px] h-[22px] z-10 -translate-y-2" />
-                          <div
-                            className="absolute top-[42px] left-6 translate-x-[2px] w-[2px] bg-gray-800"
-                            style={{
-                              height:
-                                index === profileData.certificates.length - 1
-                                  ? "calc(100% - 30px)"
-                                  : "calc(100% + 15px)",
-                            }}
-                          ></div>
+                {(profileData.certificates ?? []).length > 0 ? (
+                  (profileData.certificates ?? []).map(
+                    (cert: any, index: number) => (
+                      <div
+                        key={index}
+                        className="relative flex flex-col gap-1 p-4 mb-4"
+                      >
+                        <div className="flex flex-row justify-between items-center">
+                          <div className="flex items-center gap-6">
+                            <FileBadge2Icon className="w-[22px] h-[22px] z-10 -translate-y-2" />
+                            <div
+                              className="absolute top-[42px] left-6 translate-x-[2px] w-[2px] bg-gray-800"
+                              style={{
+                                height:
+                                  index ===
+                                  (profileData.certificates ?? []).length - 1
+                                    ? "calc(100% - 30px)"
+                                    : "calc(100% + 15px)",
+                              }}
+                            ></div>
 
-                          <div>
-                            <h1 className="text-lg font-bold text-gray-800">
-                              {cert.name}
-                            </h1>
-                            <h2 className="text-md font-semibold text-gray-700">
-                              Skill: {cert.skill} |{" "}
-                              {cert.gpa ? `GPA: ${cert.gpa}` : ""}
-                            </h2>
+                            <div>
+                              <h1 className="text-lg font-bold text-gray-800">
+                                {cert.name}
+                              </h1>
+                              <h2 className="text-md font-semibold text-gray-700">
+                                Skill: {cert.skill} |{" "}
+                                {cert.gpa ? `GPA: ${cert.gpa}` : ""}
+                              </h2>
+                            </div>
+                          </div>
+                          <div className="text-md font-semibold text-gray-800">
+                            {cert.startDate} - {cert.endDate}
                           </div>
                         </div>
-                        <div className="text-md font-semibold text-gray-800">
-                          {cert.startDate} - {cert.endDate}
-                        </div>
+                        <p className="text-gray-800 ml-12 mt-2">
+                          {cert.description}
+                        </p>
                       </div>
-                      <p className="text-gray-800 ml-12 mt-2">
-                        {cert.description}
-                      </p>
-                    </div>
-                  ))
+                    )
+                  )
                 ) : (
                   <p className="text-gray-800 italic">
                     No certificates added yet.
@@ -366,30 +372,32 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                 </Button>
               </CardHeader>
               <CardContent className="flex flex-col gap-y-4">
-                {profileData.achievements.length > 0 ? (
-                  profileData.achievements.map((ach: any, index: number) => (
-                    <div
-                      key={index}
-                      className="relative flex flex-col gap-1 p-4 mb-4"
-                    >
-                      <div className="flex flex-row justify-between items-center">
-                        <div className="flex items-center gap-6">
-                          <SparklesIcon className="w-[22px] h-[22px] z-10 " />
-                          <div>
-                            <h1 className="text-lg font-bold text-gray-800">
-                              {ach.name}
-                            </h1>
+                {(profileData.achievements ?? []).length > 0 ? (
+                  (profileData.achievements ?? []).map(
+                    (ach: any, index: number) => (
+                      <div
+                        key={index}
+                        className="relative flex flex-col gap-1 p-4 mb-4"
+                      >
+                        <div className="flex flex-row justify-between items-center">
+                          <div className="flex items-center gap-6">
+                            <SparklesIcon className="w-[22px] h-[22px] z-10 " />
+                            <div>
+                              <h1 className="text-lg font-bold text-gray-800">
+                                {ach.name}
+                              </h1>
+                            </div>
+                          </div>
+                          <div className="text-md font-semibold text-gray-800">
+                            {ach.date}
                           </div>
                         </div>
-                        <div className="text-md font-semibold text-gray-800">
-                          {ach.date}
-                        </div>
+                        <p className="text-gray-800 ml-12 mt-2">
+                          {ach.description}
+                        </p>
                       </div>
-                      <p className="text-gray-800 ml-12 mt-2">
-                        {ach.description}
-                      </p>
-                    </div>
-                  ))
+                    )
+                  )
                 ) : (
                   <p className="text-gray-500 italic">
                     No achievements added yet.
@@ -417,57 +425,59 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                 </Button>
               </CardHeader>
               <CardContent className="flex flex-col gap-y-6">
-                {profileData.jobPositions.length > 0 ? (
-                  profileData.jobPositions.map((job: any, index: number) => (
-                    <div
-                      key={index}
-                      className="relative flex flex-col gap-4 p-4 border-2 rounded-lg shadow-sm"
-                    >
-                      <div className="flex flex-row justify-between items-center">
-                        <div>
-                          <h1 className="text-lg font-bold text-gray-800">
-                            {job.JobTitle}
-                          </h1>
-                          <h2 className="text-md font-semibold text-gray-700">
-                            {job.City && job.Country
-                              ? `${job.City}, ${job.Country}`
-                              : "Location not specified"}
-                          </h2>
+                {(profileData.jobPositions ?? []).length > 0 ? (
+                  (profileData.jobPositions ?? []).map(
+                    (job: any, index: number) => (
+                      <div
+                        key={index}
+                        className="relative flex flex-col gap-4 p-4 border-2 rounded-lg shadow-sm"
+                      >
+                        <div className="flex flex-row justify-between items-center">
+                          <div>
+                            <h1 className="text-lg font-bold text-gray-800">
+                              {job.JobTitle}
+                            </h1>
+                            <h2 className="text-md font-semibold text-gray-700">
+                              {job.City && job.Country
+                                ? `${job.City}, ${job.Country}`
+                                : "Location not specified"}
+                            </h2>
+                          </div>
+                          <p
+                            className={`text-md font-semibold ${
+                              job.IsOpening ? "text-green-600" : "text-red-600"
+                            }`}
+                          >
+                            {job.IsOpening ? "Open for Applications" : "Closed"}
+                          </p>
                         </div>
-                        <p
-                          className={`text-md font-semibold ${
-                            job.IsOpening ? "text-green-600" : "text-red-600"
-                          }`}
-                        >
-                          {job.IsOpening ? "Open for Applications" : "Closed"}
+
+                        {job.StartDate && (
+                          <i className="text-sm text-gray-700">
+                            Start Date: <strong>{job.StartDate}</strong>
+                          </i>
+                        )}
+
+                        <p className="text-gray-800 mt-1 ml-1">
+                          {job.Description}
                         </p>
+
+                        {/* Tags */}
+                        {job.Tags && job.Tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {job.Tags.map((tag: string, tagIndex: number) => (
+                              <span
+                                key={tagIndex}
+                                className="text-sm px-2 py-1 rounded-full bg-blue-100 text-blue-700"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
-
-                      {job.StartDate && (
-                        <i className="text-sm text-gray-700">
-                          Start Date: <strong>{job.StartDate}</strong>
-                        </i>
-                      )}
-
-                      <p className="text-gray-800 mt-1 ml-1">
-                        {job.Description}
-                      </p>
-
-                      {/* Tags */}
-                      {job.Tags && job.Tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {job.Tags.map((tag: string, tagIndex: number) => (
-                            <span
-                              key={tagIndex}
-                              className="text-sm px-2 py-1 rounded-full bg-blue-100 text-blue-700"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))
+                    )
+                  )
                 ) : (
                   <p className="text-gray-800 italic">
                     No job positions added yet.
