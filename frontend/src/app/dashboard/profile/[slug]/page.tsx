@@ -14,12 +14,10 @@ export default function ProfilePage() {
   const searchParams = useSearchParams();
   const profileId = searchParams.get('profileId');
 
-  const params = useParams();
   useEffect(() => {
     const loadProfileData = async () => {
       try {
         console.log("profileId", profileId);
-        console.log(params);
         if (!profileId) {
           throw new Error("Profile ID is required");
         }

@@ -29,7 +29,13 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-6">
               <Avatar className="w-20 h-20">
-                <AvatarImage src={profileData.avatar || undefined} />
+                <AvatarImage
+                  src={
+                    typeof profileData.avatar === "string"
+                      ? profileData.avatar
+                      : undefined
+                  }
+                />
                 <AvatarFallback>{profileData.name?.[0] || "?"}</AvatarFallback>
               </Avatar>
               <div>
