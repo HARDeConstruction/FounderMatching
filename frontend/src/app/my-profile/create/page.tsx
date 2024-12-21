@@ -89,7 +89,8 @@ const formSchema = z.object({
   linkedInURL: z
     .string()
     .max(255, "LinkedIn URL cannot exceed 255 characters")
-    .optional(),
+    .optional()
+    .nullable(),
   slogan: z.string().max(255, "Slogan cannot exceed 255 characters").optional(),
   websiteLink: z
     .string()
@@ -201,7 +202,7 @@ export default function MyForm() {
       country: countryName,
       city: stateName,
       websiteLink: "",
-      linkedInURL: "",
+      linkedInURL: null,
       gender: null,
       slogan: "",
       description: "",
@@ -471,11 +472,11 @@ export default function MyForm() {
               <FormControl>
                 <LocationSelector
                   onCountryChange={(selectedCountry) => {
-                    setCountryName(selectedCountry?.name || ""); // Update country state
-                    setStateName(""); // Reset city when country changes
+                    setCountryName(selectedCountry?.name || "");
+                    setStateName("");
                   }}
                   onStateChange={(selectedState) => {
-                    setStateName(selectedState?.name || ""); // Update city state
+                    setStateName(selectedState?.name || "");
                   }}
                 />
               </FormControl>
@@ -514,7 +515,12 @@ export default function MyForm() {
                 <FormItem>
                   <FormLabel>LinkedIn</FormLabel>
                   <FormControl>
-                    <Input placeholder="" type="text" {...field} />
+                    <Input
+                      placeholder=""
+                      type="text"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
                   </FormControl>
                   <FormDescription>
                     Enter your LinkedIn profile URL.
