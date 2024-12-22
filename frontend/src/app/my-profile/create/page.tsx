@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, set } from "date-fns";
 import {
   Popover,
   PopoverContent,
@@ -45,6 +45,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { TagsInput } from "@/components/ui/tags-input";
 import { Switch } from "@/components/ui/switch";
 import { useProfileAPI } from "@/lib/api/profiles";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   isStartup: z.boolean(),
@@ -255,6 +256,7 @@ export default function MyForm() {
     name: "jobPositions",
   });
 
+  const router = useRouter();
   const { createUserProfile } = useProfileAPI();
   async function onSubmit(profileData: z.infer<typeof formSchema>) {
     try {
@@ -265,6 +267,8 @@ export default function MyForm() {
       await createUserProfile(formData);
 
       toast.success("Profile created successfully!");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      router.push("/my-profile");
     } catch (error) {
       console.error("Error creating profile:", error);
       toast.error("Failed to create profile.");

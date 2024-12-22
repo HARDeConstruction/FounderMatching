@@ -152,9 +152,11 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
               <BadgeInfoIcon className="w-16 h-16" />
               <div>
                 <CardTitle className="text-xl">Profile Highlights</CardTitle>
-                <p className="text-base text-gray-500">
-                  The Profile Highlights include a catchy Tagline, a detailed
-                  Description, and Hobby Interests to showcase personality.
+                <p className="text-sm text-gray-500">
+                  Showcase your identity—whether as a professional or a
+                  startup—with a catchy tagline, a detailed description of your
+                  journey or mission, and key interests or expertise to leave a
+                  lasting impression.
                 </p>
               </div>
             </div>
@@ -236,9 +238,9 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                   <div>
                     <CardTitle className="text-xl">Experience</CardTitle>
                     <p className="text-sm text-gray-500">
-                      The Profile Highlights include a catchy Tagline, a
-                      detailed Description, and Hobby Interests to showcase
-                      personality.
+                      Highlight your unique qualities with a captivating
+                      tagline, a well-crafted description, and hobbies that
+                      reflect your personality and interests.
                     </p>
                   </div>
                 </div>
@@ -257,17 +259,6 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                         <div className="flex flex-row justify-between items-center">
                           <div className="flex items-center gap-6">
                             <CircleChevronUpIcon className="w-[22px] h-[22px] z-10 -translate-y-2" />
-                            <div
-                              className="absolute top-[42px] left-6 translate-x-[2px] w-[2px] bg-gray-800"
-                              style={{
-                                height:
-                                  index ===
-                                  (profileData.experiences ?? []).length - 1
-                                    ? "calc(100% - 30px)"
-                                    : "calc(100% + 15px)",
-                              }}
-                            ></div>
-
                             <div>
                               <h1 className="text-lg font-bold text-gray-800">
                                 {exp.role}
@@ -322,16 +313,6 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                         <div className="flex flex-row justify-between items-center">
                           <div className="flex items-center gap-6">
                             <FileBadge2Icon className="w-[22px] h-[22px] z-10 -translate-y-2" />
-                            <div
-                              className="absolute top-[42px] left-6 translate-x-[2px] w-[2px] bg-gray-800"
-                              style={{
-                                height:
-                                  index ===
-                                  (profileData.certificates ?? []).length - 1
-                                    ? "calc(100% - 30px)"
-                                    : "calc(100% + 15px)",
-                              }}
-                            ></div>
 
                             <div>
                               <h1 className="text-lg font-bold text-gray-800">

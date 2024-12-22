@@ -4,15 +4,17 @@ import React, { useEffect, useState } from "react";
 import { useProfileAPI } from "@/lib/api/profiles";
 import { ProfileData } from "@/lib/types/profiles";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import ProfileDetails from "@/components/profile/ProfileDetails";
+import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {
   const { getCurrentUserProfile } = useProfileAPI();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
-  const profileId = searchParams.get('profileId');
+  const profileId = searchParams.get("profileId");
+  const router = useRouter();
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -44,10 +46,22 @@ export default function ProfilePage() {
 
   return (
     <div className="flex-1 mt-4">
-      <h1 className="text-xl font-semibold mb-4">
-        {profileData.name}'s Profile
-      </h1>
-        <ProfileDetails profileData={profileData} />
+      <div className="flex flex-row">
+        <h1 className="text-xl font-semibold mb-4">
+          {profileData.name}'s Profile
+        </h1>
+        <Button
+          className="ml-auto"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            router.push("/my-profile");
+          }}
+        >
+          Change Profile
+        </Button>
+      </div>
+      <ProfileDetails profileData={profileData} />
     </div>
   );
 }
