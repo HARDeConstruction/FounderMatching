@@ -62,6 +62,9 @@ class CreateProfileView(APIView):
             profile_data = json.loads(request.data.get('ProfileInfo', '{}'))
             profile_data['userID'] = user_id
 
+            logger.info(f"Received profile data: {profile_data}")
+            logger.info(f"Tags in profile data: {profile_data.get('tags')}")
+
             # Handle avatar file
             avatar_file = request.FILES.get('avatar')
             if avatar_file:

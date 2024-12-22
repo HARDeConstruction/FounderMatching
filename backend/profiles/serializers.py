@@ -22,7 +22,20 @@ class TagSerializer(serializers.ModelSerializer):
 class ModelSerializer(serializers.ModelSerializer):
     """Base serializer that preserves the exact field names from the model"""
     def to_representation(self, instance):
-        return super().to_representation(instance)
+        """Convert instance to JSON-serializable format"""
+        ret = {}
+        fields = self._readable_fields
+
+        for field in fields:
+            try:
+                attribute = field.get_attribute(instance)
+                if attribute is not None:
+                    ret[field.field_name] = field.to_representation(attribute)
+                else:
+                    ret[field.field_name] = None
+            except Exception as e:
+                ret[field.field_name] = None
+        return ret
 
     def to_internal_value(self, data):
         return super().to_internal_value(data)
@@ -146,7 +159,7 @@ class ProfileSerializer(ModelSerializer):
     jobPositions = JobPositionSerializer(many=True, required=False)
     privacySettings = ProfilePrivacySettingsSerializer(source='profileprivacysettings', required=False)
     dateOfBirth = serializers.DateField(required=False, allow_null=True, format='%Y-%m-%d')
-    tags = serializers.SerializerMethodField()
+    tags = serializers.ListField(child=serializers.CharField(), required=False)
     avatar = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
@@ -166,22 +179,35 @@ class ProfileSerializer(ModelSerializer):
         }
 
     def get_tags(self, obj):
-        tag_instances = obj.tags.all()
-        return [instance.tagID.value for instance in tag_instances]
+        try:
+            tag_instances = obj.tags.all()
+            return [instance.tagID.value for instance in tag_instances]
+        except Exception as e:
+            logger.error(f"Error getting tags: {str(e)}")
+            return []
 
     def to_representation(self, instance):
         """Convert instance to JSON-serializable format"""
-        data = super().to_representation(instance)
-        if instance.dateOfBirth:
-            data['dateOfBirth'] = instance.dateOfBirth.strftime('%Y-%m-%d')
+        try:
+            data = super().to_representation(instance)
+            
+            # Handle date fields
+            if instance.dateOfBirth:
+                data['dateOfBirth'] = instance.dateOfBirth.strftime('%Y-%m-%d')
 
-        data['experiences'] = ExperienceSerializer(instance.experiences.all(), many=True).data
-        data['certificates'] = CertificateSerializer(instance.certificates.all(), many=True).data
-        data['achievements'] = AchievementSerializer(instance.achievements.all(), many=True).data
-        data['jobPositions'] = JobPositionSerializer(instance.jobPositions.all(), many=True).data
-        
-        data['tags'] = self.get_tags(instance)
-        return data
+            # Handle related fields
+            data['experiences'] = ExperienceSerializer(instance.experiences.all(), many=True).data
+            data['certificates'] = CertificateSerializer(instance.certificates.all(), many=True).data
+            data['achievements'] = AchievementSerializer(instance.achievements.all(), many=True).data
+            data['jobPositions'] = JobPositionSerializer(instance.jobPositions.all(), many=True).data
+            
+            # Handle tags
+            data['tags'] = self.get_tags(instance)
+            
+            return data
+        except Exception as e:
+            logger.error(f"Error in to_representation: {str(e)}")
+            raise
 
     def validate_avatar(self, value):
         if value is None:
@@ -209,7 +235,10 @@ class ProfileSerializer(ModelSerializer):
     @transaction.atomic
     def _process_tags(self, profile, tags_data):
         if tags_data is None:
+            logger.info("No tags data provided")
             return
+
+        logger.info(f"Processing tags for profile {profile.profileID}: {tags_data}")
 
         # Get existing tag values for the profile
         existing_tag_values = set(
@@ -217,13 +246,16 @@ class ProfileSerializer(ModelSerializer):
             .select_related('tagID')
             .values_list('tagID__value', flat=True)
         )
+        logger.info(f"Existing tag values: {existing_tag_values}")
 
         # Convert new tags to set for comparison
         new_tag_values = set(tags_data)
+        logger.info(f"New tag values: {new_tag_values}")
 
         # Find tags to remove (exist in DB but not in new data)
         tags_to_remove = existing_tag_values - new_tag_values
         if tags_to_remove:
+            logger.info(f"Removing tags: {tags_to_remove}")
             ProfileTagInstances.objects.filter(
                 profileOwnerID=profile,
                 tagID__value__in=tags_to_remove
@@ -232,13 +264,15 @@ class ProfileSerializer(ModelSerializer):
         # Find tags to add (exist in new data but not in DB)
         tags_to_add = new_tag_values - existing_tag_values
         if tags_to_add:
+            logger.info(f"Adding tags: {tags_to_add}")
             # Get or create tags and build instances for bulk create
             new_instances = []
             for tag_value in tags_to_add:
-                tag, _ = Tags.objects.get_or_create(
+                tag, created = Tags.objects.get_or_create(
                     value=tag_value,
                     defaults={'description': ''}
                 )
+                logger.info(f"{'Created' if created else 'Found'} tag: {tag_value}")
                 new_instances.append(
                     ProfileTagInstances(
                         profileOwnerID=profile,
@@ -249,6 +283,7 @@ class ProfileSerializer(ModelSerializer):
             # Bulk create new tag instances
             if new_instances:
                 ProfileTagInstances.objects.bulk_create(new_instances)
+                logger.info(f"Created {len(new_instances)} new tag instances")
 
     @transaction.atomic
     def create(self, validated_data):
