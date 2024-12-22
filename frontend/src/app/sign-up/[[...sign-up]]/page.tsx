@@ -2,7 +2,7 @@ import Logo from "@/components/layout/logo";
 import Image from "next/image";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import imagePath from "../../assets/signupimage.png";
+import imagePath from "@/assets/signupimage.png";
 import SignUpBox from "@/components/layout/SignUpBox";
 import { SignUp, useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/router";

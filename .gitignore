@@ -312,3 +312,4 @@ pyrightconfig.json
 ### Vercel ###
 
 # End of https://www.toptal.com/developers/gitignore/api/django,nextjs,python,remix+vercel,vercel
+backend/backend/tmp.txt
