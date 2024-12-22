@@ -68,8 +68,12 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                 <div>
                   <p className="text-sm text-gray-500">Gender</p>
                   <p className="font-semibold text-gray-800">
-                    {profileData.gender.charAt(0).toUpperCase() +
-                      profileData.gender.slice(1)}
+                    {profileData.gender ? (
+                      profileData.gender.charAt(0).toUpperCase() +
+                      profileData.gender.slice(1)
+                    ) : (
+                      <i className="text-gray-500">Not available</i>
+                    )}
                   </p>
                 </div>
               </>

@@ -77,10 +77,7 @@ const formSchema = z.object({
         ].includes(file.type),
       "Only SVG, PNG, JPG, JPEG, or GIF files are allowed"
     ),
-  industry: z
-    .string()
-    .max(100, "Industry cannot exceed 100 characters")
-    .regex(/^[A-Za-z\s&,-]+$/, "Invalid industry format"),
+  industry: z.string().max(100, "Industry cannot exceed 100 characters"),
   phoneNumber: z
     .string()
     .max(20, "Phone number cannot exceed 20 characters")
@@ -97,14 +94,16 @@ const formSchema = z.object({
     .string()
     .max(255, "Website link cannot exceed 255 characters")
     .optional(),
-  description: z.string().max(5000, "Description cannot exceed 500 characters"),
+  description: z
+    .string()
+    .max(5000, "Description cannot exceed 5000 characters"),
   hobbyInterest: z
     .string()
     .max(500, "Hobby Interest cannot exceed 500 characters")
     .optional(),
   gender: z.string().max(50).optional().nullable(),
-  statement: z.string().max(1000, "Statement cannot exceed 500 characters"),
-  aboutUs: z.string().max(5000, "About Us cannot exceed 500 characters"),
+  statement: z.string().max(5000, "Statement cannot exceed 5000 characters"),
+  aboutUs: z.string().max(10000, "About Us cannot exceed 10,000 characters"),
   tags: z
     .array(z.string().max(300))
     .nonempty("Please add at least one tag")
@@ -124,9 +123,12 @@ const formSchema = z.object({
         companyName: z.string().max(255),
         role: z.string().max(255),
         location: z.string().max(255),
-        description: z.string().max(500).optional(),
-        startDate: z.string().max(64).optional(),
-        endDate: z.string().max(64).optional(),
+        description: z
+          .string()
+          .max(5000, "Description cannot exceed 500 characters")
+          .optional(),
+        startDate: z.string().max(64).optional().nullable(),
+        endDate: z.string().max(64).optional().nullable(),
       })
     )
     .max(20, "Cannot add more than 20 experiences"),
@@ -135,9 +137,12 @@ const formSchema = z.object({
       z.object({
         name: z.string().max(255),
         skill: z.string().max(255),
-        description: z.string().max(500).optional(),
-        startDate: z.string().max(64).optional(),
-        endDate: z.string().max(64).optional(),
+        description: z
+          .string()
+          .max(5000, "Description cannot exceed 500 characters")
+          .optional(),
+        startDate: z.string().max(64).optional().nullable(),
+        endDate: z.string().max(64).optional().nullable(),
         gpa: z.number().optional(),
       })
     )
@@ -146,22 +151,22 @@ const formSchema = z.object({
     .array(
       z.object({
         name: z.string().max(255),
-        description: z.string().max(500).optional(),
-        date: z.string().max(64).optional(),
+        description: z
+          .string()
+          .max(5000, "Description cannot exceed 500 characters")
+          .optional(),
+        date: z.string().max(64).optional().nullable(),
       })
     )
     .max(20, "Cannot add more than 20 achievements"),
   jobPositions: z
     .array(
       z.object({
-        jobTitle: z
-          .string()
-          .max(100, "Job title cannot exceed 100 characters")
-          .regex(/^[A-Za-z0-9\s&',.-]+$/, "Invalid job title format"),
+        jobTitle: z.string().max(100, "Job title cannot exceed 100 characters"),
         isOpening: z.boolean().default(true),
         country: z.string().max(100),
         city: z.string().max(100),
-        startDate: z.string().max(64).optional(),
+        startDate: z.string().max(64).optional().nullable(),
         description: z
           .string()
           .max(10000, "Description cannot exceed 10,000 characters")
@@ -477,10 +482,11 @@ export default function MyForm() {
                 <LocationSelector
                   onCountryChange={(selectedCountry) => {
                     setCountryName(selectedCountry?.name || "");
-                    setStateName("");
+                    form.setValue("country", selectedCountry?.name || "");
                   }}
                   onStateChange={(selectedState) => {
                     setStateName(selectedState?.name || "");
+                    form.setValue("city", selectedState?.name || "");
                   }}
                 />
               </FormControl>
@@ -799,15 +805,46 @@ export default function MyForm() {
                       control={form.control}
                       name={`experiences.${index}.startDate`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col">
                           <FormLabel>Start Date</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Select start date"
-                              type="date"
-                              {...field}
-                            />
-                          </FormControl>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-[240px] pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Select start date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={
+                                  field.value
+                                    ? parseISO(field.value)
+                                    : undefined
+                                }
+                                onSelect={(date) =>
+                                  field.onChange(
+                                    date ? format(date, "yyyy-MM-dd") : ""
+                                  )
+                                }
+                              />
+                            </PopoverContent>
+                          </Popover>
                           <FormDescription>
                             Enter the start date of this experience.
                           </FormDescription>
@@ -823,15 +860,46 @@ export default function MyForm() {
                       control={form.control}
                       name={`experiences.${index}.endDate`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col">
                           <FormLabel>End Date</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Select end date"
-                              type="date"
-                              {...field}
-                            />
-                          </FormControl>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-[240px] pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Select end date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={
+                                  field.value
+                                    ? parseISO(field.value)
+                                    : undefined
+                                }
+                                onSelect={(date) =>
+                                  field.onChange(
+                                    date ? format(date, "yyyy-MM-dd") : ""
+                                  )
+                                }
+                              />
+                            </PopoverContent>
+                          </Popover>
                           <FormDescription>
                             Enter the end date of this experience.
                           </FormDescription>
@@ -863,8 +931,8 @@ export default function MyForm() {
                     role: "",
                     location: "",
                     description: "",
-                    startDate: "",
-                    endDate: "",
+                    startDate: null,
+                    endDate: null,
                   })
                 }
               >
@@ -934,7 +1002,6 @@ export default function MyForm() {
                           <FormControl>
                             <Textarea
                               placeholder="Brief description of the certificate"
-                              className="resize-none"
                               {...field}
                             />
                           </FormControl>
@@ -953,15 +1020,46 @@ export default function MyForm() {
                       control={form.control}
                       name={`certificates.${index}.startDate`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col">
                           <FormLabel>Start Date</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Select start date"
-                              type="date"
-                              {...field}
-                            />
-                          </FormControl>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-[240px] pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Select start date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={
+                                  field.value
+                                    ? parseISO(field.value)
+                                    : undefined
+                                }
+                                onSelect={(date) =>
+                                  field.onChange(
+                                    date ? format(date, "yyyy-MM-dd") : ""
+                                  )
+                                }
+                              />
+                            </PopoverContent>
+                          </Popover>
                           <FormDescription>
                             Enter the start date of this certificate.
                           </FormDescription>
@@ -977,15 +1075,46 @@ export default function MyForm() {
                       control={form.control}
                       name={`certificates.${index}.endDate`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col">
                           <FormLabel>End Date</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Select end date"
-                              type="date"
-                              {...field}
-                            />
-                          </FormControl>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-[240px] pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Select end date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={
+                                  field.value
+                                    ? parseISO(field.value)
+                                    : undefined
+                                }
+                                onSelect={(date) =>
+                                  field.onChange(
+                                    date ? format(date, "yyyy-MM-dd") : ""
+                                  )
+                                }
+                              />
+                            </PopoverContent>
+                          </Popover>
                           <FormDescription>
                             Enter the end date of this certificate.
                           </FormDescription>
@@ -1051,8 +1180,8 @@ export default function MyForm() {
                     name: "",
                     skill: "",
                     description: "",
-                    startDate: "",
-                    endDate: "",
+                    startDate: null,
+                    endDate: null,
                     gpa: undefined,
                   })
                 }
@@ -1100,7 +1229,6 @@ export default function MyForm() {
                           <FormControl>
                             <Textarea
                               placeholder="Brief description of the achievement"
-                              className="resize-none"
                               {...field}
                             />
                           </FormControl>
@@ -1119,15 +1247,46 @@ export default function MyForm() {
                       control={form.control}
                       name={`achievements.${index}.date`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col">
                           <FormLabel>Date</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Select date"
-                              type="date"
-                              {...field}
-                            />
-                          </FormControl>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-[240px] pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Select date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={
+                                  field.value
+                                    ? parseISO(field.value)
+                                    : undefined
+                                }
+                                onSelect={(date) =>
+                                  field.onChange(
+                                    date ? format(date, "yyyy-MM-dd") : ""
+                                  )
+                                }
+                              />
+                            </PopoverContent>
+                          </Popover>
                           <FormDescription>
                             Enter the date of this achievement.
                           </FormDescription>
@@ -1157,7 +1316,7 @@ export default function MyForm() {
                   addAchievement({
                     name: "",
                     description: "",
-                    date: "",
+                    date: null,
                   })
                 }
               >
@@ -1208,6 +1367,7 @@ export default function MyForm() {
                 </FormItem>
               )}
             />
+
             {/* Dynamic Job Positions Section */}
             <div>
               <h3 className="text-lg font-semibold">Job Positions</h3>
@@ -1307,15 +1467,46 @@ export default function MyForm() {
                       control={form.control}
                       name={`jobPositions.${index}.startDate`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col">
                           <FormLabel>Start Date</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Select start date"
-                              type="date"
-                              {...field}
-                            />
-                          </FormControl>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-[240px] pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Select start date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={
+                                  field.value
+                                    ? parseISO(field.value)
+                                    : undefined
+                                }
+                                onSelect={(date) =>
+                                  field.onChange(
+                                    date ? format(date, "yyyy-MM-dd") : ""
+                                  )
+                                }
+                              />
+                            </PopoverContent>
+                          </Popover>
                           <FormDescription>
                             Provide the starting date for this position.
                           </FormDescription>
@@ -1394,7 +1585,7 @@ export default function MyForm() {
                     isOpening: false,
                     country: "",
                     city: "",
-                    startDate: "",
+                    startDate: null,
                     description: "",
                     tags: [""],
                   })

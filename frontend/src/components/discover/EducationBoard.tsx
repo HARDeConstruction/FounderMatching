@@ -1,5 +1,5 @@
 import React from "react";
-import EducationTag from "./EducationTag";
+import EducationTag from "@/components/discover/EducationTag";
 
 const EducationBoard = () => {
   return (

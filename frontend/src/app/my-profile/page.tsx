@@ -59,7 +59,6 @@ const MyProfilePage = () => {
               <div key={index} className="space-y-4">
                 {/* Avatar Skeleton */}
                 <Skeleton className="h-24 w-24 rounded-full mx-auto" />
-
                 {/* Text Skeletons */}
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-3/4 mx-auto" />
