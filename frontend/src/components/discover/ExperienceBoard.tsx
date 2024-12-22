@@ -3,9 +3,8 @@ import { Badge } from "../ui/badge";
 
 const ExperienceBoard = () => {
   return (
-    <div className="flex flex-col w-1/2 pb-8 bg-primaryBG gap-3 rounded-lg px-3">
-      <h1 className="my-2">Experiences</h1>
-      <div className=" bg-green-400 rounded-lg text-white">
+    <div className="flex flex-col gap-3 overflow-y-scroll">
+      <div className=" bg-green-400 rounded-lg text-white p-2">
         <div className="flex flex-row justify-between">
           <h1>Jul-2023 - Nov 2023</h1>
         </div>
@@ -28,7 +27,7 @@ const ExperienceBoard = () => {
           </div>
         </div>
       </div>
-      <div className="bg-white rounded-lg">
+      <div className="bg-white rounded-lg p-2">
         <div className="flex flex-row justify-between">
           <h1>Jul-2023 - Nov 2023</h1>
         </div>
