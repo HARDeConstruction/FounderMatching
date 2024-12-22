@@ -24,13 +24,6 @@ CREATE TABLE "UserAccount" (
   "LastName" varchar(50) NOT NULL
 );
 
-CREATE TABLE "PhoneNumber" (
-  "PhoneNumberID" SERIAL PRIMARY KEY,
-  "CountryCode" varchar(5) NOT NULL,
-  "AreaCode" varchar(5) NOT NULL,
-  "Number" varchar(15) NOT NULL
-);
-
 CREATE TABLE "Countries" (
   "num_code" integer PRIMARY KEY,
   "alpha_2_code" varchar(2) NOT NULL,
@@ -44,21 +37,23 @@ CREATE TABLE "Profile" (
   "UserID" integer NOT NULL,
   "IsStartup" bool NOT NULL DEFAULT false,
   "Name" varchar(100) NOT NULL,
-  "Email" varchar(255) UNIQUE NOT NULL,
+  "Email" varchar(255) NOT NULL,
   "Industry" varchar(100) NOT NULL,
-  "PhoneNumberID" integer UNIQUE,
-  "CountryID" integer NOT NULL,
+  "PhoneNumber" varchar(20),
+  "Country" varchar(100),
   "City" varchar(100),
   "LinkedInURL" varchar(255) UNIQUE,
   "Slogan" varchar(200),
   "WebsiteLink" varchar(255),
-  "Avatar" varchar(255),
-  "Description" varchar(2000),
+  "Avatar" text,
+  "Description" varchar(5000),
   "Gender" gender_type,
   "HobbyInterest" varchar(2000),
   "Education" varchar(200),
-  "DateOfBirth" timestamp,
-  "CurrentStage" varchar(2000)
+  "DateOfBirth" DATE,
+  "CurrentStage" varchar(2000),
+  "AboutUs" varchar(5000),
+  "Statement" varchar(5000)
 );
 
 CREATE TABLE "ProfilePrivacySettings" (
@@ -66,8 +61,8 @@ CREATE TABLE "ProfilePrivacySettings" (
   "GenderPrivacy" privacy_type DEFAULT 'public',
   "IndustryPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "EmailPrivacy" privacy_type NOT NULL DEFAULT 'public',
-  "PhoneNumberIDPrivacy" privacy_type DEFAULT 'public',
-  "CountryIDPrivacy" privacy_type NOT NULL DEFAULT 'public',
+  "PhoneNumberPrivacy" privacy_type DEFAULT 'public',
+  "CountryPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "CityPrivacy" privacy_type NOT NULL DEFAULT 'public',
   "UniversityPrivacy" privacy_type DEFAULT 'public',
   "LinkedInURLPrivacy" privacy_type NOT NULL DEFAULT 'public',
@@ -129,8 +124,8 @@ CREATE TABLE "Experience" (
   "Role" varchar(100),
   "Location" varchar(100),
   "Description" varchar(2000),
-  "StartDate" timestamp,
-  "EndDate" timestamp
+  "StartDate" DATE,
+  "EndDate" DATE
 );
 
 CREATE TABLE "ExperienceTagInstances" (
@@ -145,8 +140,8 @@ CREATE TABLE "Certificate" (
   "Name" varchar(200) NOT NULL,
   "Skill" varchar(100),
   "Description" varchar(2000),
-  "StartDate" timestamp,
-  "EndDate" timestamp,
+  "StartDate" DATE,
+  "EndDate" DATE,
   "GPA" float
 );
 
@@ -161,13 +156,30 @@ CREATE TABLE "Achievement" (
   "ProfileOwner" integer NOT NULL,
   "Name" varchar(200) NOT NULL,
   "Description" varchar(2000),
-  "Date" timestamp
+  "Date" DATE
 );
 
 CREATE TABLE "AchievementTagInstances" (
   "AchievementID" integer NOT NULL,
   "TagID" integer NOT NULL,
   PRIMARY KEY ("AchievementID", "TagID")
+);
+
+CREATE TABLE "JobPosition" (
+  "JobPositionID" SERIAL PRIMARY KEY,
+  "ProfileOwner" integer NOT NULL,
+  "JobTitle" varchar(100) NOT NULL,
+  "IsOpening" bool DEFAULT true,
+  "City" varchar(100),
+  "Country" varchar(100),
+  "StartDate" DATE,
+  "Description" varchar(10000)
+);
+
+CREATE TABLE "JobPositionTagInstances" (
+  "JobPositionID" integer NOT NULL,
+  "TagID" integer NOT NULL,
+  PRIMARY KEY ("JobPositionID", "TagID")
 );
 
 CREATE TABLE "ProfileViews" (
@@ -193,11 +205,7 @@ CREATE TABLE "SkippedProfiles" (
 
 ALTER TABLE "Profile" ADD FOREIGN KEY ("UserID") REFERENCES "UserAccount" ("UserID");
 
-ALTER TABLE "Profile" ADD FOREIGN KEY ("PhoneNumberID") REFERENCES "PhoneNumber" ("PhoneNumberID");
-
 ALTER TABLE "StartupMembership" ADD FOREIGN KEY ("StartupProfileID") REFERENCES "Profile" ("ProfileID");
-
-ALTER TABLE "Profile" ADD FOREIGN KEY ("CountryID") REFERENCES "Countries" ("num_code");
 
 ALTER TABLE "ProfilePrivacySettings" ADD FOREIGN KEY ("ProfileID") REFERENCES "Profile" ("ProfileID");
 
@@ -237,8 +245,14 @@ ALTER TABLE "AchievementTagInstances" ADD FOREIGN KEY ("TagID") REFERENCES "Tags
 
 ALTER TABLE "AchievementTagInstances" ADD FOREIGN KEY ("AchievementID") REFERENCES "Achievement" ("AchievementID");
 
+ALTER TABLE "JobPositionTagInstances" ADD FOREIGN KEY ("TagID") REFERENCES "Tags" ("ID");
+
+ALTER TABLE "JobPositionTagInstances" ADD FOREIGN KEY ("JobPositionID") REFERENCES "JobPosition" ("JobPositionID");
+
 ALTER TABLE "Experience" ADD FOREIGN KEY ("ProfileOwner") REFERENCES "Profile" ("ProfileID");
 
 ALTER TABLE "Certificate" ADD FOREIGN KEY ("ProfileOwner") REFERENCES "Profile" ("ProfileID");
 
 ALTER TABLE "Achievement" ADD FOREIGN KEY ("ProfileOwner") REFERENCES "Profile" ("ProfileID");
+
+ALTER TABLE "JobPosition" ADD FOREIGN KEY ("ProfileOwner") REFERENCES "Profile" ("ProfileID");

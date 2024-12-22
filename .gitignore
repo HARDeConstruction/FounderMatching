@@ -172,6 +172,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# Django migrations
+**/migrations/*
+!**/migrations/__init__.py
+
 ### NextJS ###
 # dependencies
 /node_modules
@@ -308,3 +312,4 @@ pyrightconfig.json
 ### Vercel ###
 
 # End of https://www.toptal.com/developers/gitignore/api/django,nextjs,python,remix+vercel,vercel
+backend/backend/tmp.txt

@@ -27,4 +27,5 @@ urlpatterns = [
     path("api/", include("api.urls")),
     path('api/', include(router.urls)),
     path('api/accounts/', include('accounts.urls')),
+    path('api/profile/', include('profiles.urls')),
 ]

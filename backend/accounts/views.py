@@ -15,7 +15,7 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         This view should return the user account for the currently authenticated user
         """
         user = self.request.user
-        return UserAccount.objects.filter(clerkuserid=user.username)
+        return UserAccount.objects.filter(clerkUserID=user.username)
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
@@ -24,7 +24,7 @@ def current_user(request):
     Get the current user's account information
     """
     try:
-        user_account = UserAccount.objects.get(clerkuserid=request.user.username)
+        user_account = UserAccount.objects.get(clerkUserID=request.user.username)
         serializer = UserAccountSerializer(user_account)
         return Response(serializer.data)
     except UserAccount.DoesNotExist:

@@ -1,5 +1,5 @@
 import React from "react";
-import EducationTag, { EduTag } from "./EducationTag";
+import EducationTag, { EduTag } from "@/components/discover/EducationTag";
 
 const skills: EduTag[] = [
   { year: 2024, skill: "Artificial Intelligence" },
