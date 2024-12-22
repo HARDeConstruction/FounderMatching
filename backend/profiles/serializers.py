@@ -8,6 +8,16 @@ from datetime import datetime
 import re
 import os
 import base64
+from django.db import transaction
+import logging
+
+logger = logging.getLogger(__name__)
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tags
+        fields = ['tagID', 'value', 'description']
+        read_only_fields = ['tagID']
 
 class ModelSerializer(serializers.ModelSerializer):
     """Base serializer that preserves the exact field names from the model"""
@@ -26,7 +36,8 @@ class ProfilePreviewCardSerializer(ModelSerializer):
         fields = ['profileID', 'isStartup', 'name', 'industry', 'avatar', 'tags']
 
     def get_tags(self, obj):
-        return [tag.tagID.value for tag in obj.tags.all()]
+        tag_instances = obj.tags.all()
+        return [instance.tagID.value for instance in tag_instances]
 
     def validate_avatar(self, value):
         if value is None:
@@ -45,14 +56,15 @@ class ProfilePreviewCardSerializer(ModelSerializer):
                     base64.b64decode(encoded)
                 except Exception:
                     raise serializers.ValidationError("Invalid base64 encoding")
-                    
                 return value
-            except Exception as e:
-                raise serializers.ValidationError(f"Invalid avatar format: {str(e)}")
-                
-        raise serializers.ValidationError("Avatar must be a base64 encoded image string")
+            except ValueError:
+                raise serializers.ValidationError("Invalid image format")
+        return value
 
 class ExperienceSerializer(ModelSerializer):
+    startDate = serializers.DateField(format='%Y-%m-%d')
+    endDate = serializers.DateField(required=False, allow_null=True, format='%Y-%m-%d')
+    
     class Meta:
         model = Experience
         fields = [
@@ -64,7 +76,18 @@ class ExperienceSerializer(ModelSerializer):
             'endDate': {'required': False},
         }
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.startDate:
+            data['startDate'] = instance.startDate.strftime('%Y-%m-%d')
+        if instance.endDate:
+            data['endDate'] = instance.endDate.strftime('%Y-%m-%d')
+        return data
+
 class CertificateSerializer(ModelSerializer):
+    startDate = serializers.DateField(required=False, allow_null=True, format='%Y-%m-%d')
+    endDate = serializers.DateField(required=False, allow_null=True, format='%Y-%m-%d')
+    
     class Meta:
         model = Certificate
         fields = [
@@ -77,6 +100,8 @@ class CertificateSerializer(ModelSerializer):
         }
 
 class AchievementSerializer(ModelSerializer):
+    date = serializers.DateField(required=False, allow_null=True, format='%Y-%m-%d')
+    
     class Meta:
         model = Achievement
         fields = ['name', 'description', 'date']
@@ -86,7 +111,8 @@ class AchievementSerializer(ModelSerializer):
 
 class JobPositionSerializer(ModelSerializer):
     tags = serializers.ListField(child=serializers.CharField(), required=False)
-
+    startDate = serializers.DateField(required=False, allow_null=True, format='%Y-%m-%d')
+    
     class Meta:
         model = JobPosition
         fields = [
@@ -119,7 +145,7 @@ class ProfileSerializer(ModelSerializer):
     achievements = AchievementSerializer(many=True, required=False)
     jobPositions = JobPositionSerializer(many=True, required=False)
     privacySettings = ProfilePrivacySettingsSerializer(source='profileprivacysettings', required=False)
-    dateOfBirth = serializers.CharField(required=False, allow_null=True)
+    dateOfBirth = serializers.DateField(required=False, allow_null=True, format='%Y-%m-%d')
     tags = serializers.SerializerMethodField()
     avatar = serializers.CharField(required=False, allow_null=True)
 
@@ -136,14 +162,26 @@ class ProfileSerializer(ModelSerializer):
             'jobPositions', 'privacySettings', 'tags'
         ]
         extra_kwargs = {
-            'userID': {'required': True},
-            'name': {'required': True},
-            'email': {'required': True},
-            'industry': {'required': True},
+            'profileID': {'read_only': True}
         }
 
-    def get_tags(self, instance):
-        return [tag_instance.tagID.value for tag_instance in instance.tags.all()]
+    def get_tags(self, obj):
+        tag_instances = obj.tags.all()
+        return [instance.tagID.value for instance in tag_instances]
+
+    def to_representation(self, instance):
+        """Convert instance to JSON-serializable format"""
+        data = super().to_representation(instance)
+        if instance.dateOfBirth:
+            data['dateOfBirth'] = instance.dateOfBirth.strftime('%Y-%m-%d')
+
+        data['experiences'] = ExperienceSerializer(instance.experiences.all(), many=True).data
+        data['certificates'] = CertificateSerializer(instance.certificates.all(), many=True).data
+        data['achievements'] = AchievementSerializer(instance.achievements.all(), many=True).data
+        data['jobPositions'] = JobPositionSerializer(instance.jobPositions.all(), many=True).data
+        
+        data['tags'] = self.get_tags(instance)
+        return data
 
     def validate_avatar(self, value):
         if value is None:
@@ -157,7 +195,6 @@ class ProfileSerializer(ModelSerializer):
                 if not header.startswith('data:image/'):
                     raise serializers.ValidationError("Invalid image format")
                 
-                # Try decoding to validate base64
                 try:
                     base64.b64decode(encoded)
                 except Exception:
@@ -169,61 +206,218 @@ class ProfileSerializer(ModelSerializer):
                 
         raise serializers.ValidationError("Avatar must be a base64 encoded image string")
 
-    def update(self, instance, validated_data):
-        # Handle nested fields
-        experiences_data = validated_data.pop('experiences', None)
-        certificates_data = validated_data.pop('certificates', None)
-        achievements_data = validated_data.pop('achievements', None)
-        job_positions_data = validated_data.pop('jobPositions', None)
+    @transaction.atomic
+    def _process_tags(self, profile, tags_data):
+        if tags_data is None:
+            return
+
+        # Get existing tag values for the profile
+        existing_tag_values = set(
+            ProfileTagInstances.objects.filter(profileOwnerID=profile)
+            .select_related('tagID')
+            .values_list('tagID__value', flat=True)
+        )
+
+        # Convert new tags to set for comparison
+        new_tag_values = set(tags_data)
+
+        # Find tags to remove (exist in DB but not in new data)
+        tags_to_remove = existing_tag_values - new_tag_values
+        if tags_to_remove:
+            ProfileTagInstances.objects.filter(
+                profileOwnerID=profile,
+                tagID__value__in=tags_to_remove
+            ).delete()
+
+        # Find tags to add (exist in new data but not in DB)
+        tags_to_add = new_tag_values - existing_tag_values
+        if tags_to_add:
+            # Get or create tags and build instances for bulk create
+            new_instances = []
+            for tag_value in tags_to_add:
+                tag, _ = Tags.objects.get_or_create(
+                    value=tag_value,
+                    defaults={'description': ''}
+                )
+                new_instances.append(
+                    ProfileTagInstances(
+                        profileOwnerID=profile,
+                        tagID=tag
+                    )
+                )
+            
+            # Bulk create new tag instances
+            if new_instances:
+                ProfileTagInstances.objects.bulk_create(new_instances)
+
+    @transaction.atomic
+    def create(self, validated_data):
+        tags_data = validated_data.pop('tags', None)
+        experiences_data = validated_data.pop('experiences', [])
+        certificates_data = validated_data.pop('certificates', [])
+        achievements_data = validated_data.pop('achievements', [])
+        job_positions_data = validated_data.pop('jobPositions', [])
         privacy_settings_data = validated_data.pop('profileprivacysettings', None)
 
-        # Update main profile fields
+        profile = Profile.objects.create(**validated_data)
+
+        # Process tags
+        self._process_tags(profile, tags_data)
+
+        new_job_positions = []
+        new_job_position_tags = []
+        
+        for job_data in job_positions_data:
+            job_tags = job_data.pop('tags', [])
+            job = JobPosition(profileOwner=profile, **job_data)
+            new_job_positions.append(job)
+            
+            for tag_value in job_tags:
+                tag, _ = Tags.objects.get_or_create(
+                    value=tag_value,
+                    defaults={'description': ''}
+                )
+                new_job_position_tags.append(
+                    JobPositionTagInstances(
+                        jobPositionID=job,
+                        tagID=tag
+                    )
+                )
+
+        created_jobs = JobPosition.objects.bulk_create(new_job_positions)
+    
+        if new_job_position_tags:
+            for i, job in enumerate(created_jobs):
+                for tag in new_job_position_tags:
+                    if tag.jobPositionID == new_job_positions[i]:
+                        tag.jobPositionID = job
+            JobPositionTagInstances.objects.bulk_create(new_job_position_tags)
+
+        # Create experiences
+        if experiences_data:
+            Experience.objects.bulk_create([
+                Experience(profileOwner=profile, **exp_data)
+                for exp_data in experiences_data
+            ])
+
+        # Create certificates
+        if certificates_data:
+            Certificate.objects.bulk_create([
+                Certificate(profileOwner=profile, **cert_data)
+                for cert_data in certificates_data
+            ])
+
+        # Create achievements
+        if achievements_data:
+            Achievement.objects.bulk_create([
+                Achievement(profileOwner=profile, **ach_data)
+                for ach_data in achievements_data
+            ])
+
+        # Create privacy settings
+        if privacy_settings_data:
+            ProfilePrivacySettings.objects.create(
+                profileID=profile,
+                **privacy_settings_data
+            )
+        else:
+            # Create default privacy settings
+            default_settings = self.get_default_privacy_settings()
+            ProfilePrivacySettings.objects.create(
+                profileID=profile,
+                **default_settings
+            )
+
+        return profile
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        tags_data = validated_data.pop('tags', None)
+        experiences_data = validated_data.pop('experiences', []) if 'experiences' in validated_data else None
+        certificates_data = validated_data.pop('certificates', []) if 'certificates' in validated_data else None
+        achievements_data = validated_data.pop('achievements', []) if 'achievements' in validated_data else None
+        job_positions_data = validated_data.pop('jobPositions', []) if 'jobPositions' in validated_data else None
+        privacy_settings_data = validated_data.pop('profileprivacysettings', None)
+
         for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+            if not attr.endswith('_set'):
+                setattr(instance, attr, value)
+        instance.save(update_fields=[field for field in validated_data.keys() if not field.endswith('_set')])
+
+        # Update tags if provided
+        if tags_data is not None:
+            self._process_tags(instance, tags_data)
 
         # Update experiences if provided
         if experiences_data is not None:
             instance.experiences.all().delete()
-            for exp_data in experiences_data:
-                Experience.objects.create(profileOwner=instance, **exp_data)
+            Experience.objects.bulk_create([
+                Experience(profileOwner=instance, **exp_data)
+                for exp_data in experiences_data
+            ])
 
         # Update certificates if provided
         if certificates_data is not None:
             instance.certificates.all().delete()
-            for cert_data in certificates_data:
-                Certificate.objects.create(profileOwner=instance, **cert_data)
+            Certificate.objects.bulk_create([
+                Certificate(profileOwner=instance, **cert_data)
+                for cert_data in certificates_data
+            ])
 
         # Update achievements if provided
         if achievements_data is not None:
             instance.achievements.all().delete()
-            for ach_data in achievements_data:
-                Achievement.objects.create(profileOwner=instance, **ach_data)
+            Achievement.objects.bulk_create([
+                Achievement(profileOwner=instance, **ach_data)
+                for ach_data in achievements_data
+            ])
 
         # Update job positions if provided
         if job_positions_data is not None:
-            instance.jobpositions.all().delete()
+            # Delete existing job positions and their tags
+            job_positions = instance.jobPositions.all()
+            JobPositionTagInstances.objects.filter(jobPositionID__in=job_positions).delete()
+            job_positions.delete()
+
+            # Create new job positions and their tags
+            new_job_positions = []
+            new_job_position_tags = []
+            
             for job_data in job_positions_data:
-                tags_data = job_data.pop('tags', [])
-                job = JobPosition.objects.create(profileOwner=instance, **job_data)
+                job_tags = job_data.pop('tags', [])
+                job = JobPosition(profileOwner=instance, **job_data)
+                new_job_positions.append(job)
                 
-                for tag_value in tags_data:
+                for tag_value in job_tags:
                     tag, _ = Tags.objects.get_or_create(
                         value=tag_value,
-                        defaults={'description': None}
+                        defaults={'description': ''}
                     )
-                    JobPositionTagInstances.objects.create(
-                        jobPositionID=job,
-                        tagID=tag
+                    new_job_position_tags.append(
+                        JobPositionTagInstances(
+                            jobPositionID=job,
+                            tagID=tag
+                        )
                     )
+
+            created_jobs = JobPosition.objects.bulk_create(new_job_positions)
+            
+            if new_job_position_tags:
+                for i, job in enumerate(created_jobs):
+                    for tag in new_job_position_tags:
+                        if tag.jobPositionID == new_job_positions[i]:
+                            tag.jobPositionID = job
+                JobPositionTagInstances.objects.bulk_create(new_job_position_tags)
 
         # Update privacy settings if provided
         if privacy_settings_data is not None:
             privacy_settings = instance.profileprivacysettings
             for field, value in privacy_settings_data.items():
                 setattr(privacy_settings, field, value)
-            privacy_settings.save()
+            privacy_settings.save(update_fields=list(privacy_settings_data.keys()) if privacy_settings_data else None)
 
+        # Refresh from database to get updated data
+        instance.refresh_from_db()
         return instance
 
     def get_default_privacy_settings(self):
@@ -250,81 +444,14 @@ class ProfileSerializer(ModelSerializer):
         if value is None:
             return None
 
-        if not re.match(r'^\d{4}-\d{2}-\d{2}$', value):
-            raise serializers.ValidationError(
-                "Date of birth must be in YYYY-MM-DD format"
-            )
-            
-        try:
-            date_obj = datetime.strptime(value, '%Y-%m-%d')
-            return date_obj
-        except ValueError:
-            raise serializers.ValidationError(
-                "Invalid date format. Please use YYYY-MM-DD"
-            )
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        if instance.dateOfBirth:
-            data['dateOfBirth'] = instance.dateOfBirth.strftime('%Y-%m-%d')
-        return data
-
-    def create(self, validated_data):
-        experiences_data = validated_data.pop('experiences', [])
-        certificates_data = validated_data.pop('certificates', [])
-        achievements_data = validated_data.pop('achievements', [])
-        job_positions_data = validated_data.pop('jobPositions', [])
-        privacy_settings_data = validated_data.pop('profileprivacysettings', None)
-        tags_data = validated_data.pop('tags', [])
-
-        profile = Profile.objects.create(**validated_data)
-
-        for exp_data in experiences_data:
-            Experience.objects.create(profileOwner=profile, **exp_data)
-
-        for cert_data in certificates_data:
-            Certificate.objects.create(profileOwner=profile, **cert_data)
-
-        for ach_data in achievements_data:
-            Achievement.objects.create(profileOwner=profile, **ach_data)
-
-        for job_data in job_positions_data:
-            tags_data = job_data.pop('tags', [])
-            job = JobPosition.objects.create(profileOwner=profile, **job_data)
-            
-            for tag_value in tags_data:
-                tag, _ = Tags.objects.get_or_create(
-                    value=tag_value,
-                    defaults={'description': None}
-                )
-                JobPositionTagInstances.objects.create(
-                    jobPositionID=job,
-                    tagID=tag
-                )
-
-        if privacy_settings_data is None:
-            privacy_settings_data = self.get_default_privacy_settings()
-
-        ProfilePrivacySettings.objects.create(
-            profileID=profile,
-            **privacy_settings_data
-        )
-
-        for tag_value in tags_data:
-            tag, _ = Tags.objects.get_or_create(
-                value=tag_value,
-                defaults={'description': None}
-            )
+        if isinstance(value, str):
             try:
-                ProfileTagInstances.objects.create(
-                    profileOwnerID=profile,
-                    tagID=tag
+                return datetime.strptime(value, '%Y-%m-%d').date()
+            except ValueError:
+                raise serializers.ValidationError(
+                    "Invalid date format. Please use YYYY-MM-DD"
                 )
-            except Exception as e:
-                print(f"Error creating tag {tag_value}: {str(e)}")
-                continue
-
-        return profile
+        return value
 
     def validate(self, data):
         if data.get('isStartup'):

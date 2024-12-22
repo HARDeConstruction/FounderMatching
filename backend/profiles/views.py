@@ -6,8 +6,8 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.db import transaction
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
-from .serializers import ProfileSerializer, ProfilePreviewCardSerializer
-from .models import Profile, UserAccount, ProfilePrivacySettings, Connection
+from .serializers import ProfileSerializer, ProfilePreviewCardSerializer, TagSerializer
+from .models import Profile, UserAccount, ProfilePrivacySettings, Connection, Tags, ProfileTagInstances
 from django.core.exceptions import ValidationError
 from accounts.middlewares import JWTAuthenticationMiddleware
 import json
@@ -16,7 +16,7 @@ import logging
 import os
 import tempfile
 import mimetypes
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 
 logger = logging.getLogger(__name__)
 
@@ -108,12 +108,11 @@ class GetUserProfilesView(APIView):
                     status=status.HTTP_404_NOT_FOUND
                 )
 
-            profiles = (
-                Profile.objects.filter(userID=user_id)
-                .prefetch_related('tags__tagID')
-                .only(
-                    'profileID', 'isStartup', 'name',
-                    'industry', 'avatar', 'userID_id'
+            # Get profiles with prefetched tags
+            profiles = Profile.objects.filter(userID=user_id).prefetch_related(
+                Prefetch(
+                    'tags',
+                    queryset=ProfileTagInstances.objects.select_related('tagID')
                 )
             )
 
@@ -160,26 +159,95 @@ class GetCurrentUserProfileView(APIView):
                     status=status.HTTP_404_NOT_FOUND
                 )
 
-            # Query profile with both profileId and userId for ownership validation
-            try:
-                profile = (
-                    Profile.objects.prefetch_related(
-                        'experiences',
-                        'certificates',
-                        'achievements',
-                        'jobPositions',
-                        'profileprivacysettings',
-                        'tags'
-                    ).get(profileID=profile_id, userID=user_id)
-                )
-            except Profile.DoesNotExist:
+            # Get profile with prefetched tags and related data
+            profile = Profile.objects.filter(
+                profileID=profile_id,
+                userID=user_id
+            ).prefetch_related(
+                Prefetch(
+                    'tags',
+                    queryset=ProfileTagInstances.objects.select_related('tagID')
+                ),
+                'experiences',
+                'certificates',
+                'achievements',
+                'jobPositions'
+            ).first()
+
+            if not profile:
                 return Response(
-                    {'error': 'Profile not found or access denied'},
-                    status=status.HTTP_403_FORBIDDEN
+                    {'error': 'Profile not found'},
+                    status=status.HTTP_404_NOT_FOUND
                 )
 
             serializer = ProfileSerializer(profile)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}", exc_info=True)
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @transaction.atomic
+    def patch(self, request):
+        try:
+            # Get profile ID from query params
+            profile_id = request.query_params.get('profileId')
+            if not profile_id:
+                return Response(
+                    {'error': 'Profile ID is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            try:
+                user_account = UserAccount.objects.get(clerkUserID=request.user.username)
+                user_id = user_account.userID
+            except UserAccount.DoesNotExist:
+                return Response(
+                    {'error': 'User account not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Get profile
+            profile = Profile.objects.filter(
+                profileID=profile_id,
+                userID=user_id
+            ).first()
+
+            if not profile:
+                return Response(
+                    {'error': 'Profile not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            profile_data = json.loads(request.data.get('ProfileInfo', '{}'))
+
+            # Handle avatar file if present
+            avatar_file = request.FILES.get('avatar')
+            if avatar_file:
+                try:
+                    avatar_data = self.validate_avatar_file(avatar_file)
+                    if avatar_data:
+                        profile_data['avatar'] = avatar_data
+                except ValidationError as e:
+                    return Response(
+                        {'error': str(e)},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            serializer = ProfileSerializer(profile, data=profile_data, partial=True)
+            if serializer.is_valid():
+                updated_profile = serializer.save()
+                return Response(
+                    {'message': 'Profile updated successfully'},
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}", exc_info=True)
