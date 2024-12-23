@@ -8,7 +8,7 @@ export const useProfileAPI = () => {
     return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/getUserProfiles/`, "GET", {}, false);
   };
 
-  const getCurrentUserProfile = async (profileId: string): Promise<any> => {
+  const getCurrentUserProfile = async (profileId: string) => {
     return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/me/?profileId=${profileId}`, "GET", {}, false);
   };
 

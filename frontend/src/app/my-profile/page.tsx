@@ -27,7 +27,7 @@ const MyProfilePage = () => {
       try {
         setLoading(true);
         const response = await getUserProfiles();
-        console.log("Response from backend:", response);
+        // console.log("Response from backend:", response);
         if (response.length === 0) {
           setError("You have not created any profiles yet.");
         }
@@ -46,6 +46,11 @@ const MyProfilePage = () => {
 
     fetchProfiles();
   }, []);
+
+  const handleProfileClick = (profileID: string) => {
+    localStorage.setItem("currentProfileID", profileID);
+    router.push(`/dashboard/profile/me?profileId=${profileID}`);
+  };
 
   if (loading)
     return (
@@ -96,11 +101,7 @@ const MyProfilePage = () => {
           <Card
             key={profile.profileID}
             className="cursor-pointer hover:shadow-md transition-all"
-            onClick={() =>
-              router.push(
-                `/dashboard/profile/me?profileId=${profile.profileID}`
-              )
-            }
+            onClick={() => handleProfileClick(profile.profileID.toString())}
           >
             <CardHeader className="flex items-center justify-center">
               <Avatar className="h-24 w-24">
