@@ -90,8 +90,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'foundermatchingdb',
-        'USER': 'crimson',
-        'PASSWORD': '@123qaz123',
+        'USER': 'jamienguyen',
+        'PASSWORD': 'fefvau',
         'HOST': 'localhost',
         'PORT': '5432',
     }

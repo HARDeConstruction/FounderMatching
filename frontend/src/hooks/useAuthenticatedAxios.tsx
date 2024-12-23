@@ -10,7 +10,8 @@ const useAuthenticatedAxios = () => {
       url: string,
       method: string = "GET",
       data: any = null,
-      isFormData: boolean = false
+      isFormData: boolean = false,
+      params: Record<string, any> = {}
     ) => {
       try {
         const token = await getToken();
@@ -34,8 +35,9 @@ const useAuthenticatedAxios = () => {
           method,
           headers,
           data,
+          params,
         });
-        console.log(response.data);
+        //console.log(response.data);
         return response.data;
       } catch (error: any) {
         console.error("Error making authenticated request:", error.message);
