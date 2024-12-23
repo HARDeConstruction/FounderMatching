@@ -68,3 +68,19 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO <username>;
 ALTER USER <username> CREATEDB;
 GRANT ALL PRIVILEGES ON DATABASE foundermatchingdb TO <username>;
 ```
+
+# Avatar storage
+
+## POST
+
+FE Form data = {JSON{Avatar = filename} + AvatarFile}
+
+AvatarFile is converted as base64 -> DB field: Avatar
+    "data:image/png;base64,iVBORw0KGgoAAAANSUh..."
+
+
+## GET 
+
+Send data using JSON
+
+Avatar field in returning JSON should be exactly the same as stored in 'Avatar' DB field.
