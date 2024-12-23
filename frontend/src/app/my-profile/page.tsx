@@ -47,6 +47,11 @@ const MyProfilePage = () => {
     fetchProfiles();
   }, []);
 
+  const handleProfileClick = (profileID: string) => {
+    localStorage.setItem("currentProfileID", profileID);
+    router.push(`/dashboard/profile/me?profileId=${profileID}`);
+  };
+
   if (loading)
     return (
       <>
@@ -96,11 +101,7 @@ const MyProfilePage = () => {
           <Card
             key={profile.profileID}
             className="cursor-pointer hover:shadow-md transition-all"
-            onClick={() =>
-              router.push(
-                `/dashboard/profile/me?profileId=${profile.profileID}`
-              )
-            }
+            onClick={() => handleProfileClick(profile.profileID.toString())}
           >
             <CardHeader className="flex items-center justify-center">
               <Avatar className="h-24 w-24">

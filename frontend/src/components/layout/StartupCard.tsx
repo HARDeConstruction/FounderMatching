@@ -6,12 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { StartupItem } from "@/types"
+import { ProfileData } from "@/lib/types/profiles";
 import StartupCardFront from "@/components/layout/StartupCardFront";
 import StartupCardBack from "@/components/layout/StartupCardBack";
 
 interface StartupCardProps {
-    startup: StartupItem;
+    startup: ProfileData;
   }
 
   const StartupCard = ({ startup }: StartupCardProps) => {

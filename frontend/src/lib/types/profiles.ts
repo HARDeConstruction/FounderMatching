@@ -8,6 +8,7 @@ export interface ProfilePreviewCard {
 }
 
 export interface ProfileData {
+  profileID: number;
   isStartup: boolean;
   name: string;
   email: string;
