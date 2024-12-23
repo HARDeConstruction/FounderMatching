@@ -74,6 +74,8 @@ const DiscoverPage = () => {
           throw new Error("Profile ID is required");
         }
         const response = await getSuggestedProfiles(profileId);
+        
+
         setProfileData(response);
       } catch (error) {
         console.error("Error fetching profile data:", error);

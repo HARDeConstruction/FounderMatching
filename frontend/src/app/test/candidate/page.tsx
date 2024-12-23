@@ -1,9 +1,9 @@
 import Image from "next/image";
 import React from "react";
-import profilePhoto from "../../../../assets/people.png";
+import profilePhoto from "@/assets/people.png";
 import { GitHubLogoIcon, LinkedInLogoIcon } from "@radix-ui/react-icons";
-import ExperienceBoard from "@/components/profile/ExperienceBoard";
-import EducationBoard from "@/components/profile/EducationBoard";
+import ExperienceBoard from "@/components/discover/ExperienceBoard";
+import EducationBoard from "@/components/discover/EducationBoard";
 
 const CandidatePage = () => {
   return (
