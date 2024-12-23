@@ -28,4 +28,9 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/accounts/', include('accounts.urls')),
     path('api/profile/', include('profiles.urls')),
+<<<<<<< Updated upstream
+=======
+    path('api/revisit/', include('revisit.urls')),
+    path('api/', include('dashboard.urls')),
+>>>>>>> Stashed changes
 ]
