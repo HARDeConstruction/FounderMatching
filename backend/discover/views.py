@@ -46,6 +46,14 @@ class GetConnectionsView(APIView):
                     {'error': 'profileId is required'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+            try:
+                profile_id = int(profile_id)
+            except ValueError:
+                return Response(
+                    {'error': 'profileId must be an integer'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
 
             # Get profiles owned by this user with prefetched tags
             profiles = Profile.objects.filter(userID=user_id).prefetch_related(
@@ -60,12 +68,11 @@ class GetConnectionsView(APIView):
                     {'error': 'No profiles found for this user'},
                     status=status.HTTP_404_NOT_FOUND
                 )
-    
-            
 
             # Check if profile_id is in the list of profiles owned by this user
             current_profile : Profile = None
             for profile in profiles:
+                print(profile.profileID, profile.name)
                 if profile.profileID == profile_id:
                     current_profile = profile
                     break
@@ -75,13 +82,29 @@ class GetConnectionsView(APIView):
                     status=status.HTTP_403_FORBIDDEN
                 )
             
-            # Get the list of connected profiles in the Matching table satisfying:
-            # fromProfileID = current_profile.profileID
-            # status = "accepted"
-            connected_profile_id = Matching.objects.filter(
-                fromProfileID=current_profile.profileID,
-                status="accepted"
-            )
+            if current_profile.isStartup:
+                # Get the list of connected profiles in the Matching table satisfying:
+                # startupprofileid = current_profile.profileID
+                connected_profile_ids = Matching.objects.filter(
+                    startupprofileid=current_profile.profileID,
+                    ismatched=True
+                )
+                # Get the array of candidates profiles only:
+                connected_profile_ids = [profile.candidateprofileid_id for profile in connected_profile_ids]
+            else:
+                # Get the list of connected profiles in the Matching table satisfying:
+                # candidateprofileid = current_profile.profileID
+                connected_profile_ids = Matching.objects.filter(
+                    candidateprofileid=current_profile.profileID,
+                    ismatched=True
+                )
+                # Get the array of startupprofiles only:
+                connected_profile_ids = [profile.startupprofileid_id for profile in connected_profile_ids]
+
+            # Debug: print all connected profiles id 
+            print ("Connected profiles:")
+            for profile in connected_profile_ids:
+                print(profile)
 
             # Get the page number (page) and page size (perPage) from the request
             page = int(request.query_params.get('page', 1))
@@ -91,8 +114,15 @@ class GetConnectionsView(APIView):
             start_index = (page - 1) * per_page
             end_index = start_index + per_page
 
-            # Get the profiles that are connected to the current profile
-            profiles = Profile.objects.filter(profileID__in=connected_profile_id).order_by('createdDateTime')[start_index:end_index]
+            print(start_index, end_index)
+
+            # Get the profiles from the list of ids given by connected_profile_ids
+            profiles = Profile.objects.filter(profileID__in=connected_profile_ids[start_index:end_index]).prefetch_related(
+                Prefetch(
+                    'tags',
+                    queryset=ProfileTagInstances.objects.select_related('tagID')
+                )
+            )
 
             # Serialize the profiles            
             serialized_profiles_data = []
