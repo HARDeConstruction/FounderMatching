@@ -58,7 +58,7 @@ const items = [
   },
   {
     title: "Profile",
-    url: "/dashboard/profile",
+    url: "/my-profile",
     icon: CircleUserRound,
   },
   {
@@ -129,9 +129,13 @@ export function AppSidebar() {
             <DropdownMenuItem>Upgrade to Pro</DropdownMenuItem>
             <DropdownMenuItem>Account</DropdownMenuItem>
             <DropdownMenuItem>Billing</DropdownMenuItem>
-            <DropdownMenuItem>
-              <SignOutButton redirectUrl="/sign-in">Log out</SignOutButton>
-            </DropdownMenuItem>
+            <div className="w-full">
+              <SignOutButton redirectUrl="/sign-in">
+                <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full text-left">
+                  Log out
+                </button>
+              </SignOutButton>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarFooter>

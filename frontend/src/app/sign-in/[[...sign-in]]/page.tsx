@@ -27,7 +27,7 @@ const SignUpPage = () => {
           <Image alt="image" src={imagePath} width={600} height={600} />
         </div>
         <div className="flex items-center justify-center w-1/2">
-          <SignIn routing="hash" signUpUrl="/sign-up" fallbackRedirectUrl="/dashboard"/>
+          <SignIn routing="hash" signUpUrl="/sign-up" fallbackRedirectUrl="/my-profile"/>
         </div>
       </div>
     </div>
