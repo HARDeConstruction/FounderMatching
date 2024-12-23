@@ -30,7 +30,13 @@ const MyProfilePage = () => {
         setProfiles(response);
       } catch (err: any) {
         console.error("Error fetching profiles:", err.message);
-        setError("Failed to load profiles. Please try again later.");
+        // Only set error if it's not a "no profiles" error
+        if (err.response?.data?.error !== "No profiles found for this user") {
+          setError("Failed to load profiles. Please try again later.");
+        } else {
+          // If no profiles, just set empty array
+          setProfiles([]);
+        }
       } finally {
         setLoading(false);
       }
@@ -51,49 +57,51 @@ const MyProfilePage = () => {
           Create New Profile
         </Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {profiles.map((profile) => (
-          <Card
-            key={profile.profileID}
-            className="cursor-pointer hover:shadow-md transition-all"
-            onClick={() =>
-              router.push(
-                `/dashboard/profile/me?profileId=${profile.profileID}`
-              )
-            }
-          >
-            <CardHeader className="flex items-center justify-center">
-              <Avatar className="h-24 w-24">
-                <AvatarImage
-                  src={profile.avatar || undefined}
-                  alt={profile.name}
-                  className="rounded-full object-cover"
-                />
-                <AvatarFallback>
-                  {profile.name
-                    ? profile.name
-                        .split(" ")
-                        .map((word) => word.charAt(0))
-                        .join("")
-                        .toUpperCase()
-                    : "?"}
-                </AvatarFallback>
-              </Avatar>
-            </CardHeader>
-            <CardContent className="text-center">
-              <CardTitle className="text-lg font-bold break-words">
-                {profile.name}
-              </CardTitle>
-              <CardDescription className="text-gray-600">
-                {profile.occupation || "No occupation listed"}
-              </CardDescription>
-              <div className="mt-2 text-sm font-medium text-blue-600">
-                {profile.isStartup ? "Startup" : "Candidate"}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {profiles.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {profiles.map((profile) => (
+            <Card
+              key={profile.profileID}
+              className="cursor-pointer hover:shadow-md transition-all"
+              onClick={() =>
+                router.push(
+                  `/dashboard/profile/me?profileId=${profile.profileID}`
+                )
+              }
+            >
+              <CardHeader className="flex items-center justify-center">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage
+                    src={profile.avatar || undefined}
+                    alt={profile.name}
+                    className="rounded-full object-cover"
+                  />
+                  <AvatarFallback>
+                    {profile.name
+                      ? profile.name
+                          .split(" ")
+                          .map((word) => word.charAt(0))
+                          .join("")
+                          .toUpperCase()
+                      : "?"}
+                  </AvatarFallback>
+                </Avatar>
+              </CardHeader>
+              <CardContent className="text-center">
+                <CardTitle className="text-lg font-bold break-words">
+                  {profile.name}
+                </CardTitle>
+                <CardDescription className="text-gray-600">
+                  {profile.occupation || "No occupation listed"}
+                </CardDescription>
+                <div className="mt-2 text-sm font-medium text-blue-600">
+                  {profile.isStartup ? "Startup" : "Candidate"}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

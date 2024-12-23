@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'dashboard',
     'discover',
     'profiles',
+    'revisit',
     'corsheaders',
 ]
 
