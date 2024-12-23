@@ -353,22 +353,6 @@ class JobPositionTagInstances(models.Model):
         db_table = 'JobPositionTagInstances'
         unique_together = (('jobPositionID', 'tagID'),)
 
-class Connection(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
-        ('rejected', 'Rejected'),
-    ]
-
-    fromProfileID = models.ForeignKey(Profile, models.DO_NOTHING, db_column='FromProfileID', related_name='connections_from')
-    toProfileID = models.ForeignKey(Profile, models.DO_NOTHING, db_column='ToProfileID', related_name='connections_to')
-    status = models.TextField(db_column='Status', choices=STATUS_CHOICES)
-    createdDateTime = models.DateTimeField(db_column='CreatedDateTime', auto_now_add=True)
-
-    class Meta:
-        managed = False
-        db_table = 'Connection'
-        unique_together = (('fromProfileID', 'toProfileID'),)
 
 class Matching(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.

@@ -157,13 +157,13 @@ class Profile(models.Model):
     country = models.CharField(db_column='Country', max_length=100, blank=True, null=True)  # Field name made lowercase.
     city = models.CharField(db_column='City', max_length=100, blank=True, null=True)  # Field name made lowercase.
     linkedinurl = models.CharField(db_column='LinkedInURL', unique=True, max_length=255, blank=True, null=True)  # Field name made lowercase.
-    slogan = models.CharField(db_column='Slogan', max_length=200, blank=True, null=True)  # Field name made lowercase.
+    slogan = models.CharField(db_column='Slogan', max_length=255, blank=True, null=True)  # Field name made lowercase.
     websitelink = models.CharField(db_column='WebsiteLink', max_length=255, blank=True, null=True)  # Field name made lowercase.
     avatar = models.TextField(db_column='Avatar', blank=True, null=True)  # Field name made lowercase.
     description = models.CharField(db_column='Description', max_length=5000, blank=True, null=True)  # Field name made lowercase.
     gender = models.TextField(db_column='Gender', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
     hobbyinterest = models.CharField(db_column='HobbyInterest', max_length=2000, blank=True, null=True)  # Field name made lowercase.
-    education = models.CharField(db_column='Education', max_length=200, blank=True, null=True)  # Field name made lowercase.
+    education = models.CharField(db_column='Education', max_length=500, blank=True, null=True)  # Field name made lowercase.
     dateofbirth = models.DateTimeField(db_column='DateOfBirth', blank=True, null=True)  # Field name made lowercase.
     currentstage = models.CharField(db_column='CurrentStage', max_length=2000, blank=True, null=True)  # Field name made lowercase.
     aboutus = models.CharField(db_column='AboutUs', max_length=5000, blank=True, null=True)  # Field name made lowercase.
