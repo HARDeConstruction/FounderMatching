@@ -27,7 +27,7 @@ const MyProfilePage = () => {
       try {
         setLoading(true);
         const response = await getUserProfiles();
-        console.log("Response from backend:", response);
+        // console.log("Response from backend:", response);
         if (response.length === 0) {
           setError("You have not created any profiles yet.");
         }

@@ -8,6 +8,9 @@ import { useRouter } from "next/navigation";
 import { useConnectionsAPI } from "@/lib/api/connections";
 import { ProfileData } from "@/lib/types/profiles";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StarIcon } from "@radix-ui/react-icons";
+import { toast } from "sonner";
+import { ta } from "date-fns/locale";
 
 const animationVariants = {
   enter: (direction: number) => ({
@@ -44,9 +47,24 @@ const DiscoverPage = () => {
       setIndex((prev) => prev - 1);
     }
   };
+  const { getSuggestedProfiles, connectProfile } = useConnectionsAPI();
 
-  const { getSuggestedProfiles } = useConnectionsAPI();
-  
+  const handleConnect = async (toID: string) => {
+    try {
+      const profileId = localStorage.getItem("currentProfileID") || "";
+      console.log("profileId", profileId);
+      if (!profileId) {
+        throw new Error("Profile ID is required");
+      }
+      const responseMessage = await connectProfile(profileId, toID);
+      toast.success("Profile connection sent!");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const loadProfileData = async () => {
       try {
@@ -96,11 +114,21 @@ const DiscoverPage = () => {
           </motion.div>
         </AnimatePresence>
 
-        <div className="flex justify-center items-center p-6 space-x-8">
+        <div className="flex flex-row justify-center items-center p-6 space-x-8">
           <Button variant="outline" onClick={handlePrev}>
             Previous
           </Button>
-          <Button>Save</Button>
+          <Button>
+            {" "}
+            <StarIcon />
+          </Button>
+          <Button
+            onClick={() =>
+              handleConnect(profileData[index].profileID.toString())
+            }
+          >
+            Connect
+          </Button>
           <Button variant="outline" onClick={handleNext}>
             Next
           </Button>

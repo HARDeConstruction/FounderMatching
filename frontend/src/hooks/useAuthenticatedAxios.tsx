@@ -37,7 +37,7 @@ const useAuthenticatedAxios = () => {
           data,
           params,
         });
-        console.log(response.data);
+        //console.log(response.data);
         return response.data;
       } catch (error: any) {
         console.error("Error making authenticated request:", error.message);

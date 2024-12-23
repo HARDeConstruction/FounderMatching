@@ -53,7 +53,7 @@ const StartupCardFront: React.FC<StartupCardFrontProps> = ({
           </div>
         </div>
         <div className="mt-2 flex gap-2 h-3">
-          {startup.tags.map((tag, index) => (
+          {(startup.tags || []).map((tag, index) => (
             <Badge key={index} variant="secondary" className="text-[10px]">
               {tag}
             </Badge>
