@@ -201,8 +201,8 @@ class DiscoverView(APIView):
                 'total': total_count,
                 'page': page,
                 'perPage': per_page,
-                'has_next': end_index < total_count,
-                'has_prev': page > 1,
+                'hasNext': end_index < total_count,
+                'hasPrev': page > 1,
                 'results': serializer.data
             }
 
