@@ -12,7 +12,7 @@ export interface ProfileData {
   name: string;
   email: string;
   dateOfBirth: string;
-  avatar?: string;
+  avatar?: File | string;
   industry: string;
   phoneNumber: string;
   country: string;
@@ -59,11 +59,11 @@ interface Achievement {
 }
 
 interface JobPosition {
-  JobTitle: string;
-  IsOpening: boolean;
-  Country?: string;
-  City?: string;
-  StartDate?: string;
-  Description: string;
-  Tags?: string[];
+  jobTitle: string;
+  isOpening: boolean;
+  country?: string;
+  city?: string;
+  startDate?: string;
+  description: string;
+  tags?: string[];
 }

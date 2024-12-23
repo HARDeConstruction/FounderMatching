@@ -115,7 +115,7 @@ class Profile(models.Model):
     gender = models.TextField(db_column='Gender', blank=True, null=True, choices=GENDER_CHOICES)
     hobbyInterest = models.CharField(db_column='HobbyInterest', max_length=500, blank=True, null=True)
     education = models.CharField(db_column='Education', max_length=500, blank=True, null=True)
-    dateOfBirth = models.DateTimeField(db_column='DateOfBirth', blank=True, null=True)
+    dateOfBirth = models.DateField(db_column='DateOfBirth', blank=True, null=True)
     currentStage = models.CharField(db_column='CurrentStage', max_length=255, blank=True, null=True)
     statement = models.CharField(db_column='Statement', max_length=1000, blank=True, null=True)
     aboutUs = models.CharField(db_column='AboutUs', max_length=5000, blank=True, null=True)
@@ -157,8 +157,8 @@ class Experience(models.Model):
         null=True
     )
     description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)
-    startDate = models.DateTimeField(db_column='StartDate', blank=True, null=True)
-    endDate = models.DateTimeField(db_column='EndDate', blank=True, null=True)
+    startDate = models.DateField(db_column='StartDate', blank=True, null=True)
+    endDate = models.DateField(db_column='EndDate', blank=True, null=True)
 
     class Meta:
         managed = False
@@ -191,8 +191,8 @@ class Certificate(models.Model):
         )]
     )
     description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)
-    startDate = models.DateTimeField(db_column='StartDate', blank=True, null=True)
-    endDate = models.DateTimeField(db_column='EndDate', blank=True, null=True)
+    startDate = models.DateField(db_column='StartDate', blank=True, null=True)
+    endDate = models.DateField(db_column='EndDate', blank=True, null=True)
     gpa = models.FloatField(
         db_column='GPA',
         blank=True,
@@ -224,7 +224,7 @@ class Achievement(models.Model):
         )]
     )
     description = models.CharField(db_column='Description', max_length=2000, blank=True, null=True)
-    date = models.DateTimeField(db_column='Date', blank=True, null=True)
+    date = models.DateField(db_column='Date', blank=True, null=True)
 
     class Meta:
         managed = False
@@ -327,7 +327,7 @@ class JobPosition(models.Model):
             'Invalid city format.'
         )]
     )
-    startDate = models.DateTimeField(db_column='StartDate', blank=True, null=True)
+    startDate = models.DateField(db_column='StartDate', blank=True, null=True)
     description = models.CharField(db_column='Description', max_length=10000, blank=True, null=True)
 
     class Meta:

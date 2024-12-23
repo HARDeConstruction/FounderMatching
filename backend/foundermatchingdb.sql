@@ -50,7 +50,7 @@ CREATE TABLE "Profile" (
   "Gender" gender_type,
   "HobbyInterest" varchar(2000),
   "Education" varchar(200),
-  "DateOfBirth" timestamp,
+  "DateOfBirth" DATE,
   "CurrentStage" varchar(2000),
   "AboutUs" varchar(5000),
   "Statement" varchar(5000)
@@ -124,8 +124,8 @@ CREATE TABLE "Experience" (
   "Role" varchar(100),
   "Location" varchar(100),
   "Description" varchar(2000),
-  "StartDate" timestamp,
-  "EndDate" timestamp
+  "StartDate" DATE,
+  "EndDate" DATE
 );
 
 CREATE TABLE "ExperienceTagInstances" (
@@ -140,8 +140,8 @@ CREATE TABLE "Certificate" (
   "Name" varchar(200) NOT NULL,
   "Skill" varchar(100),
   "Description" varchar(2000),
-  "StartDate" timestamp,
-  "EndDate" timestamp,
+  "StartDate" DATE,
+  "EndDate" DATE,
   "GPA" float
 );
 
@@ -156,7 +156,7 @@ CREATE TABLE "Achievement" (
   "ProfileOwner" integer NOT NULL,
   "Name" varchar(200) NOT NULL,
   "Description" varchar(2000),
-  "Date" timestamp
+  "Date" DATE
 );
 
 CREATE TABLE "AchievementTagInstances" (
@@ -172,7 +172,7 @@ CREATE TABLE "JobPosition" (
   "IsOpening" bool DEFAULT true,
   "City" varchar(100),
   "Country" varchar(100),
-  "StartDate" timestamp,
+  "StartDate" DATE,
   "Description" varchar(10000)
 );
 

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const MyProfilePage = () => {
   const { getUserProfiles } = useProfileAPI();
@@ -26,11 +27,18 @@ const MyProfilePage = () => {
       try {
         setLoading(true);
         const response = await getUserProfiles();
-        //const profilesData: ProfilePreviewCard[] = await response.json();
+        console.log("Response from backend:", response);
+        if (response.length === 0) {
+          setError("You have not created any profiles yet.");
+        }
+
         setProfiles(response);
       } catch (err: any) {
-        console.error("Error fetching profiles:", err.message);
-        setError("Failed to load profiles. Please try again later.");
+        if (err.response?.status === 404) {
+          setError("No profiles found. Please create a new profile.");
+        } else {
+          setError("Failed to load profiles. Please try again later.");
+        }
       } finally {
         setLoading(false);
       }
@@ -40,8 +48,40 @@ const MyProfilePage = () => {
   }, []);
 
   if (loading)
-    return <div className="text-center p-6">Loading profiles...</div>;
-  if (error) return <div className="text-center text-red-500 p-6">{error}</div>;
+    return (
+      <>
+        <div className="p-6">
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-semibold">Loading profiles...</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="space-y-4">
+                {/* Avatar Skeleton */}
+                <Skeleton className="h-24 w-24 rounded-full mx-auto" />
+                {/* Text Skeletons */}
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-3/4 mx-auto" />
+                  <Skeleton className="h-4 w-1/2 mx-auto" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4 space-y-10">
+        <p className="text-xl font-bold">{error}</p>
+        {error === "No profiles found. Please create a new profile." && (
+          <Button onClick={() => router.push("/my-profile/create")}>
+            Create Profile
+          </Button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
