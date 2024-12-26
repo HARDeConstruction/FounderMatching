@@ -19,7 +19,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const loadProfileData = async () => {
       try {
-        console.log("profileId", profileId);
+        // console.log("profileId", profileId);
         if (!profileId) {
           throw new Error("Profile ID is required");
         }
@@ -32,7 +32,7 @@ export default function ProfilePage() {
       }
     };
     loadProfileData();
-  }, [profileId]);
+  }, []);
 
   if (loading || !profileData) {
     return (

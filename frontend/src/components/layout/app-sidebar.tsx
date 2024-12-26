@@ -9,6 +9,7 @@ import {
   ChevronsUpDown,
   LayoutDashboardIcon,
   BellIcon,
+  ContactRoundIcon,
 } from "lucide-react";
 
 import {
@@ -50,6 +51,11 @@ const items = [
     title: "Discover",
     url: "/dashboard/discover",
     icon: Search,
+  },
+  {
+    title: "Connections",
+    url: "/dashboard/connections",
+    icon: ContactRoundIcon,
   },
   {
     title: "Revisit Profiles",

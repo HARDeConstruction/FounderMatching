@@ -426,37 +426,37 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                         <div className="flex flex-row justify-between items-center">
                           <div>
                             <h1 className="text-lg font-bold text-gray-800">
-                              {job.JobTitle}
+                              {job.jobTitle}
                             </h1>
                             <h2 className="text-md font-semibold text-gray-700">
-                              {job.City && job.Country
-                                ? `${job.City}, ${job.Country}`
+                              {job.city && job.country
+                                ? `${job.city}, ${job.country}`
                                 : "Location not specified"}
                             </h2>
                           </div>
                           <p
                             className={`text-md font-semibold ${
-                              job.IsOpening ? "text-green-600" : "text-red-600"
+                              job.isOpening ? "text-green-600" : "text-red-600"
                             }`}
                           >
-                            {job.IsOpening ? "Open for Applications" : "Closed"}
+                            {job.isOpening ? "Open for Applications" : "Closed"}
                           </p>
                         </div>
 
-                        {job.StartDate && (
+                        {job.startDate && (
                           <i className="text-sm text-gray-700">
-                            Start Date: <strong>{job.StartDate}</strong>
+                            Start Date: <strong>{job.startDate}</strong>
                           </i>
                         )}
 
                         <p className="text-gray-800 mt-1 ml-1">
-                          {job.Description}
+                          {job.description}
                         </p>
 
                         {/* Tags */}
-                        {job.Tags && job.Tags.length > 0 && (
+                        {job.tags && job.tags.length > 0 && (
                           <div className="flex flex-wrap gap-2 mt-2">
-                            {job.Tags.map((tag: string, tagIndex: number) => (
+                            {job.tags.map((tag: string, tagIndex: number) => (
                               <span
                                 key={tagIndex}
                                 className="text-sm px-2 py-1 rounded-full bg-blue-100 text-blue-700"
