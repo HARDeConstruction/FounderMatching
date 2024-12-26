@@ -82,7 +82,7 @@ const MyProfilePage = () => {
     return (
       <div className="flex flex-col items-center justify-center p-4 space-y-10">
         <p className="text-xl font-bold">{error}</p>
-        {error === "No profiles found. Please create a new profile." && (
+        {error && (
           <Button onClick={() => router.push("/my-profile/create")}>
             Create Profile
           </Button>

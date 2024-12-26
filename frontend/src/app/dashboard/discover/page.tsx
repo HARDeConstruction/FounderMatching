@@ -85,7 +85,7 @@ const DiscoverPage = () => {
     const loadProfileData = async () => {
       try {
         const profileId = localStorage.getItem("currentProfileID") || "";
-        console.log("profileId", profileId);
+        // console.log("profileId", profileId);
         if (!profileId) {
           throw new Error("Profile ID is required");
         }
@@ -104,9 +104,7 @@ const DiscoverPage = () => {
   if (loading) {
     return (
       <div className="p-8">
-        <Skeleton className="h-8 w-1/3 mb-4" />
-        <Skeleton className="h-16 w-full mb-4" />
-        <Skeleton className="h-8 w-1/4" />
+        <Skeleton className="h-96 w-full m-4" />
       </div>
     );
   }

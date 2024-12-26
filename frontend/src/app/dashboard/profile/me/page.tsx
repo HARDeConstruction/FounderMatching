@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import ProfileDetails from "@/components/profile/ProfileDetails";
 import { Button } from "@/components/ui/button";
+import { get } from "http";
 
 export default function ProfilePage() {
   const { getCurrentUserProfile } = useProfileAPI();
@@ -68,7 +69,7 @@ export default function ProfilePage() {
     <div className="flex-1 mt-4">
       <div className="flex flex-row">
         <h1 className="text-xl font-semibold mb-4">
-          {profileData.name}'s Profile
+          {`${profileData.name}'s Profile`}
         </h1>
         <Button
           className="ml-auto"
