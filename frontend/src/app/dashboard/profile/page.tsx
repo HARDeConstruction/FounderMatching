@@ -6,6 +6,7 @@ import { ProfileData } from "@/lib/types/profiles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter, useSearchParams } from "next/navigation";
 import ProfileDetailsByID from "@/components/profile/ProfileDetailsByID";
+import { useDashboardAPI } from "@/lib/api/dashboard";
 
 export default function ProfilePage() {
   const { getCurrentUserProfile } = useProfileAPI();
@@ -13,6 +14,21 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { countView } = useDashboardAPI();
+
+  const handleViewCount = async (toID: string) => {
+    try {
+      const profileId = localStorage.getItem("currentProfileID") || "";
+      console.log("profileId", profileId);
+      if (!profileId) {
+        throw new Error("Profile ID is required");
+      }
+      const responseMessage = await countView(profileId, toID);
+      console.log(`View count updated for profileID: ${toID}`);
+    } catch (error: any) {
+      console.error("Failed to update view count:", error);
+    }
+  };
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -24,6 +40,7 @@ export default function ProfilePage() {
         console.log(profileId);
         const response = await getCurrentUserProfile(profileId);
         setProfileData(response);
+        handleViewCount(profileId);
       } catch (error) {
         console.error("Error fetching profile data:", error);
       } finally {
