@@ -10,6 +10,7 @@ from .serializers import ProfileSerializer, ProfilePreviewCardSerializer, TagSer
 from .models import Profile, UserAccount, ProfilePrivacySettings, Connection, Tags, ProfileTagInstances
 from django.core.exceptions import ValidationError
 from accounts.middlewares import JWTAuthenticationMiddleware
+from discover.models import Matching
 import json
 import base64
 import logging
@@ -261,110 +262,173 @@ class GetCurrentUserProfileView(APIView):
 
 class GetUserProfileByIdView(APIView):
     authentication_classes = [JWTAuthenticationMiddleware]
-    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
-    def check_connection_status(self, profile_owner_id, request_user_id):
-        """Check if the requesting user is connected to the profile owner"""
+    def _check_connection_status(self, viewer_profileID, target_profileID):
+        """Check if the viewer is connected to the target profile"""
+        return Matching.objects.filter(
+            (Q(candidateprofileid=viewer_profileID) & Q(startupprofileid=target_profileID)) |
+            (Q(candidateprofileid=target_profileID) & Q(startupprofileid=viewer_profileID)),
+            ismatched=True
+        ).exists()
+
+    def _filter_field_by_privacy(self, field_value, privacy_setting, is_connected):
+        """Filter field based on privacy setting"""
+        if privacy_setting == 'public':
+            return field_value
+        elif privacy_setting == 'connections' and is_connected:
+            return field_value
+        return None
+
+    def get(self, request, profileID):
         try:
-            connection = Connection.objects.filter(
-                (Q(fromProfileID=profile_owner_id) & Q(toProfileID=request_user_id)) |
-                (Q(fromProfileID=request_user_id) & Q(toProfileID=profile_owner_id)),
-                status='accepted'
-            ).exists()
-            return connection
-        except Exception as e:
-            logger.error(f"Error checking connection status: {str(e)}", exc_info=True)
-            return False
-
-    def check_field_visibility(self, profile, field_name, privacy_settings, request_user_id):
-        """Check if a field should be visible based on privacy settings and user relationship"""
-        # If it's the profile owner, they can see everything
-        if profile.userID.userID == request_user_id:
-            return True
-
-        if not hasattr(privacy_settings, f"{field_name.lower()}privacy"):
-            return True
-
-        privacy_value = getattr(privacy_settings, f"{field_name.lower()}privacy")
-        
-        if privacy_value == 'public':
-            return True
-        elif privacy_value == 'private':
-            return False
-        elif privacy_value == 'connections':
-            return self.check_connection_status(profile.userID.userID, request_user_id)
-        return False
-
-    def filter_profile_data(self, profile_data, profile, privacy_settings, request_user_id):
-        """Filter profile data based on privacy settings"""
-        filtered_data = profile_data.copy()
-        if 'privacySettings' in filtered_data:
-            filtered_data.pop('privacySettings')
-        
-        if profile.userID.userID != request_user_id:
-            privacy_fields = [
-                'gender', 'industry', 'email', 'phoneNumber', 'country', 'city',
-                'linkedInURL', 'slogan', 'websiteLink', 'hobbyInterest',
-                'education', 'dateOfBirth', 'description', 'currentStage',
-                'statement', 'aboutUs', 'avatar'
-            ]
-
-            for field in privacy_fields:
-                if field in filtered_data and not self.check_field_visibility(profile, field, privacy_settings, request_user_id):
-                    filtered_data.pop(field)
-
-            nested_objects = {
-                'experiences': 'experience',
-                'certificates': 'certificate',
-                'achievements': 'achievement',
-                'jobPositions': 'jobPosition'
-            }
-
-            for field, privacy_field in nested_objects.items():
-                if field in filtered_data and not self.check_field_visibility(profile, privacy_field, privacy_settings, request_user_id):
-                    filtered_data.pop(field)
-
-        return filtered_data
-
-    def get(self, request, profile_id):
-        try:
+            # Get the authenticated user's account
             try:
                 user_account = UserAccount.objects.get(clerkUserID=request.user.username)
-                user_id = user_account.userID
+                viewer_id = user_account.userID
             except UserAccount.DoesNotExist:
                 return Response(
                     {'error': 'User account not found'},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
-            try:
-                profile = (
-                    Profile.objects.prefetch_related(
-                        'experiences',
-                        'certificates',
-                        'achievements',
-                        'jobPositions',
-                        'profileprivacysettings',
-                        'tags'
-                    ).get(profileID=profile_id)
+            # Get the target profile with prefetched data
+            target_profile = Profile.objects.filter(
+                profileID=profileID
+            ).prefetch_related(
+                'experiences',
+                'certificates',
+                'achievements',
+                'jobPositions',
+                'profileprivacysettings',
+                Prefetch(
+                    'tags',
+                    queryset=ProfileTagInstances.objects.select_related('tagID')
                 )
-            except Profile.DoesNotExist:
+            ).first()
+
+            if not target_profile:
                 return Response(
                     {'error': 'Profile not found'},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
-            try:
-                privacy_settings = profile.profileprivacysettings
-            except ProfilePrivacySettings.DoesNotExist:
-                privacy_settings = ProfilePrivacySettings.objects.create(
-                    profileID=profile,
-                    **ProfileSerializer().get_default_privacy_settings()
-                )
+            # Check if viewer is the profile owner
+            is_owner = target_profile.userID_id == viewer_id
 
-            serializer = ProfileSerializer(profile)
+            # If not owner, check connection status
+            is_connected = False
+            if not is_owner:
+                # Get viewer's active profile
+                viewer_profile = Profile.objects.filter(userID=viewer_id).first()
+                if not viewer_profile:
+                    return Response(
+                        {'error': 'Viewer profile not found'},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+                is_connected = self._check_connection_status(viewer_profile.profileID, profileID)
+
+            # Serialize the profile
+            serializer = ProfileSerializer(target_profile)
             profile_data = serializer.data
-            filtered_data = self.filter_profile_data(profile_data, profile, privacy_settings, user_id)
+
+            # If viewer is owner, return full profile
+            if is_owner:
+                return Response(profile_data, status=status.HTTP_200_OK)
+
+            # Get privacy settings
+            privacy_settings = target_profile.profileprivacysettings
+
+            # Filter fields based on privacy settings
+            filtered_data = {
+                'profileID': profile_data['profileID'],
+                'isStartup': profile_data['isStartup'],
+                'name': profile_data['name'],  # Name is always visible
+                'avatar': profile_data['avatar'],  # Avatar is always visible
+                'industry': self._filter_field_by_privacy(
+                    profile_data['industry'],
+                    privacy_settings.industryPrivacy,
+                    is_connected
+                ),
+                'email': self._filter_field_by_privacy(
+                    profile_data['email'],
+                    privacy_settings.emailPrivacy,
+                    is_connected
+                ),
+                'phoneNumber': self._filter_field_by_privacy(
+                    profile_data['phoneNumber'],
+                    privacy_settings.phoneNumberPrivacy,
+                    is_connected
+                ),
+                'country': self._filter_field_by_privacy(
+                    profile_data['country'],
+                    privacy_settings.countryPrivacy,
+                    is_connected
+                ),
+                'city': self._filter_field_by_privacy(
+                    profile_data['city'],
+                    privacy_settings.cityPrivacy,
+                    is_connected
+                ),
+                'linkedInURL': self._filter_field_by_privacy(
+                    profile_data['linkedInURL'],
+                    privacy_settings.linkedInURLPrivacy,
+                    is_connected
+                ),
+                'slogan': self._filter_field_by_privacy(
+                    profile_data['slogan'],
+                    privacy_settings.sloganPrivacy,
+                    is_connected
+                ),
+                'websiteLink': profile_data['websiteLink'],  # Website link is always visible
+                'description': profile_data['description'],  # Description is always visible
+            }
+
+            # Handle candidate-specific fields
+            if not target_profile.isStartup:
+                filtered_data.update({
+                    'gender': self._filter_field_by_privacy(
+                        profile_data['gender'],
+                        privacy_settings.genderPrivacy,
+                        is_connected
+                    ),
+                    'hobbyInterest': self._filter_field_by_privacy(
+                        profile_data['hobbyInterest'],
+                        privacy_settings.hobbyInterestPrivacy,
+                        is_connected
+                    ),
+                    'education': self._filter_field_by_privacy(
+                        profile_data['education'],
+                        privacy_settings.educationPrivacy,
+                        is_connected
+                    ),
+                    'dateOfBirth': self._filter_field_by_privacy(
+                        profile_data['dateOfBirth'],
+                        privacy_settings.dateOfBirthPrivacy,
+                        is_connected
+                    ),
+                })
+
+            # Handle startup-specific fields
+            else:
+                filtered_data.update({
+                    'currentStage': profile_data['currentStage'],
+                    'statement': profile_data['statement'],
+                    'aboutUs': profile_data['aboutUs'],
+                })
+
+            # Handle related fields based on privacy
+            if privacy_settings.achievementPrivacy == 'public' or \
+               (privacy_settings.achievementPrivacy == 'connections' and is_connected):
+                filtered_data['achievements'] = profile_data['achievements']
+                filtered_data['experiences'] = profile_data['experiences']
+                filtered_data['certificates'] = profile_data['certificates']
+
+            # Job positions are always visible for startups
+            if target_profile.isStartup:
+                filtered_data['jobPositions'] = profile_data['jobPositions']
+
+            # Tags are always visible
+            filtered_data['tags'] = profile_data['tags']
 
             return Response(filtered_data, status=status.HTTP_200_OK)
 

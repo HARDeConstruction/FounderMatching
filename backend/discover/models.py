@@ -368,3 +368,13 @@ class Matching(models.Model):
     class Meta:
         managed = False
         db_table = 'Matching'
+
+class ProfileViews(models.Model):
+    viewID = models.AutoField(db_column='ViewID', primary_key=True)
+    fromProfileID = models.ForeignKey(Profile, models.DO_NOTHING, db_column='FromProfileID', related_name='views_from')
+    toProfileID = models.ForeignKey(Profile, models.DO_NOTHING, db_column='ToProfileID', related_name='views_to')
+    viewedAt = models.DateTimeField(db_column='ViewedAt', auto_now_add=True)
+
+    class Meta:
+        managed = False
+        db_table = 'ProfileViews'

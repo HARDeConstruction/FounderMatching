@@ -14,7 +14,6 @@ import {
   SparklesIcon,
 } from "lucide-react";
 import { ProfileData } from "@/lib/types/profiles";
-import { EditDialog } from "@/components/profile/EditDialog";
 
 type ProfileDetailsProps = {
   profileData: ProfileData;
@@ -40,12 +39,8 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
               </Avatar>
               <div>
                 <CardTitle className="text-xl">Basic Information</CardTitle>
-                <p className="text-sm text-gray-500">
-                  You can update or edit your profile information.
-                </p>
               </div>
             </div>
-            <EditDialog currentData={profileData} />
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-x-6 gap-y-4">
             <div>
@@ -156,15 +151,8 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
               <BadgeInfoIcon className="w-16 h-16" />
               <div>
                 <CardTitle className="text-xl">Profile Highlights</CardTitle>
-                <p className="text-sm text-gray-500">
-                  Showcase your identity—whether as a professional or a
-                  startup—with a catchy tagline, a detailed description of your
-                  journey or mission, and key interests or expertise to leave a
-                  lasting impression.
-                </p>
               </div>
             </div>
-            <EditDialog currentData={profileData} />
           </CardHeader>
           <CardContent className="flex flex-col justify-between gap-y-4">
             <div className="flex flex-col gap-1">
@@ -239,14 +227,8 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                   <BriefcaseBusinessIcon className="w-16 h-16" />
                   <div>
                     <CardTitle className="text-xl">Experience</CardTitle>
-                    <p className="text-sm text-gray-500">
-                      Highlight your unique qualities with a captivating
-                      tagline, a well-crafted description, and hobbies that
-                      reflect your personality and interests.
-                    </p>
                   </div>
                 </div>
-                <EditDialog currentData={profileData} />
               </CardHeader>
               <CardContent className="flex flex-col gap-y-4">
                 {(profileData.experiences ?? []).length > 0 ? (
@@ -292,15 +274,8 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                   <AwardIcon className="w-16 h-16" />
                   <div>
                     <CardTitle className="text-xl">Certificates</CardTitle>
-                    <p className="text-sm text-gray-500">
-                      Showcase your certifications, highlighting key skills,
-                      achievements, and educational milestones.
-                    </p>
                   </div>
                 </div>
-                <Button size="sm" variant="outline">
-                  Edit
-                </Button>
               </CardHeader>
               <CardContent className="flex flex-col gap-y-4">
                 {(profileData.certificates ?? []).length > 0 ? (
@@ -348,15 +323,8 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                   <MedalIcon className="w-16 h-16" />
                   <div>
                     <CardTitle className="text-xl">Achievements</CardTitle>
-                    <p className="text-sm text-gray-500">
-                      Highlight your notable accomplishments, showcasing
-                      milestones and successes that set you apart.
-                    </p>
                   </div>
                 </div>
-                <Button size="sm" variant="outline">
-                  Edit
-                </Button>
               </CardHeader>
               <CardContent className="flex flex-col gap-y-4">
                 {(profileData.achievements ?? []).length > 0 ? (
@@ -402,12 +370,8 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ profileData }) => {
                   <BriefcaseBusinessIcon className="w-16 h-16" />
                   <div>
                     <CardTitle className="text-xl">Job Positions</CardTitle>
-                    <p className="text-sm text-gray-500">
-                      List your open job positions or previous roles here.
-                    </p>
                   </div>
                 </div>
-                <EditDialog currentData={profileData} />
               </CardHeader>
               <CardContent className="flex flex-col gap-y-6">
                 {(profileData.jobPositions ?? []).length > 0 ? (

@@ -10,42 +10,56 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ProfilePreviewCard } from "@/lib/types/profiles";
+import { useRouter } from "next/navigation";
 
 interface ProfileCardProps {
-  name: string;
-  jobTitle: string;
-  education?: string;
-  imageUrl: string;
-  userBio: string;
+  profile: ProfilePreviewCard;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({
-  name,
-  jobTitle,
-  education,
-  imageUrl,
-  userBio,
-}) => {
+const ProfileCard: React.FC<ProfileCardProps> = ({ profile }) => {
+  const router = useRouter();
+
   return (
     <Card className="shadow-md">
       <CardHeader className="flex flex-row items-center space-x-4">
         <Avatar className="w-14 h-14">
-          <AvatarImage src={imageUrl} alt={name} />
-          <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+          <AvatarImage src={profile.avatar || undefined} alt={profile.name} />
+          <AvatarFallback>
+            {profile.name
+              ? profile.name
+                  .split(" ")
+                  .map((word) => word.charAt(0))
+                  .join("")
+                  .toUpperCase()
+              : "?"}
+          </AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
-          <CardTitle className="text-lg font-semibold">{name}</CardTitle>
-          <CardDescription className="text-gray-500">{userBio}</CardDescription>
+          <CardTitle className="text-lg font-semibold">
+            {profile.name}
+          </CardTitle>
+          <CardDescription className="text-gray-500">
+            {profile.occupation}
+          </CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="text-xs pr-2">
-      <Badge>
-        {jobTitle} {education && `at ${education}`}
-      </Badge>
+      <CardContent className="flex flex-wrap gap-2">
+        {profile.tags.map((tag, index) => (
+          <Badge key={index} variant="secondary">
+            {tag}
+          </Badge>
+        ))}
       </CardContent>
       <CardFooter>
-        <Button variant="outline" size="sm">
-          View Profile
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            router.push(`/dashboard/profiles/profileId=${profile.profileID}`);
+          }}
+        >
+          View {profile.isStartup ? "Startup" : "Candidate"}
         </Button>
       </CardFooter>
     </Card>
@@ -53,11 +67,3 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 };
 
 export default ProfileCard;
-
-// Example usage
-// <ProfileCard
-//   name="Hamish Marsh"
-//   jobTitle="HR Manager"
-//   education="Grameenphone"
-//   imageUrl="/assets/images/hamish.png"
-// />

@@ -25,7 +25,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 
-import { SignOutButton } from "@clerk/nextjs";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -34,6 +34,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { use } from "react";
 
 // Menu items.
 const items = [
@@ -64,7 +65,7 @@ const items = [
   },
   {
     title: "Profile",
-    url: "/dashboard/profile",
+    url: "/dashboard/profile/me",
     icon: CircleUserRound,
   },
   {
@@ -75,6 +76,11 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { user } = useUser();
+  const userName = user?.fullName || "Anonymous";
+  const userEmail = user?.emailAddresses[0]?.emailAddress || "No email";
+  const userProfileImage = user?.imageUrl || "";
+
   return (
     <Sidebar variant="floating" collapsible="icon">
       <SidebarContent>
@@ -109,37 +115,38 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-gray-200">
-              <Avatar>
-                <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt="User Avatar"
-                />
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <span className="font-medium text-sm text-zinc-900">
-                  shadcn
-                </span>
-                <span className="text-xs text-zinc-500">m@example.com</span>
-              </div>
-              <ChevronsUpDown className="translate-x-7" />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="top"
-            className="w-[--radix-popper-anchor-width]"
-          >
-            <DropdownMenuItem>Upgrade to Pro</DropdownMenuItem>
-            <DropdownMenuItem>Account</DropdownMenuItem>
-            <DropdownMenuItem>Billing</DropdownMenuItem>
-            <DropdownMenuItem>
-              <SignOutButton redirectUrl="/sign-in">Log out</SignOutButton>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton className="-translate-x-2">
+                  <Avatar>
+                    <AvatarImage src={userProfileImage} alt={userName} />
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm text-zinc-900">
+                      {userName}
+                    </span>
+                    <span className="text-xs text-zinc-500">{userEmail}</span>
+                  </div>
+                  <ChevronsUpDown className="translate-x-7" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                className="w-[--radix-popper-anchor-width]"
+              >
+                <DropdownMenuItem>Upgrade to Pro</DropdownMenuItem>
+                <DropdownMenuItem>Account</DropdownMenuItem>
+                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <SignOutButton redirectUrl="/sign-in">Log out</SignOutButton>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

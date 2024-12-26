@@ -28,12 +28,15 @@ import {
 } from "@/components/ui/pagination";
 
 const ConnectionsPage = () => {
-  const { getConnectedProfiles } = useConnectionsAPI();
+  const { getConnectedProfiles, getSavedProfiles } = useConnectionsAPI();
   const [profiles, setProfiles] = useState<ProfilePreviewCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [currentFilter, setCurrentFilter] = useState<"connected" | "saved">(
+    "connected"
+  );
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -51,38 +54,43 @@ const ConnectionsPage = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchProfiles = async () => {
-      try {
-        const profileId =
-          searchParams.get("profileID") ||
-          localStorage.getItem("currentProfileID") ||
-          "";
+  const handleFilterChange = (filter: "connected" | "saved") => {
+    setCurrentFilter(filter);
+    setCurrentPage(1);
+  };
 
-        if (!profileId) {
-          throw new Error("Profile ID is required");
-        }
-        const response = await getConnectedProfiles(profileId, currentPage);
-        console.log("Response from backend:", response);
-        setProfiles(response.results);
-        const totalPages = Math.ceil(response.total / response.perPage);
-        setTotalPages(totalPages);
-      } catch (err: any) {
-        if (err.response?.status === 404) {
-          setError("Failed to load profiles. Please try again later.");
-        }
-      } finally {
-        setLoading(false);
+  const fetchProfiles = async (filter: "connected" | "saved", page: number) => {
+    try {
+      setLoading(true);
+      const profileId =
+        searchParams.get("profileID") ||
+        localStorage.getItem("currentProfileID") ||
+        "";
+
+      if (!profileId) {
+        throw new Error("Profile ID is required");
       }
-    };
 
-    fetchProfiles();
-  }, [searchParams]);
+      const response =
+        filter === "connected"
+          ? await getConnectedProfiles(profileId, page)
+          : await getSavedProfiles(profileId, page); // Use appropriate API
 
-  // const handleProfileClick = (profileID: string) => {
-  //   localStorage.setItem("currentProfileID", profileID);
-  //   router.push(`/dashboard/profile/me?profileId=${profileID}`);
-  // };
+      console.log(`Response from backend (${filter}):`, response);
+
+      setProfiles(response.results);
+      const totalPages = Math.ceil(response.total / response.perPage);
+      setTotalPages(totalPages);
+    } catch (err: any) {
+      setError("Failed to load profiles. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfiles(currentFilter, currentPage);
+  }, [currentFilter, currentPage]);
 
   if (loading)
     return (
@@ -112,10 +120,38 @@ const ConnectionsPage = () => {
     <>
       <div className="flex-1 mt-4">
         <h1 className="text-xl font-semibold mb-4">Connections</h1>
+        <div className="flex space-x-4 mb-4">
+          <Button
+            variant="outline"
+            onClick={() => handleFilterChange("connected")}
+            className={`px-4 py-2 ${
+              currentFilter === "connected" ? "bg-blue-100 text-blue-500" : ""
+            }`}
+          >
+            Connected
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleFilterChange("saved")}
+            className={`px-4 py-2 ${
+              currentFilter === "saved" ? "bg-blue-100 text-blue-500" : ""
+            }`}
+          >
+            Saved
+          </Button>
+        </div>
 
-        {profiles.map((profile) => (
-          <ProfileViewCard key={profile.profileID} profile={profile} />
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {profiles.length > 0 ? (
+            profiles.map((profile) => (
+              <ProfileViewCard key={profile.profileID} profile={profile} />
+            ))
+          ) : (
+            <p className="text-xl text-gray-500">
+              No profiles found in {currentFilter} list.
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="flex justify-center p-4 border-t bg-white">

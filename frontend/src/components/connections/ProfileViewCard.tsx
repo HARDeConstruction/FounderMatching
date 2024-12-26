@@ -1,16 +1,23 @@
-import { FC } from "react";
+import { FC, use } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card"; // Import Card components
 import { Badge } from "@/components/ui/badge";
 import { ProfilePreviewCard } from "@/lib/types/profiles";
+import { useRouter } from "next/navigation";
 
 interface ProfileCardProps {
   profile: ProfilePreviewCard;
 }
 
 const ProfileCard: FC<ProfileCardProps> = ({ profile }) => {
+  const router = useRouter();
   return (
-    <Card className="mb-2 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer">
+    <Card
+      className="mb-2 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
+      onClick={() => {
+        router.push(`/dashboard/profile/${profile.profileID}`);
+      }}
+    >
       <CardContent className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center space-x-4">
           <Avatar className="w-12 h-12">

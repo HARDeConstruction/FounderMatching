@@ -34,10 +34,13 @@ const MyProfilePage = () => {
 
         setProfiles(response);
       } catch (err: any) {
-        if (err.response?.status === 404) {
-          setError("No profiles found. Please create a new profile.");
-        } else {
+        console.error("Error fetching profiles:", err.message);
+        // Only set error if it's not a "no profiles" error
+        if (err.response?.data?.error !== "No profiles found for this user") {
           setError("Failed to load profiles. Please try again later.");
+        } else {
+          // If no profiles, just set empty array
+          setProfiles([]);
         }
       } finally {
         setLoading(false);
@@ -49,7 +52,7 @@ const MyProfilePage = () => {
 
   const handleProfileClick = (profileID: string) => {
     localStorage.setItem("currentProfileID", profileID);
-    router.push(`/dashboard/profile/me?profileId=${profileID}`);
+    router.push(`/dashboard/profile/me`);
   };
 
   if (loading)

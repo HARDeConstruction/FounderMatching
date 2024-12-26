@@ -12,13 +12,17 @@ export const useConnectionsAPI = () => {
     return await makeAuthenticatedRequest(`${BASE_URL}/api/discover/discover/`, "GET", {}, false, { profileID: profileId });
   };
 
-//  const getSkippedProfiles = async () => {
-//     return await makeAuthenticatedRequest(`${BASE_URL}/api/skip/`, "GET", {}, false, );
-//  }
- 
  const connectProfile = async (fromID: string, toID: string) => {
     return await makeAuthenticatedRequest(`${BASE_URL}/api/discover/connect/`, "POST", {}, false, { fromID, toID });
  }
 
-  return { getConnectedProfiles, getSuggestedProfiles, connectProfile };
+ const saveProfile = async (fromID: string, toID: string) => {
+  return await makeAuthenticatedRequest(`${BASE_URL}/api/discover/save/`, "POST", {}, false, { fromID, toID });
+}
+
+ const getSavedProfiles = async (profileId: string, page: number) => {
+  return await makeAuthenticatedRequest(`${BASE_URL}/api/revisit/getSaved/`, "GET", {}, false, { profileID: profileId, page});
+}
+
+  return { getConnectedProfiles, getSuggestedProfiles, connectProfile, saveProfile, getSavedProfiles };
 };
