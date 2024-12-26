@@ -25,7 +25,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 
-import { SignOutButton } from "@clerk/nextjs";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -34,6 +34,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { use } from "react";
 
 // Menu items.
 const items = [
@@ -64,7 +65,7 @@ const items = [
   },
   {
     title: "Profile",
-    url: "/dashboard/profile",
+    url: "/dashboard/profile/me",
     icon: CircleUserRound,
   },
   {
@@ -75,6 +76,12 @@ const items = [
 ];
 
 export function AppSidebar() {
+  
+  const { user } = useUser();
+  const userName = user?.fullName || "Anonymous";
+  const userEmail = user?.emailAddresses[0]?.emailAddress || "No email";
+  const userProfileImage = user?.imageUrl || "";
+
   return (
     <Sidebar variant="floating" collapsible="icon">
       <SidebarContent>
@@ -114,16 +121,16 @@ export function AppSidebar() {
             <div className="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-gray-200">
               <Avatar>
                 <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt="User Avatar"
+                  src={userProfileImage}
+                  alt={userName}
                 />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
                 <span className="font-medium text-sm text-zinc-900">
-                  shadcn
+                  {userName}
                 </span>
-                <span className="text-xs text-zinc-500">m@example.com</span>
+                <span className="text-xs text-zinc-500">{userEmail}</span>
               </div>
               <ChevronsUpDown className="translate-x-7" />
             </div>

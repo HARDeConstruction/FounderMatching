@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,12 +48,15 @@ const Header = () => {
           )}
         </div>
 
-        {/* CTA Button */}
+        {/* Button */}
         <div className="flex flex-row space-x-4 ml-auto">
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className="hidden md:block bg-[#0087C3] text-white px-6 py-2 rounded-lg shadow-lg"
+            onClick={() => {
+              router.push("/sign-up");
+            }}
           >
             Sign Up
           </motion.button>
@@ -59,6 +64,9 @@ const Header = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className="hidden md:block bg-[#0087C3] text-white px-6 py-2 rounded-lg shadow-lg"
+            onClick={() => {
+              router.push("/sign-in");
+            }}
           >
             Sign In
           </motion.button>
