@@ -10,7 +10,6 @@ import { ProfileData } from "@/lib/types/profiles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StarIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
-import { ta } from "date-fns/locale";
 
 const animationVariants = {
   enter: (direction: number) => ({
@@ -74,7 +73,6 @@ const DiscoverPage = () => {
           throw new Error("Profile ID is required");
         }
         const response = await getSuggestedProfiles(profileId);
-        
 
         setProfileData(response);
       } catch (error) {
