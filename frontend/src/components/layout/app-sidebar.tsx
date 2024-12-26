@@ -76,7 +76,6 @@ const items = [
 ];
 
 export function AppSidebar() {
-  
   const { user } = useUser();
   const userName = user?.fullName || "Anonymous";
   const userEmail = user?.emailAddresses[0]?.emailAddress || "No email";
@@ -116,37 +115,38 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-gray-200">
-              <Avatar>
-                <AvatarImage
-                  src={userProfileImage}
-                  alt={userName}
-                />
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <span className="font-medium text-sm text-zinc-900">
-                  {userName}
-                </span>
-                <span className="text-xs text-zinc-500">{userEmail}</span>
-              </div>
-              <ChevronsUpDown className="translate-x-7" />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="top"
-            className="w-[--radix-popper-anchor-width]"
-          >
-            <DropdownMenuItem>Upgrade to Pro</DropdownMenuItem>
-            <DropdownMenuItem>Account</DropdownMenuItem>
-            <DropdownMenuItem>Billing</DropdownMenuItem>
-            <DropdownMenuItem>
-              <SignOutButton redirectUrl="/sign-in">Log out</SignOutButton>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton className="-translate-x-2">
+                  <Avatar>
+                    <AvatarImage src={userProfileImage} alt={userName} />
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm text-zinc-900">
+                      {userName}
+                    </span>
+                    <span className="text-xs text-zinc-500">{userEmail}</span>
+                  </div>
+                  <ChevronsUpDown className="translate-x-7" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                className="w-[--radix-popper-anchor-width]"
+              >
+                <DropdownMenuItem>Upgrade to Pro</DropdownMenuItem>
+                <DropdownMenuItem>Account</DropdownMenuItem>
+                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <SignOutButton redirectUrl="/sign-in">Log out</SignOutButton>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );
