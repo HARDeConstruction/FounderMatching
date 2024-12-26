@@ -3,112 +3,97 @@ import React, { useState, useEffect } from "react";
 import MetricCard from "@/components/layout/MetricCard";
 import ProfileGraph from "@/components/layout/ProfileGraphCard";
 import ProfileCard from "@/components/layout/ProfileCard";
-import { useAuth } from "@clerk/nextjs";
-import useAuthenticatedAxios from "@/hooks/useAuthenticatedAxios";
+import { useDashboardAPI } from "@/lib/api/dashboard";
+import { DashboardData } from "@/lib/types/dashboard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const DashboardPage = () => {
-  const { makeAuthenticatedRequest } = useAuthenticatedAxios();
-  const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null); // Tracks authentication state
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
+  const { getDashboardData } = useDashboardAPI();
 
   useEffect(() => {
-    console.log("DashboardPage mounted.");
-
-    const validateToken = async () => {
+    const loadDashboardData = async () => {
       try {
-        const data = await makeAuthenticatedRequest(
-          "http://127.0.0.1:8000/api/protected-dashboard/",
-          "POST",
-          {},
-          false
-        );
-        console.log("Token is valid. Backend Response:", data);
-        setIsAuthenticated(true);
+        const profileId = localStorage.getItem("currentProfileID") || "";
+        if (!profileId) {
+          throw new Error("Profile ID is required");
+        }
+        const response = await getDashboardData(profileId);
+        setDashboardData(response);
+        console.log("Dashboard data:", response);
       } catch (error) {
-        console.error("Token validation failed:", error);
-        setIsAuthenticated(false);
+        console.error("Error fetching profile data:", error);
+      } finally {
+        setLoading(false);
       }
     };
+    loadDashboardData();
+  }, []);
 
-    validateToken();
-  }, [makeAuthenticatedRequest]);
+  if (loading || !dashboardData) {
+    return (
+      <div className="grid grid-cols-4 gap-4 my-8">
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="col-span-1">
+            <Skeleton className="h-52 w-full" />
+          </div>
+        ))}
 
-  if (isAuthenticated === null) {
-    return <div>Loading...</div>;
-  }
+        <div className="col-span-4">
+          <Skeleton className="h-80 w-full" />{" "}
+        </div>
 
-  if (!isAuthenticated) {
-    return <div>Unauthorized. Please log in again.</div>;
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="col-span-2">
+            <Skeleton className="h-48 w-full" />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (
     <div className="grid grid-cols-4 gap-4 my-8">
       <div className="col-span-1">
         <MetricCard
-          title="Potential Startup Matches"
-          description="This Month"
-          value={13}
+          title="Potential Matches"
+          description="Premium Feature"
+          value={dashboardData.reachedCount ?? "N/A"}
         />
       </div>
       <div className="col-span-1">
         <MetricCard
-          title="Matched Startups"
-          description="This Month"
-          value={9}
+          title="Matched Profile"
+          description="Total"
+          value={dashboardData.matchedProfilesCount}
         />
       </div>
       <div className="col-span-1">
         <MetricCard
-          title="Search Appearance"
-          description="This Month"
-          value={329}
+          title="Profile Views"
+          description="Total"
+          value={dashboardData.viewedCount}
         />
       </div>
       <div className="col-span-1">
         <MetricCard
           title="Connect Requests"
-          description="This Month"
-          value={8}
+          description="Total"
+          value={dashboardData.connectRequestCount}
         />
       </div>
       <div className="col-span-4">
-        <ProfileGraph />
+        <ProfileGraph data={dashboardData.viewedHistory} />
       </div>
-      <div className="col-span-2">
-        <ProfileCard
-          name="Hamish Marsh"
-          jobTitle="HR Manager"
-          education="VinUni"
-          imageUrl="/assets/images/hamish.png"
-          userBio="To be or not to be"
-        />
-      </div>
-      <div className="col-span-2">
-        <ProfileCard
-          name="Tony Stark"
-          jobTitle="HR Specialist"
-          education="FTU"
-          imageUrl="/assets/images/mitchel.png"
-          userBio="To love or not to love"
-        />
-      </div>
-      <div className="col-span-2">
-        <ProfileCard
-          name="Elon Musk"
-          jobTitle="Software Engineer"
-          education="HUST"
-          imageUrl="/assets/images/mitchel.png"
-          userBio="HEHE"
-        />
-      </div>
-      <div className="col-span-2">
-        <ProfileCard
-          name="Donald Trump"
-          jobTitle="CEO"
-          education="???"
-          imageUrl="/assets/images/mitchel.png"
-          userBio="qwerty uiop asdf ghjkl zxcv bnm"
-        />
-      </div>
+
+      {dashboardData.sampleProfiles.map((profile) => (
+        <div key={profile.profileID} className="col-span-2">
+          <ProfileCard profile={profile} />
+        </div>
+      ))}
     </div>
   );
 };

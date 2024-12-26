@@ -33,7 +33,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
         )}
       </CardHeader>
       <CardContent>
-        <div className="mt-4 text-4xl font-bold text-zinc-900">{value}</div>
+        <div className="mt-2 text-4xl font-bold text-zinc-900">{value}</div>
       </CardContent>
     </Card>
   );
