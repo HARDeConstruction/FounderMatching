@@ -58,11 +58,11 @@ const items = [
     url: "/dashboard/connections",
     icon: ContactRoundIcon,
   },
-  {
-    title: "Revisit Profiles",
-    url: "/dashboard/revisit-profiles",
-    icon: UsersRound,
-  },
+  // {
+  //   title: "Revisit Profiles",
+  //   url: "/dashboard/revisit-profiles",
+  //   icon: UsersRound,
+  // },
   {
     title: "Profile",
     url: "/dashboard/profile/me",
