@@ -1,4 +1,4 @@
-import { TrendingUp } from "lucide-react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
@@ -15,39 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-// const chartData = [
-//     { day: "04/01", profileViews: 400 },
-//     { day: "04/02", profileViews: 450 },
-//     { day: "04/03", profileViews: 470 },
-//     { day: "04/04", profileViews: 490 },
-//     { day: "04/05", profileViews: 600 },
-//     { day: "04/06", profileViews: 580 },
-//     { day: "04/07", profileViews: 620 },
-//     { day: "04/08", profileViews: 650 },
-//     { day: "04/09", profileViews: 680 },
-//     { day: "04/10", profileViews: 900 },
-//     { day: "04/11", profileViews: 850 },
-//     { day: "04/12", profileViews: 870 },
-//     { day: "04/13", profileViews: 890 },
-//     { day: "04/14", profileViews: 860 },
-//     { day: "04/15", profileViews: 605 },
-//     { day: "04/16", profileViews: 630 },
-//     { day: "04/17", profileViews: 640 },
-//     { day: "04/18", profileViews: 670 },
-//     { day: "04/19", profileViews: 690 },
-//     { day: "04/20", profileViews: 700 },
-//     { day: "04/21", profileViews: 720 },
-//     { day: "04/22", profileViews: 730 },
-//     { day: "04/23", profileViews: 750 },
-//     { day: "04/24", profileViews: 780 },
-//     { day: "04/25", profileViews: 800 },
-//     { day: "04/26", profileViews: 820 },
-//     { day: "04/27", profileViews: 840 },
-//     { day: "04/28", profileViews: 860 },
-//     { day: "04/29", profileViews: 880 },
-//     { day: "04/30", profileViews: 900 },
-// ];
+import { Item } from "@radix-ui/react-dropdown-menu";
 
 const chartConfig = {
   profileViews: {
@@ -61,9 +29,20 @@ interface ProfileViewChartProps {
 }
 
 export default function ProfileViewChart({ data }: ProfileViewChartProps) {
-  // Calculate the total dynamically
   const totalViews = (data || []).reduce((acc, curr) => acc + curr.count, 0);
-  //console.log(data);
+
+  const latestDataPoint = data[data.length - 1]?.count || 0;
+  const previousDataPoint = data[data.length - 2]?.count || 0;
+
+  const percentageChange =
+    previousDataPoint > 0
+      ? ((latestDataPoint - previousDataPoint) / previousDataPoint) * 100
+      : 0;
+
+  const formattedData = data.map((d) => ({
+    time: d.time,
+    Views: d.count,
+  }));
 
   return (
     <Card className="shadow-md h-full">
@@ -80,7 +59,7 @@ export default function ProfileViewChart({ data }: ProfileViewChartProps) {
         <ChartContainer config={chartConfig} className="w-full h-52">
           <AreaChart
             accessibilityLayer
-            data={data}
+            data={formattedData}
             margin={{
               left: 30,
               right: 30,
@@ -90,11 +69,11 @@ export default function ProfileViewChart({ data }: ProfileViewChartProps) {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="day"
+              dataKey="time"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              // tickFormatter={(value, index) => (index % 1 === 0 ? value : "")}
+              tickFormatter={(value) => value.slice(-5)}
             />
             <YAxis
               tickLine={false}
@@ -121,7 +100,7 @@ export default function ProfileViewChart({ data }: ProfileViewChartProps) {
               </linearGradient>
             </defs>
             <Area
-              dataKey="profileViews"
+              dataKey="Views"
               type="natural"
               fill="url(#fillProfileViews)"
               fillOpacity={0.4}
@@ -134,11 +113,24 @@ export default function ProfileViewChart({ data }: ProfileViewChartProps) {
         <div className="flex w-full items-start gap-2 text-sm">
           <div className="grid gap-2">
             <div className="flex items-center gap-2 font-medium leading-none">
-              Your profile views is up by 5.2% this month{" "}
-              <TrendingUp className="h-4 w-4" />
+              Your profile views are{" "}
+              <span
+                className={
+                  percentageChange >= 0 ? "text-green-500" : "text-red-500"
+                }
+              >
+                {percentageChange.toFixed(1)}%
+              </span>{" "}
+              {percentageChange >= 0 ? (
+                <TrendingUp className="h-4 w-4 text-green-500" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-500" />
+              )}
             </div>
             <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              April 1 - April 30 2024
+              {data.length > 0
+                ? `From ${data[0].time} to ${data[data.length - 1].time}`
+                : "No data available"}
             </div>
           </div>
         </div>

@@ -24,7 +24,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ profile }) => {
     <Card className="shadow-md">
       <CardHeader className="flex flex-row items-center space-x-4">
         <Avatar className="w-14 h-14">
-          <AvatarImage src={profile.avatar} alt={profile.name} />
+          <AvatarImage src={profile.avatar || undefined} alt={profile.name} />
           <AvatarFallback>
             {profile.name
               ? profile.name
