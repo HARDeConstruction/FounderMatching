@@ -68,14 +68,15 @@ class DashboardViewSet(viewsets.ViewSet):
                             COUNT(*) as count
                         FROM "ProfileViews"
                         WHERE "ToProfileID" = %s
+                        AND "ViewedAt" >= %s
                         GROUP BY "ViewedAt"::date
                         ORDER BY "ViewedAt"::date DESC
-                    """, [profile_id])
+                    """, [profile_id, thirty_days_ago])
                     viewed_history = [
                         ViewHistory(time=row[0], count=row[1])
                         for row in cursor.fetchall()
                     ]
-                    logger.debug(f"Retrieved {len(viewed_history)} days of view history")
+                    logger.debug(f"Retrieved {len(viewed_history)} days of view history within last 30 days")
 
                 # Get connect request count
                 with connection.cursor() as cursor:
