@@ -25,7 +25,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 
-import { SignOutButton } from "@clerk/nextjs";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -34,6 +34,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { use } from "react";
 
 // Menu items.
 const items = [
@@ -64,7 +65,7 @@ const items = [
   },
   {
     title: "Profile",
-    url: "/my-profile",
+    url: "/dashboard/profile/me",
     icon: CircleUserRound,
   },
   {
@@ -75,6 +76,11 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { user } = useUser();
+  const userName = user?.fullName || "Anonymous";
+  const userEmail = user?.emailAddresses[0]?.emailAddress || "No email";
+  const userProfileImage = user?.imageUrl || "";
+
   return (
     <Sidebar variant="floating" collapsible="icon">
       <SidebarContent>
@@ -135,13 +141,9 @@ export function AppSidebar() {
             <DropdownMenuItem>Upgrade to Pro</DropdownMenuItem>
             <DropdownMenuItem>Account</DropdownMenuItem>
             <DropdownMenuItem>Billing</DropdownMenuItem>
-            <div className="w-full">
-              <SignOutButton redirectUrl="/sign-in">
-                <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full text-left">
-                  Log out
-                </button>
-              </SignOutButton>
-            </div>
+            <DropdownMenuItem>
+              <SignOutButton redirectUrl="/sign-in">Log out</SignOutButton>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarFooter>

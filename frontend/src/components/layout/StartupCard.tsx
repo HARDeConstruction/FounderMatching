@@ -9,6 +9,7 @@ import { useState } from "react";
 import { ProfileData } from "@/lib/types/profiles";
 import StartupCardFront from "@/components/layout/StartupCardFront";
 import StartupCardBack from "@/components/layout/StartupCardBack";
+import { useDashboardAPI } from "@/lib/api/dashboard";
 
 interface StartupCardProps {
   startup: ProfileData;
@@ -16,9 +17,27 @@ interface StartupCardProps {
 
 const StartupCard = ({ startup }: StartupCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const { countView } = useDashboardAPI();
   console.log("startup data:", startup);
-  // Handle flip toggle
-  const handleFlip = () => setIsFlipped(!isFlipped);
+
+  const handleViewCount = async (toID: string) => {
+    try {
+      const profileId = localStorage.getItem("currentProfileID") || "";
+      console.log("profileId", profileId);
+      if (!profileId) {
+        throw new Error("Profile ID is required");
+      }
+      const responseMessage = await countView(profileId, toID);
+      console.log(`View count updated for profileID: ${toID}`);
+    } catch (error: any) {
+      console.error("Failed to update view count:", error);
+    }
+  };
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+    handleViewCount(startup.profileID.toString());
+  };
 
   return (
     <motion.div

@@ -52,7 +52,7 @@ const MyProfilePage = () => {
 
   const handleProfileClick = (profileID: string) => {
     localStorage.setItem("currentProfileID", profileID);
-    router.push(`/dashboard/profile/me?profileId=${profileID}`);
+    router.push(`/dashboard/profile/me`);
   };
 
   if (loading)

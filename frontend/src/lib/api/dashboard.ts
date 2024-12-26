@@ -9,5 +9,9 @@ export const useDashboardAPI = () => {
     return await makeAuthenticatedRequest(`${BASE_URL}/api/dashboard`, "GET", {}, false, { profileID: profileId });
   };
 
-  return { getDashboardData };
+  const countView = async (fromID: string, toID: string) => {
+    return await makeAuthenticatedRequest(`${BASE_URL}/countView`, "POST", {}, false, { fromID, toID });
+  };
+
+  return { getDashboardData, countView };
 };

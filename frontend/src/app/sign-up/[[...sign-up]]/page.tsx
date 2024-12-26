@@ -25,7 +25,11 @@ const SignUpPage = () => {
         className="flex flex-row h-full w-full"
       >
         <div className="flex items-center justify-center w-1/2">
-          <SignUp routing="hash" signInUrl="/sign-in" fallbackRedirectUrl="/my-profile"/>
+          <SignUp
+            routing="hash"
+            signInUrl="/sign-in"
+            fallbackRedirectUrl="/my-profile"
+          />
         </div>
         <div className="flex items-center justify-center w-1/2">
           <Image alt="image" src={imagePath} width={600} height={600} />

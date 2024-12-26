@@ -9,7 +9,7 @@ export const useProfileAPI = () => {
   };
 
   const getCurrentUserProfile = async (profileId: string) => {
-    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/me/?profileId=${profileId}`, "GET", {}, false);
+    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/me`, "GET", {}, false, { profileId: profileId });
   };
 
   const updateUserProfile = async (profileData: any, profileId: string) => {
@@ -22,5 +22,9 @@ export const useProfileAPI = () => {
     return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/create/`, "POST", formData, true);
   };
 
-  return { getUserProfiles, getCurrentUserProfile, updateUserProfile, createUserProfile };
+  const getUserProfileByID = async (profileId: string) => {
+    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/`, "GET", {}, false, { profileID: profileId });
+  }
+
+  return { getUserProfiles, getCurrentUserProfile, updateUserProfile, createUserProfile, getUserProfileByID };
 };
