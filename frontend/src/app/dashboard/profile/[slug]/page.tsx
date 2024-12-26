@@ -10,7 +10,7 @@ import { useDashboardAPI } from "@/lib/api/dashboard";
 import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {
-  const { getUserProfileByID} = useProfileAPI();
+  const { getUserProfileByID } = useProfileAPI();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,18 +18,17 @@ export default function ProfilePage() {
   const params = useParams();
   const { countView } = useDashboardAPI();
 
-  const handleViewCount = async (toID: string) => {
-    try {
-      const profileId = localStorage.getItem("currentProfileID") || "";
-      console.log("profileId", profileId);
-      await countView(profileId, toID);
-      console.log(`View count updated for profileID: ${toID}`);
-    } catch (err: any) {
-      console.error("Failed to update view count:", err);
-    }
-  };
-
   useEffect(() => {
+    const handleViewCount = async (toID: string) => {
+      try {
+        const profileId = localStorage.getItem("currentProfileID") || "";
+        console.log("profileId", profileId);
+        await countView(profileId, toID);
+        console.log(`View count updated for profileID: ${toID}`);
+      } catch (err: any) {
+        console.error("Failed to update view count:", err);
+      }
+    };
     const loadProfileData = async () => {
       try {
         const profileId = params?.slug as string;
@@ -43,7 +42,8 @@ export default function ProfilePage() {
       } catch (err: any) {
         console.error("Error fetching profile data:", err);
         setError(
-          err.response?.data?.message || "An error occurred while loading the profile."
+          err.response?.data?.message ||
+            "An error occurred while loading the profile."
         );
       } finally {
         setLoading(false);
@@ -85,7 +85,7 @@ export default function ProfilePage() {
           Profile Not Found
         </h1>
         <p className="text-gray-600 mb-4">
-          The profile you're looking for does not exist or could not be loaded.
+          The profile you are looking for does not exist or could not be loaded.
         </p>
         <Button
           variant="outline"
@@ -102,7 +102,7 @@ export default function ProfilePage() {
     <div className="flex-1 mt-4">
       <div className="flex flex-row">
         <h1 className="text-xl font-semibold mb-4">
-          {profileData.name}'s Profile
+          {`${profileData.name}'s Profile`}
         </h1>
       </div>
       <ProfileDetailsByID profileData={profileData} />
