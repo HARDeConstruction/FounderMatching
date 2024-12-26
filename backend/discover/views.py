@@ -212,12 +212,14 @@ class DiscoverView(APIView):
             exclude_profiles.add(int(profile_id))  # Add requesting profile ID
             user_profile_ids = Profile.objects.filter(userID=user_id).values_list('profileID', flat=True)
             exclude_profiles.update(user_profile_ids)
+            print("Connected profiles:", connected_ids)
+            print("Rejected profiles:", rejected_profile_ids)
+            print("User profiles:", user_profile_ids)
+            print("=> Excluded profiles:", exclude_profiles)
 
             # Query for discoverable profiles
             all_discoverable_profiles = Profile.objects.exclude(
                 profileID__in=exclude_profiles
-            ).select_related(
-                'userID'
             ).prefetch_related(
                 'experiences',
                 'certificates',
@@ -246,7 +248,7 @@ class DiscoverView(APIView):
                 'results': serializer.data
             }
 
-            return Response(response_data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as e:
             logger.error(f"Error in discover view: {str(e)}")
