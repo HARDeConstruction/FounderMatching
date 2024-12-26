@@ -64,17 +64,18 @@ class DashboardViewSet(viewsets.ViewSet):
                 with connection.cursor() as cursor:
                     cursor.execute("""
                         SELECT 
-                            to_char("ViewedAt", 'YYYY-MM-DD HH24:MI:SS') as time,
-                            1 as count
+                            to_char("ViewedAt"::date, 'YYYY-MM-DD') as day,
+                            COUNT(*) as count
                         FROM "ProfileViews"
                         WHERE "ToProfileID" = %s
-                        ORDER BY "ViewedAt" DESC
+                        GROUP BY "ViewedAt"::date
+                        ORDER BY "ViewedAt"::date DESC
                     """, [profile_id])
                     viewed_history = [
                         ViewHistory(time=row[0], count=row[1])
                         for row in cursor.fetchall()
                     ]
-                    logger.debug(f"Retrieved {len(viewed_history)} views from history")
+                    logger.debug(f"Retrieved {len(viewed_history)} days of view history")
 
                 # Get connect request count
                 with connection.cursor() as cursor:
@@ -108,19 +109,7 @@ class DashboardViewSet(viewsets.ViewSet):
                                 p."ProfileID",
                                 p."IsStartup",
                                 p."Name",
-                                CASE 
-                                    WHEN p."IsStartup" = true THEN 'Technology Startup'
-                                    ELSE COALESCE(
-                                        (
-                                            SELECT e."Role"
-                                            FROM "Experience" e
-                                            WHERE e."ProfileOwner" = p."ProfileID"
-                                            ORDER BY e."StartDate" DESC
-                                            LIMIT 1
-                                        ),
-                                        p."Industry"
-                                    )
-                                END as occupation,
+                                p."Industry" as occupation,
                                 p."Avatar"
                             FROM "ProfileViews" pv
                             JOIN "Profile" p ON p."ProfileID" = pv."FromProfileID"
