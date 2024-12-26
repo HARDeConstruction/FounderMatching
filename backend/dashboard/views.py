@@ -98,6 +98,7 @@ class DashboardViewSet(viewsets.ViewSet):
                         AND "IsMatched" = true
                     """, [profile_id, profile_id])
                     matched_profiles_count = cursor.fetchone()[0]
+                    logger.info(f"Profile ID: {profile_id}, Raw matched profiles count from DB: {matched_profiles_count}")
                     logger.debug(f"Matched profiles count: {matched_profiles_count}")
 
                 # Get sample profiles (4 most recent viewers)

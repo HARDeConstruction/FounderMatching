@@ -9,7 +9,7 @@ from django.db import transaction
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from .serializers import ProfileSerializer, ProfilePreviewCardSerializer, TagSerializer
-from .models import Profile, UserAccount, ProfilePrivacySettings, Tags, ProfileTagInstances, Matching
+from .models import Profile, UserAccount, ProfilePrivacySettings, Tags, ProfileTagInstances, Matching, ProfileViews
 from django.core.exceptions import ValidationError
 from accounts.middlewares import JWTAuthenticationMiddleware
 import json
@@ -503,6 +503,65 @@ class ConnectView(APIView):
             
         except Exception as e:
             logger.error(f"Error in discover view: {str(e)}")
+            return Response(
+                {'error': 'An unexpected error occurred'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class CountViewView(APIView):
+    authentication_classes = [JWTAuthenticationMiddleware]
+
+    def post(self, request):
+        try:
+            # Get authenticated user
+            try:
+                user_account = UserAccount.objects.get(clerkUserID=request.user.username)
+            except UserAccount.DoesNotExist:
+                return Response(
+                    {'error': 'User account not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Get and validate parameters
+            from_id = request.query_params.get('fromID')
+            to_id = request.query_params.get('toID')
+
+            if not from_id or not to_id:
+                return Response(
+                    {'error': 'Both fromID and toID are required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Validate profiles exist
+            try:
+                from_profile = Profile.objects.get(profileID=from_id)
+                to_profile = Profile.objects.get(profileID=to_id)
+            except Profile.DoesNotExist:
+                return Response(
+                    {'error': 'One or both profiles not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Verify user owns the from_profile
+            if from_profile.userID_id != user_account.userID:
+                return Response(
+                    {'error': 'User does not own the fromID profile'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            # Create view record
+            ProfileViews.objects.create(
+                fromProfileID=from_profile,
+                toProfileID=to_profile
+            )
+
+            return Response(
+                {'message': 'View count updated'},
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            logger.error(f"Error in CountViewView: {str(e)}")
             return Response(
                 {'error': 'An unexpected error occurred'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
