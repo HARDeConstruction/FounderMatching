@@ -263,11 +263,11 @@ class GetCurrentUserProfileView(APIView):
 class GetUserProfileByIdView(APIView):
     authentication_classes = [JWTAuthenticationMiddleware]
 
-    def _check_connection_status(self, viewer_profile_id, target_profile_id):
+    def _check_connection_status(self, viewer_profileID, target_profileID):
         """Check if the viewer is connected to the target profile"""
         return Matching.objects.filter(
-            (Q(candidateprofileid=viewer_profile_id) & Q(startupprofileid=target_profile_id)) |
-            (Q(candidateprofileid=target_profile_id) & Q(startupprofileid=viewer_profile_id)),
+            (Q(candidateprofileid=viewer_profileID) & Q(startupprofileid=target_profileID)) |
+            (Q(candidateprofileid=target_profileID) & Q(startupprofileid=viewer_profileID)),
             ismatched=True
         ).exists()
 
@@ -279,7 +279,7 @@ class GetUserProfileByIdView(APIView):
             return field_value
         return None
 
-    def get(self, request, profile_id):
+    def get(self, request, profileID):
         try:
             # Get the authenticated user's account
             try:
@@ -293,7 +293,7 @@ class GetUserProfileByIdView(APIView):
 
             # Get the target profile with prefetched data
             target_profile = Profile.objects.filter(
-                profileID=profile_id
+                profileID=profileID
             ).prefetch_related(
                 'experiences',
                 'certificates',
@@ -325,7 +325,7 @@ class GetUserProfileByIdView(APIView):
                         {'error': 'Viewer profile not found'},
                         status=status.HTTP_404_NOT_FOUND
                     )
-                is_connected = self._check_connection_status(viewer_profile.profileID, profile_id)
+                is_connected = self._check_connection_status(viewer_profile.profileID, profileID)
 
             # Serialize the profile
             serializer = ProfileSerializer(target_profile)

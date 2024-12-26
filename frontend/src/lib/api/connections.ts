@@ -21,7 +21,7 @@ export const useConnectionsAPI = () => {
 }
 
  const getSavedProfiles = async (profileId: string, page: number) => {
-  return await makeAuthenticatedRequest(`${BASE_URL}/api/discover/getSaved/`, "GET", {}, false, { profileID: profileId, page});
+  return await makeAuthenticatedRequest(`${BASE_URL}/api/revisit/getSaved/`, "GET", {}, false, { profileID: profileId, page});
 }
 
   return { getConnectedProfiles, getSuggestedProfiles, connectProfile, saveProfile, getSavedProfiles };

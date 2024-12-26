@@ -4,18 +4,18 @@ import React, { useEffect, useState } from "react";
 import { useProfileAPI } from "@/lib/api/profiles";
 import { ProfileData } from "@/lib/types/profiles";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import ProfileDetailsByID from "@/components/profile/ProfileDetailsByID";
 import { useDashboardAPI } from "@/lib/api/dashboard";
 import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {
-  const { getCurrentUserProfile } = useProfileAPI();
+  const { getUserProfileByID} = useProfileAPI();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const params = useParams();
   const { countView } = useDashboardAPI();
 
   const handleViewCount = async (toID: string) => {
@@ -32,12 +32,12 @@ export default function ProfilePage() {
   useEffect(() => {
     const loadProfileData = async () => {
       try {
-        const profileId = searchParams.get("profileID");
+        const profileId = params?.slug as string;
         if (!profileId) {
           throw new Error("Profile ID is required");
         }
         console.log(profileId);
-        const response = await getCurrentUserProfile(profileId);
+        const response = await getUserProfileByID(profileId);
         setProfileData(response);
         handleViewCount(profileId);
       } catch (err: any) {

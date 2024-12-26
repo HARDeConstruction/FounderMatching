@@ -22,8 +22,8 @@ export const useProfileAPI = () => {
     return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/create/`, "POST", formData, true);
   };
 
-  const getUserProfileByID = async (profileId: string) => {
-    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/`, "GET", {}, false, { profileID: profileId });
+  const getUserProfileByID = async (profileID: string) => {
+    return await makeAuthenticatedRequest(`${BASE_URL}/api/profile/${profileID}`, "GET", {}, false);
   }
 
   return { getUserProfiles, getCurrentUserProfile, updateUserProfile, createUserProfile, getUserProfileByID };

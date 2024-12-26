@@ -172,7 +172,7 @@ class DiscoverView(APIView):
 
             # Get pagination parameters
             page = int(request.query_params.get('page', 1))
-            per_page = int(request.query_params.get('perPage', 5))
+            per_page = int(request.query_params.get('perPage', 20))
 
             # Verify profile belongs to user
             try:

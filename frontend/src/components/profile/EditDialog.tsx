@@ -255,8 +255,7 @@ export const EditDialog: React.FC<EditDialogProps> = ({ currentData }) => {
     name: "jobPositions",
   });
 
-  const searchParams = useSearchParams();
-  const profileId = searchParams.get("profileId")?.trim();
+  const profileId = localStorage.getItem("currentProfileID")?.trim();
   const { updateUserProfile } = useProfileAPI();
   async function onSubmit(profileData: z.infer<typeof formSchema>) {
     console.log("Submit button clicked.");

@@ -12,5 +12,5 @@ urlpatterns = [
     path('getUserProfiles/', GetUserProfilesView.as_view(), name='get_user_profiles'),
     path('me/', GetCurrentUserProfileView.as_view(), name='get_current_user_profile'),
     path('me/update/', UpdateProfileView.as_view(), name='update_profile'),
-    path('<int:profile_id>/', GetUserProfileByIdView.as_view(), name='get_user_profile_by_id'),
+    path('<int:profileID>', GetUserProfileByIdView.as_view(), name='get_user_profile_by_id'),
 ] 
