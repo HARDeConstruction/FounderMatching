@@ -46,7 +46,8 @@ const DiscoverPage = () => {
       setIndex((prev) => prev - 1);
     }
   };
-  const { getSuggestedProfiles, connectProfile } = useConnectionsAPI();
+  const { getSuggestedProfiles, connectProfile, saveProfile } =
+    useConnectionsAPI();
 
   const handleConnect = async (toID: string) => {
     try {
@@ -57,6 +58,22 @@ const DiscoverPage = () => {
       }
       const responseMessage = await connectProfile(profileId, toID);
       toast.success("Profile connection sent!");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async (toID: string) => {
+    try {
+      const profileId = localStorage.getItem("currentProfileID") || "";
+      console.log("profileId", profileId);
+      if (!profileId) {
+        throw new Error("Profile ID is required");
+      }
+      const responseMessage = await saveProfile(profileId, toID);
+      toast.success("Profile saved!");
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -84,13 +101,28 @@ const DiscoverPage = () => {
     loadProfileData();
   }, []);
 
-  if (loading || !profileData) {
+  if (loading) {
     return (
       <div className="p-8">
         <Skeleton className="h-8 w-1/3 mb-4" />
         <Skeleton className="h-16 w-full mb-4" />
         <Skeleton className="h-8 w-1/4" />
       </div>
+    );
+  }
+
+  if (!profileData || profileData.length === 0) {
+    return (
+      <>
+        <div className="flex-1 mt-4">
+          <h1 className="text-xl font-semibold mb-4">Discover</h1>
+          <div className="grid place-items-center h-64">
+            <h1 className="text-center text-2xl font-semibold mb-4">
+              No new profiles found!
+            </h1>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -118,7 +150,9 @@ const DiscoverPage = () => {
           <Button variant="outline" onClick={handlePrev}>
             Previous
           </Button>
-          <Button>
+          <Button
+            onClick={() => handleSave(profileData[index].profileID.toString())}
+          >
             {" "}
             <StarIcon />
           </Button>
