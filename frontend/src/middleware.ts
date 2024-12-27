@@ -17,7 +17,7 @@ export default clerkMiddleware(async (auth, request) => {
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
     if (role !== "admin" && request.nextUrl.pathname.startsWith("/admin")) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return NextResponse.redirect(new URL("/my-profile", request.url));
     }
   }
    

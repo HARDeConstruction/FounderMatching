@@ -1,21 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useProfileAPI } from "@/lib/api/profiles";
+import { usePathname, useRouter } from "next/navigation";
 import { ProfilePreviewCard } from "@/lib/types/profiles";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConnectionsAPI } from "@/lib/api/connections";
-import ProfileCard from "@/components/layout/ProfileCard";
 import ProfileViewCard from "@/components/connections/ProfileViewCard";
 import {
   Pagination,
@@ -39,7 +30,6 @@ const ConnectionsPage = () => {
   );
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -59,62 +49,65 @@ const ConnectionsPage = () => {
     setCurrentPage(1);
   };
 
-  const fetchProfiles = async (filter: "connected" | "saved", page: number) => {
-    try {
-      setLoading(true);
-      const profileId =
-        searchParams.get("profileID") ||
-        localStorage.getItem("currentProfileID") ||
-        "";
-
-      if (!profileId) {
-        throw new Error("Profile ID is required");
-      }
-
-      const response =
-        filter === "connected"
-          ? await getConnectedProfiles(profileId, page)
-          : await getSavedProfiles(profileId, page); // Use appropriate API
-
-      console.log(`Response from backend (${filter}):`, response);
-
-      setProfiles(response.results);
-      const totalPages = Math.ceil(response.total / response.perPage);
-      setTotalPages(totalPages);
-    } catch (err: any) {
-      setError("Failed to load profiles. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchProfiles = async (
+      filter: "connected" | "saved",
+      page: number
+    ) => {
+      try {
+        setLoading(true);
+        const profileId = localStorage.getItem("currentProfileID") || "";
+
+        if (!profileId) {
+          throw new Error("Profile ID is required");
+        }
+
+        const response =
+          filter === "connected"
+            ? await getConnectedProfiles(profileId, page)
+            : await getSavedProfiles(profileId, page);
+
+        console.log(`Response from backend (${filter}):`, response);
+
+        setProfiles(response.results);
+        const totalPages = Math.ceil(response.total / response.perPage);
+        setTotalPages(totalPages);
+      } catch (err: any) {
+        setError("Failed to load profiles. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProfiles(currentFilter, currentPage);
   }, [currentFilter, currentPage]);
 
   if (loading)
     return (
       <>
-        <div className="p-6">
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold">Loading profiles...</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="space-y-4">
-                {/* Avatar Skeleton */}
-                <Skeleton className="h-24 w-24 rounded-full mx-auto" />
-                {/* Text Skeletons */}
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-3/4 mx-auto" />
-                  <Skeleton className="h-4 w-1/2 mx-auto" />
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="p-8">
+          <Skeleton className="h-8 w-1/4 mb-4" />
+          <Skeleton className="h-16 w-full mb-4" />
+          <Skeleton className="h-8 w-1/3 mb-4" />
         </div>
       </>
     );
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen text-center p-6">
+        <h1 className="text-xl font-bold text-red-500 mb-4">Error</h1>
+        <p className="text-gray-600 mb-4">{error}</p>
+        <Button
+          variant="outline"
+          onClick={() => router.push("/dashboard")}
+          className="mt-4"
+        >
+          Go Back to Dashboard
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -55,7 +55,7 @@ const DiscoverPage = () => {
             transition={{ duration: 0.5 }}
             className="pl-4 pr-8 pt-2"
           >
-            <StartupCard startup={startups[index]} />
+            {/* <StartupCard startup={startups[index]} /> */}
           </motion.div>
         </AnimatePresence>
 

@@ -1,21 +1,35 @@
+"use client";
+
 import Logo from "@/components/layout/logo";
 import Image from "next/image";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import imagePath from "@/assets/image.png";
-import SignUpBox from "@/components/layout/SignUpBox";
-import LoginBox from "@/components/layout/LoginBox";
 import { SignIn } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {
+  const router = useRouter();
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden">
       <div className="flex justify-between items-center px-6">
         <Logo />
         <div className="flex gap-2">
-          <Button className="bg-primaryBlue hover:bg-blue-700">Login</Button>
-          <Button className="bg-white text-primaryBlue hover:bg-white ring-1">
-            Candidate Signup
+          <Button
+            className="bg-primaryBlue hover:bg-blue-700"
+            onClick={() => {
+              router.push("/sign-in");
+            }}
+          >
+            Login
+          </Button>
+          <Button
+            className="bg-white text-primaryBlue hover:bg-white ring-1"
+            onClick={() => {
+              router.push("/sign-up");
+            }}
+          >
+            Signup
           </Button>
         </div>
       </div>
