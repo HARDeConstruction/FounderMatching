@@ -101,6 +101,14 @@ We welcome contributions to improve the **Founder Matching Platform**! To contri
 - Special thanks to the professors [Hoang](https://github.com/vanh17) for their guidance throughout the project.
 - Acknowledging the contributions of the team members (contributors) who played a key role in making this project successful.
 
+## Project Links
+
+- SRS for this project: [Software_Requirements_Specification.pdf](https://github.com/HARDeConstruction/FounderMatching/blob/main/Software_Requirements_Specification.pdf)
+- Github link for main project: https://github.com/HARDeConstruction/FounderMatching
+- Github link for API document: https://github.com/HARDeConstruction/api-fm
+- Figma design link: https://www.figma.com/design/EoJY3yIgQXV0hvIbvVIdJa/Founder-Matching-App?node-id=0-1&p=f&t=GoMwhYJEvuBT3uCV-0
+- Frontend deployment link (for development testing): https://founder-matching.vercel.app/
+
 ## License
 
 This project is licensed under the **MIT License**.
