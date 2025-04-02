@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { ProfileData } from "@/lib/types/profiles";
-import StartupCardFront from "@/components/layout/StartupCardFront";
-import StartupCardBack from "@/components/layout/StartupCardBack";
+import StartupCardFront from "@/components/layout/Discover/StartupCardFront";
+import StartupCardBack from "@/components/layout/Discover/StartupCardBack";
 import { useDashboardAPI } from "@/lib/api/dashboard";
 
 interface StartupCardProps {

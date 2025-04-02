@@ -1,6 +1,6 @@
 "use client";
 
-import StartupCard from "@/components/layout/StartupCard";
+import StartupCard from "@/components/layout/Discover/StartupCard";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";

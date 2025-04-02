@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import MetricCard from "@/components/layout/MetricCard";
-import ProfileGraph from "@/components/layout/ProfileGraphCard";
-import ProfileCard from "@/components/layout/ProfileCard";
+import MetricCard from "@/components/layout/Dashboard/MetricCard";
+import ProfileGraph from "@/components/layout/Dashboard/ProfileGraphCard";
+import ProfileCard from "@/components/layout/Dashboard/ProfileCard";
 import { useDashboardAPI } from "@/lib/api/dashboard";
 import { DashboardData } from "@/lib/types/dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
