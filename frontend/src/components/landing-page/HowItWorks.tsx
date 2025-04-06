@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useId } from "react";
-import { FaUserPlus, FaRobot, FaHandshake } from "react-icons/fa";
+import { FaUserPlus, FaRobot, FaHandshake, FaRocket } from "react-icons/fa";
 import { IconBaseProps } from "react-icons";
 
 const steps = [
@@ -18,6 +18,11 @@ const steps = [
     title: "Connect & Build",
     description: "Start networking and collaborating with your perfect match.",
     icon: (props: IconBaseProps) => <FaHandshake {...props} />,
+  },
+  {
+    title: "Access Startup Tools",
+    description: "Boost your journey with resources from E-lab Startup Toolkit",
+    icon: (props: IconBaseProps) => <FaRocket {...props} />,
   },
 ];
 
@@ -61,7 +66,7 @@ export default function HowItWorks() {
     };
   }, []);
 
-  const customPattern = Array.from({ length: 30 }, () => [
+  const customPattern = Array.from({ length: 22 }, () => [
     Math.floor(Math.random() * 10),
     Math.floor(Math.random() * 10),
   ]);
@@ -84,29 +89,44 @@ export default function HowItWorks() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 md:gap-4 max-w-7xl mx-auto px-6">
-        {steps.map((step, index) => (
-          <div
-            key={step.title}
-            className={`step-card relative bg-gradient-to-b dark:from-neutral-900 from-neutral-100 dark:to-neutral-950 to-white p-6 rounded-3xl overflow-hidden text-center transition-transform transform ${
-              inView[index]
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            } min-h-[240px]`}
-            style={{ transition: "all 0.6s ease-out" }}
-          >
-            <Grid size={20} pattern={customPattern} />
-            <div className="relative z-20 flex flex-col items-center">
-              <step.icon className="text-4xl text-blue-500 mb-4" />
-              <p className="text-xl font-semibold text-neutral-800 dark:text-white">
-                {step.title}
-              </p>
-              <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-base">
-                {step.description}
-              </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-8 max-w-7xl mx-auto px-6">
+        {steps.map((step, index) => {
+          const [pattern, setPattern] = useState(customPattern);
+
+          const handleHover = () => {
+            const newPattern = Array.from({ length: 22 }, () => [
+              Math.floor(Math.random() * 10),
+              Math.floor(Math.random() * 10),
+            ]);
+            setPattern(newPattern);
+          };
+
+          return (
+            <div
+              key={step.title}
+              className={`step-card relative p-6 rounded-3xl overflow-hidden text-center transition-transform transform ${
+                inView[index]
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-10"
+              }  ${
+                index % 2 === 1 ? "md:translate-y-12" : ""
+              } bg-gradient-to-b dark:from-neutral-900 from-neutral-100 dark:to-neutral-950 to-white min-h-[240px]`}
+              style={{ transition: "all 0.6s ease-out" }}
+              onMouseEnter={handleHover}
+            >
+              <Grid size={20} pattern={pattern} />
+              <div className="relative z-20 flex flex-col items-center">
+                <step.icon className="text-4xl text-[#0087C3] mb-4" />
+                <p className="text-xl font-semibold text-neutral-800 dark:text-white">
+                  {step.title}
+                </p>
+                <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-base">
+                  {step.description}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
