@@ -16,6 +16,18 @@ const features = [
       "Swipe through a diverse pool of talent, explore profiles that align with your goals, and connect with potential co-founders in seconds.",
     image: "images/FMDiscover.png",
   },
+  {
+    title: "More Than a Bio",
+    description:
+      "Our rich profile system helps you showcase your vision, values, and vibe—so you don’t just get found, you get understood.",
+    image: "images/FMSimpleBio.png",
+  },
+  {
+    title: "Track Your Momentum",
+    description:
+      "See how many startups you're matching with, how often you appear in searches, and who’s checking you out - all in one glance!",
+    image: "images/FMDashboard.png",
+  },
 ];
 
 export default function Benefits() {
@@ -55,9 +67,9 @@ export default function Benefits() {
   const current = features[currentIndex];
 
   return (
-    <section className="benefits-section min-h-screen flex flex-col justify-center items-center py-16">
+    <section className="benefits-section relative min-h-screen flex flex-col justify-center items-center py-20">
       <div
-        className={`max-w-7xl mx-auto px-4 w-full grid grid-cols-1 md:grid-cols-2 gap-8 ${
+        className={`max-w-7xl mx-auto px-24 w-full grid grid-cols-1 md:grid-cols-2 gap-8 ${
           sectionInView
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-10"
@@ -134,7 +146,7 @@ export default function Benefits() {
           )}
         </AnimatePresence>
       </div>
-      <div className="mt-12 flex flex-col items-center gap-4">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-10">
         <div className="flex items-center gap-4">
           <button
             onClick={handlePrev}
