@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useId } from "react";
-import { FaUserPlus, FaRobot, FaHandshake, FaRocket } from "react-icons/fa";
-import { IconBaseProps } from "react-icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "../ui/button";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 
 const features = [
   {
@@ -16,15 +14,12 @@ const features = [
     title: "Discover Others",
     description:
       "Swipe through a diverse pool of talent, explore profiles that align with your goals, and connect with potential co-founders in seconds.",
-    image: "images/FMDiscover.png", 
+    image: "images/FMDiscover.png",
   },
 ];
 
 export default function Benefits() {
   const [sectionInView, setSectionInView] = useState(false);
-  const [inView, setInView] = useState<boolean[]>(
-    new Array(features.length).fill(false)
-  );
 
   useEffect(() => {
     const sectionObserver = new IntersectionObserver(
@@ -35,28 +30,11 @@ export default function Benefits() {
       },
       { threshold: 0.5 }
     );
-    const sectionElement = document.querySelector(".how-it-works-section");
+    const sectionElement = document.querySelector(".benefits-section");
     sectionElement && sectionObserver.observe(sectionElement);
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry, index) => {
-          setInView((prev) => {
-            const newInView = [...prev];
-            newInView[index] = entry.isIntersecting;
-            return newInView;
-          });
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    const elements = document.querySelectorAll(".step-card");
-    elements.forEach((el) => observer.observe(el));
 
     return () => {
       sectionElement && sectionObserver.unobserve(sectionElement);
-      elements.forEach((el) => observer.unobserve(el));
     };
   }, []);
 
@@ -77,43 +55,112 @@ export default function Benefits() {
   const current = features[currentIndex];
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center py-10 px-4 md:px-20 bg-white">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center w-full max-w-6xl">
+    <section className="benefits-section min-h-screen flex flex-col justify-center items-center py-16">
+      <div
+        className={`max-w-7xl mx-auto px-4 w-full grid grid-cols-1 md:grid-cols-2 gap-8 ${
+          sectionInView
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-10"
+        }`}
+        style={{ transition: "all 0.6s ease-out" }}
+      >
         <AnimatePresence mode="wait">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 50 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-6"
-          >
-            <h2 className="text-3xl font-bold">{current.title}</h2>
-            <p className="text-lg text-gray-600">{current.description}</p>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={handlePrev}>
-                Previous
-              </Button>
-              <Button onClick={handleNext}>Next</Button>
-            </div>
-          </motion.div>
+          {currentIndex % 2 === 0 ? (
+            <>
+              <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                transition={{ duration: 1 }}
+                className="space-y-6"
+                drag
+                dragSnapToOrigin
+              >
+                <h2 className="text-3xl font-bold">{current.title}</h2>
+                <p className="text-lg text-gray-600">{current.description}</p>
+              </motion.div>
 
-          <motion.div
-            key={current.image}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.6 }}
-            className="flex justify-center"
-          >
-            <img
-              src={current.image}
-              alt={current.title}
-              className="rounded-2xl shadow-md max-w-full w-[600px]"
-            />
-          </motion.div>
+              <motion.div
+                key={current.image}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 1 }}
+                className="flex justify-center"
+                drag
+                dragSnapToOrigin
+              >
+                <img
+                  src={current.image}
+                  alt={current.title}
+                  className="rounded-2xl shadow-md max-w-full w-[600px]"
+                />
+              </motion.div>
+            </>
+          ) : (
+            <>
+              {" "}
+              <motion.div
+                key={current.image}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 1 }}
+                className="flex justify-center"
+                drag
+                dragSnapToOrigin
+              >
+                <img
+                  src={current.image}
+                  alt={current.title}
+                  className="rounded-2xl shadow-md max-w-full w-[600px]"
+                />
+              </motion.div>
+              <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                transition={{ duration: 1 }}
+                className="space-y-6"
+                drag
+                dragSnapToOrigin
+              >
+                <h2 className="text-3xl font-bold">{current.title}</h2>
+                <p className="text-lg text-gray-600">{current.description}</p>
+              </motion.div>
+            </>
+          )}
         </AnimatePresence>
       </div>
-    </div>
+      <div className="mt-12 flex flex-col items-center gap-4">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handlePrev}
+            className="p-2 bg-gray-200 rounded-full hover:bg-gray-300"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div className="flex gap-2">
+            {features.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-3 h-3 rounded-full ${
+                  index === currentIndex ? "bg-blue-600" : "bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+          <button
+            onClick={handleNext}
+            className="p-2 bg-gray-200 rounded-full hover:bg-gray-300"
+          >
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }
