@@ -28,9 +28,10 @@ const Header = () => {
         {/* Logo */}
         <motion.div
           whileHover={{ scale: 1.1 }}
-          className="text-2xl font-bold text-[#35426E] cursor-pointer"
+          className="text-2xl font-bold cursor-pointer"
         >
-          FounderMatching
+          <span className="text-[#C83538]">Found</span>
+          <span className="text-[#2E548A]">erMatching</span>
         </motion.div>
 
         {/* Navigation */}
@@ -53,7 +54,7 @@ const Header = () => {
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className="hidden md:block bg-[#0087C3] text-white px-6 py-2 rounded-lg shadow-lg"
+            className="hidden md:block bg-[#35426E] text-white px-6 py-2 rounded-lg shadow-lg"
             onClick={() => {
               router.push("/sign-up");
             }}
