@@ -19,7 +19,7 @@ const features = [
   {
     title: "More Than a Bio",
     description:
-      "Our rich profile system helps you showcase your vision, values, and vibe—so you don’t just get found, you get understood.",
+      "Our rich profile system helps you showcase your vision, values, and vibe - so you don’t just get found, you get understood.",
     image: "images/FMSimpleBio.png",
   },
   {
@@ -69,84 +69,85 @@ export default function Benefits() {
   return (
     <section className="benefits-section relative min-h-screen flex flex-col justify-center items-center py-20">
       <div
-        className={`max-w-7xl mx-auto px-24 w-full grid grid-cols-1 md:grid-cols-2 gap-8 ${
+        className={`max-w-7xl mx-auto px-24 w-full ${
           sectionInView
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-10"
         }`}
         style={{ transition: "all 0.6s ease-out" }}
       >
-        <AnimatePresence mode="wait">
-          {currentIndex % 2 === 0 ? (
-            <>
-              <motion.div
-                key={currentIndex}
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 50 }}
-                transition={{ duration: 1 }}
-                className="space-y-6"
-                drag
-                dragSnapToOrigin
-              >
-                <h2 className="text-3xl font-bold">{current.title}</h2>
-                <p className="text-lg text-gray-600">{current.description}</p>
-              </motion.div>
+        <div className="relative w-full min-h-[600px] grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center">
+          <AnimatePresence mode="wait">
+            {currentIndex % 2 === 0 ? (
+              <>
+                <motion.div
+                  key={currentIndex}
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 50 }}
+                  transition={{ duration: 1 }}
+                  className="space-y-6"
+                  drag
+                  dragSnapToOrigin
+                >
+                  <h2 className="text-3xl font-bold">{current.title}</h2>
+                  <p className="text-lg text-gray-600">{current.description}</p>
+                </motion.div>
 
-              <motion.div
-                key={current.image}
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -50 }}
-                transition={{ duration: 1 }}
-                className="flex justify-center"
-                drag
-                dragSnapToOrigin
-              >
-                <img
-                  src={current.image}
-                  alt={current.title}
-                  className="rounded-2xl shadow-md max-w-full w-[600px]"
-                />
-              </motion.div>
-            </>
-          ) : (
-            <>
-              {" "}
-              <motion.div
-                key={current.image}
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -50 }}
-                transition={{ duration: 1 }}
-                className="flex justify-center"
-                drag
-                dragSnapToOrigin
-              >
-                <img
-                  src={current.image}
-                  alt={current.title}
-                  className="rounded-2xl shadow-md max-w-full w-[600px]"
-                />
-              </motion.div>
-              <motion.div
-                key={currentIndex}
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 50 }}
-                transition={{ duration: 1 }}
-                className="space-y-6"
-                drag
-                dragSnapToOrigin
-              >
-                <h2 className="text-3xl font-bold">{current.title}</h2>
-                <p className="text-lg text-gray-600">{current.description}</p>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+                <motion.div
+                  key={current.image}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 1 }}
+                  className="flex justify-center"
+                  drag
+                  dragSnapToOrigin
+                >
+                  <img
+                    src={current.image}
+                    alt={current.title}
+                    className="rounded-2xl shadow-md max-w-full w-[600px]"
+                  />
+                </motion.div>
+              </>
+            ) : (
+              <>
+                <motion.div
+                  key={current.image}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 1 }}
+                  className="flex justify-center"
+                  drag
+                  dragSnapToOrigin
+                >
+                  <img
+                    src={current.image}
+                    alt={current.title}
+                    className="rounded-2xl shadow-md max-w-full w-[600px]"
+                  />
+                </motion.div>
+                <motion.div
+                  key={currentIndex}
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 50 }}
+                  transition={{ duration: 1 }}
+                  className="space-y-6"
+                  drag
+                  dragSnapToOrigin
+                >
+                  <h2 className="text-3xl font-bold">{current.title}</h2>
+                  <p className="text-lg text-gray-600">{current.description}</p>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-10">
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-10">
         <div className="flex items-center gap-4">
           <button
             onClick={handlePrev}

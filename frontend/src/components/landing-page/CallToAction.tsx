@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button"; // or wherever your Button is
+import router from "next/router";
+import { ChevronRightIcon } from "lucide-react";
 
 export default function CallToAction() {
   return (
@@ -27,12 +28,22 @@ export default function CallToAction() {
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Button
-            size="lg"
-            className="bg-blue-600 text-white hover:bg-blue-700 rounded-xl px-8 py-4 text-lg"
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="bg-[#35426E] text-white px-6 py-2 rounded-lg shadow-lg"
+            onClick={() => {
+              router.push("/sign-up");
+            }}
           >
-            Get Started Now
-          </Button>
+            <div className="flex flex-row items-center">
+              <span>Get Started Now</span>
+              <span className="flex items-center ml-2">
+                <ChevronRightIcon className="-mr-1 w-5 h-5" />
+                <ChevronRightIcon className="-mr-3 w-5 h-5" />
+              </span>
+            </div>
+          </motion.button>
         </motion.div>
       </div>
     </section>
