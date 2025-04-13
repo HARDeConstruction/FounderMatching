@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Button } from "../ui/button";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -51,26 +52,26 @@ const Header = () => {
 
         {/* Button */}
         <div className="flex flex-row space-x-4 ml-auto">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="hidden md:block bg-[#35426E] text-white px-6 py-2 rounded-lg shadow-lg"
-            onClick={() => {
-              router.push("/sign-up");
-            }}
-          >
-            Sign Up
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="hidden md:block bg-[#0087C3] text-white px-6 py-2 rounded-lg shadow-lg"
+          <Button
+            size="sm"
+            variant="outline"
+            className="hidden md:block px-6 py-2 rounded-lg shadow-lg"
             onClick={() => {
               router.push("/sign-in");
             }}
           >
             Sign In
-          </motion.button>
+          </Button>
+          <Button
+            size="sm"
+            variant="default"
+            className=" bg-[#2E548A] hidden md:block px-6 py-2 rounded-lg shadow-lg hover:bg-[#2E548A]/90"
+            onClick={() => {
+              router.push("/sign-up");
+            }}
+          >
+            Sign Up
+          </Button>
         </div>
       </div>
     </motion.header>
