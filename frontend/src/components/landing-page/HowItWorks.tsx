@@ -31,6 +31,16 @@ export default function HowItWorks() {
   const [inView, setInView] = useState<boolean[]>(
     new Array(steps.length).fill(false)
   );
+  const [patterns, setPatterns] = useState<number[][][]>(
+    steps.map(() => generatePattern())
+  );
+
+  function generatePattern(): number[][] {
+    return Array.from({ length: 22 }, () => [
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10),
+    ]);
+  }
 
   useEffect(() => {
     const sectionObserver = new IntersectionObserver(
@@ -66,10 +76,14 @@ export default function HowItWorks() {
     };
   }, []);
 
-  const customPattern = Array.from({ length: 22 }, () => [
-    Math.floor(Math.random() * 10),
-    Math.floor(Math.random() * 10),
-  ]);
+  const handleHover = (index: number) => {
+    const newPattern = generatePattern();
+    setPatterns((prev) => {
+      const updated = [...prev];
+      updated[index] = newPattern;
+      return updated;
+    });
+  };
 
   return (
     <section className="how-it-works-section min-h-screen flex flex-col justify-center py-16">
@@ -91,16 +105,6 @@ export default function HowItWorks() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-8 max-w-7xl mx-auto px-6">
         {steps.map((step, index) => {
-          const [pattern, setPattern] = useState(customPattern);
-
-          const handleHover = () => {
-            const newPattern = Array.from({ length: 22 }, () => [
-              Math.floor(Math.random() * 10),
-              Math.floor(Math.random() * 10),
-            ]);
-            setPattern(newPattern);
-          };
-
           return (
             <div
               key={step.title}
@@ -112,9 +116,9 @@ export default function HowItWorks() {
                 index % 2 === 1 ? "md:translate-y-12" : ""
               } bg-gradient-to-b dark:from-neutral-900 from-neutral-100 dark:to-neutral-950 to-white min-h-[240px]`}
               style={{ transition: "all 0.6s ease-out" }}
-              onMouseEnter={handleHover}
+              onMouseEnter={() => handleHover(index)}
             >
-              <Grid size={20} pattern={pattern} />
+              <Grid size={20} pattern={patterns[index]} />
               <div className="relative z-20 flex flex-col items-center">
                 <step.icon className="text-4xl text-[#0087C3] mb-4" />
                 <p className="text-xl font-semibold text-neutral-800 dark:text-white">
