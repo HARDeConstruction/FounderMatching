@@ -16,8 +16,9 @@ logger = logging.getLogger(__name__)
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tags
-        fields = ['tagID', 'value', 'description']
-        read_only_fields = ['tagID']
+        # B8: Tags PK is 'id', not 'tagID'
+        fields = ['id', 'value', 'description']
+        read_only_fields = ['id']
 
 class ModelSerializer(serializers.ModelSerializer):
     """Base serializer that preserves the exact field names from the model"""
@@ -41,12 +42,15 @@ class ModelSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
 class ProfilePreviewCardSerializer(ModelSerializer):
+    # B7: expose model field 'industry' as 'occupation' so all consumers
+    # (frontend types, dashboard cards, revisit views) get a consistent key.
+    occupation = serializers.CharField(source='industry')
     tags = serializers.SerializerMethodField()
     avatar = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         model = Profile
-        fields = ['profileID', 'isStartup', 'name', 'industry', 'avatar', 'tags']
+        fields = ['profileID', 'isStartup', 'name', 'occupation', 'avatar', 'tags']
 
     def get_tags(self, obj):
         tag_instances = obj.tags.all()
@@ -187,21 +191,17 @@ class ProfileSerializer(ModelSerializer):
             return []
 
     def to_representation(self, instance):
-        """Convert instance to JSON-serializable format"""
+        """Convert instance to JSON-serializable format.
+        B9: super() already serialises declared nested fields correctly;
+        avoid re-serialising related sets a second time."""
         try:
             data = super().to_representation(instance)
-            
+
             # Handle date fields
             if instance.dateOfBirth:
                 data['dateOfBirth'] = instance.dateOfBirth.strftime('%Y-%m-%d')
 
-            # Handle related fields
-            data['experiences'] = ExperienceSerializer(instance.experiences.all(), many=True).data
-            data['certificates'] = CertificateSerializer(instance.certificates.all(), many=True).data
-            data['achievements'] = AchievementSerializer(instance.achievements.all(), many=True).data
-            data['jobPositions'] = JobPositionSerializer(instance.jobPositions.all(), many=True).data
-            
-            # Handle tags
+            # Handle tags (not a DRF RelatedField so still needs manual resolution)
             data['tags'] = self.get_tags(instance)
             
             return data
